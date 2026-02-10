@@ -7,6 +7,7 @@ package com.example.inventappluis370.ui.navigation
 object Routes {
     const val LOGIN = "login"
     const val DASHBOARD = "dashboard"
+    const val ESTADISTICAS = "estadisticas"
     const val PASSWORD_RESET = "password-reset"
 
     const val EMPRESAS = "empresas"
@@ -60,6 +61,8 @@ object Routes {
 
     const val CONFIG_NOTIFICACIONES = "configuracion/notificaciones"
 
-    const val AUTENTICACION_USUARIOS = "autenticacion-usuarios"
-}
+    const val PERMISOS = "permisos"
 
+    // Autenticación-usuarios (deshabilitado en menú; se deja solo si se necesitara en soporte)
+    // const val AUTENTICACION_USUARIOS = "autenticacion-usuarios"
+}

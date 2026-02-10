@@ -27,6 +27,7 @@ class GetDashboardItemsUseCase @Inject constructor() {
 
     private fun getCommonItems(): List<DashboardItem> {
         return listOf(
+            DashboardItem("Estadísticas", Icons.Default.Dashboard, Routes.ESTADISTICAS),
             DashboardItem("Empresas", Icons.Default.Business, Routes.EMPRESAS),
             DashboardItem("Equipos", Icons.Default.Computer, Routes.EQUIPOS),
             DashboardItem("Repuestos", Icons.Default.Construction, Routes.REPUESTOS),
@@ -42,7 +43,7 @@ class GetDashboardItemsUseCase @Inject constructor() {
             DashboardItem("Garantías", Icons.Default.VerifiedUser, Routes.GARANTIAS),
             DashboardItem("Reportes", Icons.Default.Assessment, Routes.REPORTES),
             DashboardItem("Usuarios", Icons.Default.People, Routes.USUARIOS),
-            DashboardItem("Autenticación Usuarios", Icons.Default.Lock, Routes.AUTENTICACION_USUARIOS)
+            DashboardItem("Permisos", Icons.Default.AdminPanelSettings, Routes.PERMISOS),
         )
     }
 

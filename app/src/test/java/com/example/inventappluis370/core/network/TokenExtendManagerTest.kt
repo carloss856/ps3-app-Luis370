@@ -90,8 +90,10 @@ class TokenExtendManagerTest {
 
     @Test
     fun `extendToken actualiza expiresAt cuando el server lo retorna`() = runTest {
-        val expiresSoon = OffsetDateTime.now(ZoneOffset.UTC).plusMinutes(1).toString()
-        val newExpires = OffsetDateTime.now(ZoneOffset.UTC).plusHours(1).toString()
+        // Usamos formato estable con 'Z' porque TokenRepository parsea varios formatos, pero este evita flakiness.
+        val now = OffsetDateTime.now(ZoneOffset.UTC)
+        val expiresSoon = now.plusMinutes(1).withNano(0).toString().replace("+00:00", "Z")
+        val newExpires = now.plusHours(1).withNano(0).toString().replace("+00:00", "Z")
 
         val prefs = MemoryPrefs()
         val tokenRepository = TokenRepository(prefs)
@@ -110,8 +112,10 @@ class TokenExtendManagerTest {
         // llamada disparada
         assertThat(fakeApi.extendCalls).isEqualTo(1)
 
-        // ya no debería necesitar extensión
+        // con nueva expiración ya no debería necesitar extensión
         assertThat(tokenRepository.needsExtension()).isFalse()
+        // sanity: se haya guardado la expiración nueva
+        assertThat(tokenRepository.getSession()?.expiresAt).isEqualTo(newExpires)
     }
 
     @Test

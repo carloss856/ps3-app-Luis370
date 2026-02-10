@@ -1,5 +1,6 @@
 package com.example.inventappluis370.ui.notificaciones
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -67,10 +68,22 @@ fun NotificacionesScreen(
                                 contentPadding = PaddingValues(16.dp),
                                 verticalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
+                                item {
+                                    Button(
+                                        onClick = { viewModel.marcarTodasLeidas() },
+                                        modifier = Modifier.fillMaxWidth(),
+                                    ) {
+                                        Text("Leer todas")
+                                    }
+                                }
+
                                 items(notificaciones) { notificacion ->
                                     val id = notificacion.idNotificacion
                                     NotificacionItem(
                                         notificacion = notificacion,
+                                        onMarkRead = {
+                                            if (!id.isNullOrBlank()) viewModel.setLeida(id)
+                                        },
                                         onDelete = { if (!id.isNullOrBlank()) viewModel.deleteNotificacion(id) },
                                         canDelete = viewModel.canDelete()
                                     )
@@ -85,16 +98,46 @@ fun NotificacionesScreen(
 }
 
 @Composable
-fun NotificacionItem(notificacion: Notificacion, onDelete: () -> Unit, canDelete: Boolean) {
+fun NotificacionItem(
+    notificacion: Notificacion,
+    onMarkRead: () -> Unit,
+    onDelete: () -> Unit,
+    canDelete: Boolean,
+) {
     val id = notificacion.idNotificacion
+    val isRead = notificacion.leida == true
 
-    Card(modifier = Modifier.fillMaxWidth()) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(enabled = !isRead && !id.isNullOrBlank()) {
+                onMarkRead()
+            }
+    ) {
         Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = notificacion.asunto ?: "(Sin asunto)",
-                    style = MaterialTheme.typography.titleLarge
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = notificacion.asunto ?: "(Sin asunto)",
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Switch(
+                        checked = isRead,
+                        onCheckedChange = { checked ->
+                            // Backend 9.9 define marcar leída. "Desmarcar" no está garantizado.
+                            if (checked && !isRead && !id.isNullOrBlank()) onMarkRead()
+                        },
+                        enabled = !isRead && !id.isNullOrBlank(),
+                    )
+                }
+
+                notificacion.tipo?.takeIf { it.isNotBlank() }?.let {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(text = "Tipo: $it", style = MaterialTheme.typography.bodySmall)
+                }
+
                 Text(text = notificacion.mensaje ?: "")
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(

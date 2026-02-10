@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
@@ -18,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.inventappluis370.data.model.TarifaServicio
+import com.example.inventappluis370.ui.common.ModuleTopBar
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
@@ -42,20 +44,13 @@ fun TarifasScreen(
 
     Scaffold(
         topBar = {
-            Surface(shadowElevation = 3.dp) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(64.dp)
-                        .padding(horizontal = 16.dp),
-                    contentAlignment = Alignment.CenterStart
-                ) {
-                    Text(
-                        text = "Tarifas de Servicio",
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                }
-            }
+            ModuleTopBar(
+                title = "Tarifas de Servicio",
+                onBack = { navController.popBackStack() },
+                endIcon = Icons.Default.AttachMoney,
+                endIconContentDescription = "Tarifas",
+                onRefresh = { viewModel.getTarifas() },
+            )
         },
         floatingActionButton = {
             if (viewModel.canCreate()) {

@@ -73,4 +73,14 @@ abstract class RepositoryModule {
     abstract fun bindAutenticacionUsuarioRepository(
         impl: AutenticacionUsuarioRepositoryImpl
     ): AutenticacionUsuarioRepository
+
+    // --- Dashboard real (Estadísticas) ---
+
+    @Binds
+    @Singleton
+    abstract fun bindDashboardRepository(impl: DashboardRepositoryImpl): DashboardRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindStatsRepository(impl: StatsRepositoryImpl): StatsRepository
 }

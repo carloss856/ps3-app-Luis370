@@ -5,7 +5,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.inventappluis370.ui.autenticacionusuarios.AutenticacionUsuariosScreen
 import com.example.inventappluis370.ui.configuracion.ConfiguracionScreen
 import com.example.inventappluis370.ui.empresas.CreateEditEmpresaScreen
 import com.example.inventappluis370.ui.empresas.EmpresasScreen
@@ -37,6 +36,8 @@ import com.example.inventappluis370.ui.tarifas.CreateEditTarifaScreen
 import com.example.inventappluis370.ui.tarifas.TarifasScreen
 import com.example.inventappluis370.ui.usuarios.CreateEditUsuarioScreen
 import com.example.inventappluis370.ui.usuarios.UsuariosScreen
+import com.example.inventappluis370.ui.estadisticas.EstadisticasScreen
+import com.example.inventappluis370.ui.permisos.PermisosScreen
 
 @Composable
 fun AppNavGraph(
@@ -50,6 +51,9 @@ fun AppNavGraph(
             val authViewModel: AuthViewModel = hiltViewModel()
             DashboardScreen(navController = navController, onLogout = { authViewModel.logout() })
         }
+
+        // Dashboard real
+        composable(Routes.ESTADISTICAS) { EstadisticasScreen(navController) }
 
         composable(Routes.PASSWORD_RESET) { PasswordResetScreen(navController) }
 
@@ -144,7 +148,10 @@ fun AppNavGraph(
         // Configuración
         composable(Routes.CONFIG_NOTIFICACIONES) { ConfiguracionScreen(navController) }
 
-        // Autenticación-usuarios
-        composable(Routes.AUTENTICACION_USUARIOS) { AutenticacionUsuariosScreen(navController) }
+        // Permisos (RBAC)
+        composable(Routes.PERMISOS) { PermisosScreen(navController) }
+
+        // Autenticación-usuarios (deshabilitado)
+        // composable(Routes.AUTENTICACION_USUARIOS) { AutenticacionUsuariosScreen(navController) }
     }
 }

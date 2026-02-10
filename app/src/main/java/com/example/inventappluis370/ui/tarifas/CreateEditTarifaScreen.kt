@@ -3,6 +3,8 @@ package com.example.inventappluis370.ui.tarifas
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
@@ -11,6 +13,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.inventappluis370.data.model.CreateTarifaRequest
 import com.example.inventappluis370.data.model.UpdateTarifaRequest
+import com.example.inventappluis370.ui.common.ModuleTopBar
 import kotlinx.coroutines.launch
 
 @Composable
@@ -64,13 +67,29 @@ fun CreateEditTarifaScreen(
         }
     }
 
-    Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) {
+    Scaffold(
+        topBar = {
+            ModuleTopBar(
+                title = if (isEditing) "Editar Tarifa" else "Nueva Tarifa",
+                onBack = { navController.popBackStack() },
+                endIcon = Icons.Default.AttachMoney,
+                endIconContentDescription = "Tarifas",
+                onRefresh = if (isEditing) {
+                    {
+                        tarifaId?.let { viewModel.getTarifaById(it) }
+                    }
+                } else null,
+            )
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { paddingValues ->
         Column(
-            modifier = Modifier.fillMaxSize().padding(it).padding(16.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(text = if (isEditing) "Editar Tarifa" else "Nueva Tarifa", style = MaterialTheme.typography.headlineSmall)
-
             if (!isEditing) {
                 OutlinedTextField(
                     value = tipoTarea,

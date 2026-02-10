@@ -11,6 +11,10 @@ interface NotificacionRepository {
 
     suspend fun deleteNotificacion(id: String): Result<Unit>
 
+    suspend fun setLeida(id: String): Result<Unit>
+
+    suspend fun marcarTodasLeidas(): Result<Unit>
+
     /**
      * (PENDIENTE) Modo paginado (contrato dual-mode).
      */

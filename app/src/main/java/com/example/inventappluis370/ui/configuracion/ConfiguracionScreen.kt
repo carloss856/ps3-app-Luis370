@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -18,6 +17,22 @@ import com.example.inventappluis370.ui.common.ModuleTopBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Tune
 import androidx.navigation.NavController
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Checkbox
+
+private val CANONICAL_NOTIFICATION_TYPES = listOf(
+    "servicios",
+    "repuestos",
+    "solicitud-repuestos",
+    "equipos",
+    "empresa",
+    "inventario",
+    "reportes",
+    "usuarios",
+    "notificaciones",
+    "garantias",
+)
 
 @Composable
 fun ConfiguracionScreen(
@@ -89,15 +104,23 @@ fun SettingsForm(
         }
     }
 
-    var nuevoTipo by remember { mutableStateOf("") }
-
     LaunchedEffect(settings) {
         recibirNotificaciones = settings.recibirNotificaciones
         tiposSeleccionados.clear()
         tiposSeleccionados.addAll(settings.tiposNotificacion)
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    // Tipos a mostrar: primero los canónicos; luego los que vengan del backend y no estén listados.
+    val tiposExtra = remember(tiposSeleccionados) {
+        tiposSeleccionados.filter { it !in CANONICAL_NOTIFICATION_TYPES }.distinct().sorted()
+    }
+    val tiposUi = remember(tiposExtra) { CANONICAL_NOTIFICATION_TYPES + tiposExtra }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+    ) {
         Text("Configuración de Notificaciones", style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -111,57 +134,39 @@ fun SettingsForm(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-        Text("Tipos de notificación (según backend):")
-
-        if (tiposSeleccionados.isEmpty()) {
-            Text("(Sin tipos configurados)", style = MaterialTheme.typography.bodySmall)
-        } else {
-            tiposSeleccionados.forEach { tipo ->
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(tipo, modifier = Modifier.weight(1f))
-                    Button(onClick = { tiposSeleccionados.remove(tipo) }) {
-                        Text("Quitar")
-                    }
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        OutlinedTextField(
-            value = nuevoTipo,
-            onValueChange = { nuevoTipo = it },
-            label = { Text("Agregar tipo") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
+        Text("Módulos que enviarán notificaciones:")
         Spacer(modifier = Modifier.height(8.dp))
 
-        Button(
-            onClick = {
-                val t = nuevoTipo.trim()
-                if (t.isNotBlank() && t !in tiposSeleccionados) {
-                    tiposSeleccionados.add(t)
-                    nuevoTipo = ""
-                }
-            },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = !readOnly && nuevoTipo.trim().isNotBlank()
-        ) {
-            Text("Agregar")
+        tiposUi.forEach { tipo ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Checkbox(
+                    checked = tipo in tiposSeleccionados,
+                    onCheckedChange = { checked ->
+                        if (readOnly) return@Checkbox
+                        if (checked) {
+                            if (tipo !in tiposSeleccionados) tiposSeleccionados.add(tipo)
+                        } else {
+                            tiposSeleccionados.remove(tipo)
+                        }
+                    },
+                    enabled = !readOnly
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(tipo)
+            }
+            Spacer(modifier = Modifier.height(4.dp))
         }
 
-        Spacer(modifier = Modifier.weight(1.0f))
+        Spacer(modifier = Modifier.height(24.dp))
 
         Button(
             onClick = {
                 val newSettings = NotificationSettings(
                     recibirNotificaciones = recibirNotificaciones,
-                    tiposNotificacion = tiposSeleccionados.toList()
+                    tiposNotificacion = tiposSeleccionados.distinct().sorted()
                 )
                 onSave(newSettings)
             },
@@ -170,5 +175,7 @@ fun SettingsForm(
         ) {
             Text("Guardar Cambios")
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }

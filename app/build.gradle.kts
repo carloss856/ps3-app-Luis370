@@ -72,12 +72,15 @@ android {
     productFlavors {
         create("emulator") {
             dimension = "target"
+            // Android Studio AVD: 10.0.2.2 apunta al localhost del host (tu PC)
             buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:8000/api/\"")
         }
         create("device") {
             dimension = "target"
-            // Dispositivo físico por USB: usar adb reverse tcp:8000 tcp:8000
-            buildConfigField("String", "BASE_URL", "\"http://127.0.0.1:8000/api/\"")
+            // Dispositivo físico:
+            // - recomendado: usar `adb reverse tcp:8000 tcp:8000` y apuntar a localhost
+            // - alternativa: usar la IP LAN de tu PC (ej: http://192.168.0.X:8000/api/)
+            buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:8000/api/\"")
         }
     }
 }

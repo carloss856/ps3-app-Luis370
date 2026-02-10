@@ -35,9 +35,11 @@ fun SolicitudesRepuestoScreen(
         topBar = {
             ModuleTopBar(
                 title = "Solicitudes de Repuesto",
+                titleStyle = MaterialTheme.typography.titleMedium,
                 onBack = { navController.popBackStack() },
                 endIcon = Icons.Default.Assignment,
-                endIconContentDescription = "Solicitudes"
+                endIconContentDescription = "Solicitudes",
+                onRefresh = { viewModel.getSolicitudes() },
             )
         },
         floatingActionButton = {

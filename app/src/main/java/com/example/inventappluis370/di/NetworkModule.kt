@@ -254,4 +254,16 @@ object NetworkModule {
     @Singleton
     fun provideAutenticacionUsuarioApiService(@Named("default") retrofit: Retrofit): AutenticacionUsuarioApiService =
         retrofit.create(AutenticacionUsuarioApiService::class.java)
+
+    // --- Dashboard real (Estadísticas) ---
+
+    @Provides
+    @Singleton
+    fun provideDashboardApiService(@Named("default") retrofit: Retrofit): DashboardApiService =
+        retrofit.create(DashboardApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideStatsApiService(@Named("default") retrofit: Retrofit): StatsApiService =
+        retrofit.create(StatsApiService::class.java)
 }

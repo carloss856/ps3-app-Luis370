@@ -1,6 +1,8 @@
 package com.example.inventappluis370.ui.inventario
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
@@ -17,6 +19,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.inventappluis370.data.model.Inventario
 import com.example.inventappluis370.ui.common.ModuleTopBar
+import com.example.inventappluis370.ui.common.PullToRefreshContainer
 
 @Composable
 fun InventarioScreen(
@@ -25,11 +28,22 @@ fun InventarioScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
+    // Escucha señal de refresco desde el formulario
+    val refresh = navController.currentBackStackEntry?.savedStateHandle?.get<Boolean>("refresh")
+    LaunchedEffect(refresh) {
+        if (refresh == true) {
+            viewModel.getInventario()
+            navController.currentBackStackEntry?.savedStateHandle?.set("refresh", false)
+        }
+    }
+
     LaunchedEffect(uiState) {
         if (uiState is InventarioUiState.OperationSuccess) {
             viewModel.getInventario()
         }
     }
+
+    val refreshing = uiState is InventarioUiState.Loading
 
     Scaffold(
         topBar = {
@@ -37,7 +51,8 @@ fun InventarioScreen(
                 title = "Inventario",
                 onBack = { navController.popBackStack() },
                 endIcon = Icons.Default.Inventory,
-                endIconContentDescription = "Inventario"
+                endIconContentDescription = "Inventario",
+                onRefresh = { viewModel.getInventario() },
             )
         },
         floatingActionButton = {
@@ -48,44 +63,55 @@ fun InventarioScreen(
             }
         }
     ) { paddingValues ->
-        Column(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-            ) {
-                when (val state = uiState) {
-                    is InventarioUiState.Loading -> {
-                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                    }
+        PullToRefreshContainer(
+            refreshing = refreshing,
+            onRefresh = { viewModel.getInventario() },
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            when (val state = uiState) {
+                is InventarioUiState.Loading -> {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                }
 
-                    is InventarioUiState.Error -> {
+                is InventarioUiState.Error -> {
+                    Text(
+                        text = "Error: ${state.message}",
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
+
+                is InventarioUiState.Success -> {
+                    val inventario = state.inventario
+                    if (inventario.isEmpty()) {
                         Text(
-                            text = "Error: ${state.message}",
-                            color = MaterialTheme.colorScheme.error,
+                            "No hay movimientos de inventario para mostrar.",
                             modifier = Modifier.align(Alignment.Center)
                         )
-                    }
-
-                    is InventarioUiState.Success -> {
-                        val inventario = state.inventario
-                        if (inventario.isEmpty()) {
-                            Text(
-                                "No hay movimientos de inventario para mostrar.",
-                                modifier = Modifier.align(Alignment.Center)
-                            )
-                        } else {
-                            // TEMP: UI mínima para estabilizar compilación.
-                            Text(
-                                text = "Movimientos cargados: ${inventario.size}",
-                                modifier = Modifier.align(Alignment.Center)
-                            )
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            items(inventario) { item ->
+                                InventarioItem(
+                                    item = item,
+                                    onDelete = {
+                                        val idEntrada = item.idEntrada
+                                        if (!idEntrada.isNullOrBlank()) viewModel.deleteInventario(idEntrada)
+                                    },
+                                    canDelete = viewModel.canDelete()
+                                )
+                            }
                         }
                     }
+                }
 
-                    InventarioUiState.OperationSuccess -> {
-                        // UI ya manejada por LaunchedEffect(uiState)
-                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                    }
+                InventarioUiState.OperationSuccess -> {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 }
             }
         }

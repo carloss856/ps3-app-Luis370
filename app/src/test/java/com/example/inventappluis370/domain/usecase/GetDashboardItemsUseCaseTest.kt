@@ -22,10 +22,11 @@ class GetDashboardItemsUseCaseTest {
         val items = getDashboardItemsUseCase(adminRole)
 
         // Then
-        // Un administrador debería ver las 6 opciones comunes + las 4 de admin/gerente + 1 de config = 11 items
-        assertThat(items).hasSize(11)
+        // Admin: 6 comunes + 6 admin/gerente + 1 config = 13 items
+        assertThat(items).hasSize(13)
         assertThat(items.any { it.title == "Usuarios" }).isTrue()
         assertThat(items.any { it.title == "Inventario" }).isTrue()
+        assertThat(items.any { it.title == "Permisos" }).isTrue()
     }
 
     @Test

@@ -1,24 +1,25 @@
 package com.example.inventappluis370.ui.reportes
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.inventappluis370.ui.common.ModuleTopBar
 
+private data class ModuleOption(val key: String, val label: String)
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun CreateReporteScreen(
     navController: NavController,
     viewModel: ReportesViewModel = hiltViewModel()
 ) {
-    var tipoReporte by remember { mutableStateOf("") }
-    var parametros by remember { mutableStateOf("{}") } // Default a un JSON vacío
-
     val uiState by viewModel.uiState.collectAsState()
+
     LaunchedEffect(uiState) {
         if (uiState is ReportesUiState.OperationSuccess) {
             navController.previousBackStackEntry?.savedStateHandle?.set("refresh", true)
@@ -26,29 +27,141 @@ fun CreateReporteScreen(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Text("Generar Nuevo Reporte", style = androidx.compose.material3.MaterialTheme.typography.headlineSmall)
+    val tipoOptions = listOf(
+        "general",
+        "inventario",
+        "servicios",
+        "repuestos",
+        "solicitudes_repuesto",
+        "equipos",
+        "empresa",
+        "usuarios",
+        "tarifas",
+        "notificaciones",
+        "reportes",
+    )
 
-        OutlinedTextField(value = tipoReporte, onValueChange = { tipoReporte = it }, label = { Text("Tipo de Reporte") }, modifier = Modifier.fillMaxWidth())
-        OutlinedTextField(value = parametros, onValueChange = { parametros = it }, label = { Text("Parámetros (JSON)") }, modifier = Modifier.fillMaxWidth(), maxLines = 5)
+    val moduleOptions = listOf(
+        ModuleOption("empresas", "Empresas"),
+        ModuleOption("usuarios", "Usuarios"),
+        ModuleOption("equipos", "Equipos"),
+        ModuleOption("propiedad-equipos", "Asignaciones"),
+        ModuleOption("servicios", "Servicios"),
+        ModuleOption("garantias", "Garantías"),
+        ModuleOption("repuestos", "Repuestos"),
+        ModuleOption("inventario", "Inventario"),
+        ModuleOption("solicitud-repuestos", "Solicitudes de repuestos"),
+        ModuleOption("notificaciones", "Notificaciones"),
+        ModuleOption("reportes", "Reportes"),
+        ModuleOption("rma", "RMA"),
+        ModuleOption("tarifas-servicio", "Tarifas"),
+    )
 
-        Spacer(modifier = Modifier.height(16.dp))
+    var expanded by remember { mutableStateOf(false) }
+    var tipoReporte by remember { mutableStateOf(tipoOptions.first()) }
+    var selectedModules by remember { mutableStateOf(setOf<String>()) }
 
-        Button(
-            onClick = {
-                if (tipoReporte.isNotBlank()) {
-                    viewModel.createReporte(tipoReporte, parametros)
-                }
-            },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = uiState !is ReportesUiState.Loading
+    Scaffold(
+        topBar = {
+            ModuleTopBar(
+                title = "Generar Reporte",
+                onBack = { navController.popBackStack() },
+                onRefresh = null,
+            )
+        }
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text("Generar")
+            Text("Tipo de reporte", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+
+            ExposedDropdownMenuBox(
+                expanded = expanded,
+                onExpandedChange = { expanded = !expanded },
+            ) {
+                OutlinedTextField(
+                    readOnly = true,
+                    value = tipoReporte,
+                    onValueChange = {},
+                    label = { Text("Tipo") },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                    modifier = Modifier
+                        .menuAnchor()
+                        .fillMaxWidth()
+                )
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    tipoOptions.forEach { opt ->
+                        DropdownMenuItem(
+                            text = { Text(opt) },
+                            onClick = {
+                                tipoReporte = opt
+                                expanded = false
+                            }
+                        )
+                    }
+                }
+            }
+
+            Text("Módulos incluidos", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+
+            // Chips multi-selección (simple)
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                moduleOptions.forEach { opt ->
+                    val selected = selectedModules.contains(opt.key)
+                    AssistChip(
+                        onClick = {
+                            selectedModules = if (selected) selectedModules - opt.key else selectedModules + opt.key
+                        },
+                        label = { Text(opt.label) },
+                        leadingIcon = {
+                            Checkbox(
+                                checked = selected,
+                                onCheckedChange = {
+                                    selectedModules = if (it) selectedModules + opt.key else selectedModules - opt.key
+                                }
+                            )
+                        },
+                        colors = AssistChipDefaults.assistChipColors(
+                            containerColor = if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface,
+                            labelColor = MaterialTheme.colorScheme.onSurface,
+                        )
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            val enabled = uiState !is ReportesUiState.Loading
+            Button(
+                onClick = {
+                    // Construimos un JSON chico predecible. El backend hoy guarda un string en parametros_utilizados.
+                    val modsJson = selectedModules.joinToString(prefix = "[\"", postfix = "\"]", separator = "\",\"")
+                    val parametros = "{" +
+                        "\"modules\":" + modsJson + "," +
+                        "\"source\":\"android\"" +
+                        "}"
+                    viewModel.createReporte(tipoReporte, parametros)
+                },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = enabled
+            ) {
+                if (!enabled) {
+                    CircularProgressIndicator(modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp))
+                }
+                Text("Generar")
+            }
         }
     }
 }

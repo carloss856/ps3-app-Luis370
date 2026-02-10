@@ -29,7 +29,11 @@ object LenientAnyToStringAdapter : JsonAdapter.Factory {
                 return when (reader.peek()) {
                     JsonReader.Token.NULL -> reader.nextNull<String>()
                     JsonReader.Token.STRING -> reader.nextString()
-                    JsonReader.Token.NUMBER -> reader.nextDouble().toString()
+                    JsonReader.Token.NUMBER -> {
+                        val d = reader.nextDouble()
+                        val asLong = d.toLong()
+                        if (d == asLong.toDouble()) asLong.toString() else d.toString()
+                    }
                     JsonReader.Token.BOOLEAN -> reader.nextBoolean().toString()
                     // Si llega un objeto/array, evitamos explotar: lo saltamos y devolvemos string vacía.
                     JsonReader.Token.BEGIN_ARRAY, JsonReader.Token.BEGIN_OBJECT -> {

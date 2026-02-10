@@ -10,14 +10,20 @@ import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.inventappluis370.ui.dashboard.DashboardViewModel
-import com.example.inventappluis370.ui.navigation.Routes
+import com.example.inventappluis370.ui.notificaciones.NotificacionesViewModel
+import com.example.inventappluis370.ui.notificaciones.NotificationsPanel
 
 @Composable
 fun DashboardScreen(
@@ -27,6 +33,14 @@ fun DashboardScreen(
 ) {
     val dashboardItems by viewModel.dashboardItems.collectAsState()
     val userDisplayName by viewModel.userDisplayName.collectAsState()
+
+    val notificacionesViewModel: NotificacionesViewModel = hiltViewModel()
+
+    var showNotifications by rememberSaveable { mutableStateOf(false) }
+
+    // Coordenadas del ancla (campana) para mostrar un popup "hacia abajo".
+    var bellOffset by remember { mutableStateOf(IntOffset.Zero) }
+    var bellHeightPx by remember { mutableStateOf(0) }
 
     Scaffold(
         topBar = {
@@ -41,9 +55,50 @@ fun DashboardScreen(
                     Box(modifier = Modifier.weight(1f).padding(start = 8.dp)) {
                         Text(text = "Inventario Luis370", style = MaterialTheme.typography.titleLarge)
                     }
-                    IconButton(onClick = { navController.navigate(Routes.NOTIFICACIONES) }) {
-                        Icon(Icons.Default.Notifications, contentDescription = "Notificaciones")
+
+                    Box {
+                        IconButton(
+                            onClick = { showNotifications = !showNotifications },
+                            modifier = Modifier.onGloballyPositioned { coords ->
+                                val b = coords.boundsInWindow()
+                                bellOffset = IntOffset(b.left.toInt(), b.top.toInt())
+                                bellHeightPx = b.height.toInt()
+                            }
+                        ) {
+                            Icon(Icons.Default.Notifications, contentDescription = "Notificaciones")
+                        }
+
+                        if (showNotifications) {
+                            Popup(
+                                alignment = Alignment.TopStart,
+                                offset = IntOffset(
+                                    x = bellOffset.x,
+                                    y = bellOffset.y + bellHeightPx
+                                ),
+                                onDismissRequest = { showNotifications = false },
+                                properties = PopupProperties(
+                                    focusable = true,
+                                    dismissOnBackPress = true,
+                                    dismissOnClickOutside = true,
+                                )
+                            ) {
+                                Surface(
+                                    shape = MaterialTheme.shapes.medium,
+                                    tonalElevation = 6.dp,
+                                    shadowElevation = 8.dp,
+                                    modifier = Modifier
+                                        .widthIn(min = 280.dp, max = 360.dp)
+                                ) {
+                                    NotificationsPanel(
+                                        navController = navController,
+                                        onDismiss = { showNotifications = false },
+                                        viewModel = notificacionesViewModel,
+                                    )
+                                }
+                            }
+                        }
                     }
+
                     IconButton(onClick = onLogout) {
                         Icon(Icons.Default.ExitToApp, contentDescription = "Cerrar Sesión")
                     }
@@ -57,11 +112,14 @@ fun DashboardScreen(
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
+            // Requisito: mostrar nombre y apellido (displayName) y NO mostrar rol.
             Text(
-                text = "Bienvenido${if (!userDisplayName.isNullOrBlank()) ", ${userDisplayName}" else ""}",
+                text = userDisplayName?.takeIf { it.isNotBlank() } ?: "",
                 style = MaterialTheme.typography.titleMedium
             )
-            Spacer(modifier = Modifier.height(16.dp))
+            if (!userDisplayName.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(16.dp))
+            }
 
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
@@ -90,7 +148,7 @@ fun DashboardScreen(
                             Text(
                                 text = item.title,
                                 style = MaterialTheme.typography.titleMedium,
-                                textAlign = TextAlign.Center
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center
                             )
                         }
                     }

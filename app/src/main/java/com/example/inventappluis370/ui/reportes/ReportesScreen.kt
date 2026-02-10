@@ -1,6 +1,8 @@
 package com.example.inventappluis370.ui.reportes
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.BarChart
@@ -25,6 +27,15 @@ fun ReportesScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
+    // Escucha señal de refresco desde la pantalla de crear
+    val refresh = navController.currentBackStackEntry?.savedStateHandle?.get<Boolean>("refresh")
+    LaunchedEffect(refresh) {
+        if (refresh == true) {
+            viewModel.getReportes()
+            navController.currentBackStackEntry?.savedStateHandle?.set("refresh", false)
+        }
+    }
+
     LaunchedEffect(uiState) {
         if (uiState is ReportesUiState.OperationSuccess) {
             viewModel.getReportes()
@@ -39,53 +50,57 @@ fun ReportesScreen(
                 title = "Reportes",
                 onBack = { navController.popBackStack() },
                 endIcon = Icons.Default.BarChart,
-                endIconContentDescription = "Reportes"
+                endIconContentDescription = "Reportes",
+                onRefresh = { viewModel.getReportes() },
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { navController.navigate("reportes/new") }) {
-                Icon(Icons.Default.Add, contentDescription = "Generar Reporte")
+            if (viewModel.canCreate()) {
+                FloatingActionButton(onClick = { navController.navigate("reportes/new") }) {
+                    Icon(Icons.Default.Add, contentDescription = "Generar Reporte")
+                }
             }
         }
     ) { paddingValues ->
-        Column(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
-            PullToRefreshContainer(
-                refreshing = refreshing,
-                onRefresh = { viewModel.getReportes() },
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-            ) {
-                when (val state = uiState) {
-                    is ReportesUiState.Loading -> {
-                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                    }
+        PullToRefreshContainer(
+            refreshing = refreshing,
+            onRefresh = { viewModel.getReportes() },
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            when (val state = uiState) {
+                is ReportesUiState.Loading -> {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                }
 
-                    is ReportesUiState.Error -> {
-                        Text(
-                            "Error: ${state.message}",
-                            color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.align(Alignment.Center)
-                        )
-                    }
+                is ReportesUiState.Error -> {
+                    Text(
+                        "Error: ${state.message}",
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
 
-                    is ReportesUiState.Success -> {
-                        val reportes = state.reportes
-                        if (reportes.isEmpty()) {
-                            Text("No hay reportes para mostrar.", modifier = Modifier.align(Alignment.Center))
-                        } else {
-                            // TEMP: UI mínima para estabilizar compilación.
-                            Text(
-                                text = "Reportes cargados: ${reportes.size}",
-                                modifier = Modifier.align(Alignment.Center)
-                            )
+                is ReportesUiState.Success -> {
+                    val reportes = state.reportes
+                    if (reportes.isEmpty()) {
+                        Text("No hay reportes para mostrar.", modifier = Modifier.align(Alignment.Center))
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            items(reportes) { reporte ->
+                                ReporteItem(reporte)
+                            }
                         }
                     }
+                }
 
-                    ReportesUiState.OperationSuccess -> {
-                        // UI ya manejada por LaunchedEffect(uiState)
-                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                    }
+                ReportesUiState.OperationSuccess -> {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 }
             }
         }
