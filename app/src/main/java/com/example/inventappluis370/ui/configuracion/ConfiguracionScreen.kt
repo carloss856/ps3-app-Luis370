@@ -24,7 +24,7 @@ import androidx.compose.material3.Checkbox
 private val CANONICAL_NOTIFICATION_TYPES = listOf(
     "servicios",
     "repuestos",
-    "solicitud-repuestos",
+    "solicitudes_repuesto", // en UI/web se usa con underscore
     "equipos",
     "empresa",
     "inventario",
@@ -33,6 +33,22 @@ private val CANONICAL_NOTIFICATION_TYPES = listOf(
     "notificaciones",
     "garantias",
 )
+
+private val NOTIFICATION_TYPE_LABELS = mapOf(
+    "servicios" to "Servicios",
+    "repuestos" to "Repuestos",
+    "solicitudes_repuesto" to "Solicitudes de repuesto",
+    "equipos" to "Equipos",
+    "empresa" to "Empresas",
+    "inventario" to "Inventario",
+    "reportes" to "Reportes",
+    "usuarios" to "Usuarios",
+    "notificaciones" to "Notificaciones",
+    "garantias" to "Garantías",
+)
+
+private fun notificationTypeLabel(type: String): String =
+    NOTIFICATION_TYPE_LABELS[type] ?: type
 
 @Composable
 fun ConfiguracionScreen(
@@ -134,7 +150,7 @@ fun SettingsForm(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-        Text("Módulos que enviarán notificaciones:")
+        Text("Tipos de notificación:")
         Spacer(modifier = Modifier.height(8.dp))
 
         tiposUi.forEach { tipo ->
@@ -155,7 +171,7 @@ fun SettingsForm(
                     enabled = !readOnly
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(tipo)
+                Text(notificationTypeLabel(tipo))
             }
             Spacer(modifier = Modifier.height(4.dp))
         }

@@ -839,39 +839,55 @@ Genera el código completo (paquetes sugeridos) y lista dependencias Gradle nece
   - Pendiente Kotlin: consumir `schemaVersion` de `/api/rbac` o `/api/permissions` y versionar cache del lado Android (ej: `rbac_cache_v{schemaVersion}`) para invalidación automática.
 
 
-================================================================================
-IMPLEMENTADOS KOTLIN (Android)
-Fecha: 2026-02-09
+=== IMPLEMENTADOS KOTLIN ===
+Fecha: 2026-02-07
 
-9.10) Estadísticas (Android)
-- Ajuste UI: en "Estadísticas por módulo" se dejó solo el nombre del módulo + selector de período + total.
-- Se eliminó el subtítulo/extra debajo del nombre del módulo (por ejemplo barras/buckets) para simplificar la pantalla.
-- Se mantiene la sección de "Repuestos críticos" sin el texto "(top 10)".
+1) Notificaciones (punto 9.9)
+- Modelo: se añadieron campos nuevos en `Notificacion`:
+  - `tipo`, `leida`, `leida_en` (compatibles con null para respuestas antiguas).
+- API (Retrofit): se añadieron endpoints:
+  - `PATCH /api/notificaciones/{id}/leida`
+  - `POST  /api/notificaciones/marcar-todas-leidas`
+- Repositorio:
+  - `NotificacionRepository` + `NotificacionRepositoryImpl` ahora soportan `setLeida(id)` y `marcarTodasLeidas()`.
+- ViewModel:
+  - `NotificacionesViewModel` expone `setLeida(id)` y `marcarTodasLeidas()`.
+- UI:
+  - `NotificacionesScreen`:
+    - Botón "Leer todas".
+    - Tap en la tarjeta marca como leída.
+    - Switch por fila para marcar como leída (desmarcar queda deshabilitado porque el backend no garantiza un endpoint de “unread”).
+  - Campana (Dashboard): popup tipo `DropdownMenu` con `NotificationsPanel`.
+  - `NotificationsPanel`:
+    - Tuerca (icono Tune) navega a configuración.
+    - Link "Ver todas" navega al listado.
+    - Endurecido para evitar cierres: se cierra popup antes de navegar y navegación protegida con `runCatching`.
 
-Archivos tocados (Android):
-- app/src/main/java/com/example/inventappluis370/ui/estadisticas/EstadisticasScreen.kt
+2) Configuración de notificaciones (tipos)
+- Se alineó el catálogo canónico con la documentación:
+  - Se agregó `garantias`.
+  - Se normalizó `solicitud-repuestos` (en lugar de `solicitudes_repuesto`).
+- Se soportan tipos nuevos del backend (si el backend devuelve claves adicionales en `tipos_notificacion`).
 
-NECESARIO (WEB): ninguno
+9.10 (Kotlin) — Lo implementado de recomendaciones Web↔Android
+- Notificaciones (popup campana): implementado UI/UX básico (popup + acceso a config + acceso a listado) y endpoints de leído/no leído (9.9).
 
-=== IMPLEMENTADOS KOTLIN (ANDROID) ===
-2026-02-09
-- Fix: la app se cerraba al abrir la campana de notificaciones (popup). Se evitó disparar múltiples refresh en recomposición y se encapsuló la llamada inicial con protección.
-- Archivos: app/src/main/java/com/example/inventappluis370/ui/notificaciones/NotificationsPanel.kt
-- Módulo/UX: campana (popup dropdown) + acceso a Configuración de notificaciones.
-- Endpoints involucrados (indirecto): GET /api/notificaciones
-- Notas: el popup ahora refresca solo una vez al montarse; el usuario puede reintentar desde el panel.
-NECESARIO (WEB): ninguno
+PENDIENTES KOTLIN (por cerrar)
+- Crash al abrir campana:
+  - Requiere stacktrace de Logcat para confirmar causa (navegación / estado Compose / parsing / token). Sin stacktrace no se puede asegurar el fix.
+  - Recomendación: capturar el bloque completo del crash y anexarlo (para rastrear archivo/linea exacta).
+- Configuración de notificaciones:
+  - Validar que la UI muestre TODOS los módulos/tipos que el backend acepta; si backend tiene otro set canónico, acordar y fijar lista en ambos.
+- Web↔Android (contratos estables):
+  - Reportes: falta aplicar el payload canónico en Android al registrar/crear reportes.
+  - RBAC/Permisos: falta consumir `schemaVersion` y versionar cache en Android.
 
-================================================================================
-IMPLEMENTADOS KOTLIN (Android)
-Fecha: 2026-02-10  (hora local)
+Notas técnicas
+- Todo lo anterior asume que el backend expone estos endpoints bajo `/api` (baseUrl ya incluye `/api/`).
+- Si el backend devuelve paginación dual-mode en `/notificaciones`, Android sigue usando el modo array simple.
 
-- Fix: crash al presionar la campana de notificaciones.
-  - Causa: uso de DropdownMenu (Material3) con contenido arbitrario (NotificationsPanel) puede provocar crashes/IllegalState en runtime.
-  - Cambio: se reemplazó el DropdownMenu por un Popup anclado a la posición de la campana (boundsInWindow) y se envuelve el panel en Surface.
-  - Archivos tocados:
-    - app/src/main/java/com/example/inventappluis370/ui/home/HomeScreen.kt
-  - Endpoints afectados/usados: /api/notificaciones (sin cambios)
-  - Riesgos/notas:
-    - El Popup usa coordenadas en ventana; si se detectan offsets raros en algunos dispositivos, ajustar usando layoutDirection o clamp a pantalla.
-  - NECESARIO (WEB): ninguno
+=== FIN IMPLEMENTADOS KOTLIN ===
+
+
+
+

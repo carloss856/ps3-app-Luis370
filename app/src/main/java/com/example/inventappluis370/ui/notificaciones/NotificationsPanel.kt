@@ -21,7 +21,6 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -46,7 +45,6 @@ import com.example.inventappluis370.ui.navigation.Routes
  * Importante: este composable NO debe usar DropdownMenuItem porque ese API requiere
  * estar dentro del scope de DropdownMenu { ... }.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotificationsPanel(
     navController: NavController,

@@ -24,7 +24,9 @@ import androidx.navigation.NavController
 import com.example.inventappluis370.ui.dashboard.DashboardViewModel
 import com.example.inventappluis370.ui.notificaciones.NotificacionesViewModel
 import com.example.inventappluis370.ui.notificaciones.NotificationsPanel
+import com.example.inventappluis370.ui.rbac.RbacViewModel
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
     navController: NavController,
@@ -34,13 +36,24 @@ fun DashboardScreen(
     val dashboardItems by viewModel.dashboardItems.collectAsState()
     val userDisplayName by viewModel.userDisplayName.collectAsState()
 
-    val notificacionesViewModel: NotificacionesViewModel = hiltViewModel()
+    // Hilt puede reusar instancias por backstack; tipamos explícito.
+    val notificacionesViewModel = hiltViewModel<NotificacionesViewModel>()
+    val rbacViewModel = hiltViewModel<RbacViewModel>()
 
     var showNotifications by rememberSaveable { mutableStateOf(false) }
 
     // Coordenadas del ancla (campana) para mostrar un popup "hacia abajo".
     var bellOffset by remember { mutableStateOf(IntOffset.Zero) }
     var bellHeightPx by remember { mutableStateOf(0) }
+
+    LaunchedEffect(Unit) {
+        if (rbacViewModel.rbacFlow.value == null) {
+            rbacViewModel.refresh()
+        }
+    }
+
+    // Badge de no leídas (campana)
+    val unreadCount by notificacionesViewModel.unreadCount.collectAsState(initial = 0)
 
     Scaffold(
         topBar = {
@@ -65,7 +78,20 @@ fun DashboardScreen(
                                 bellHeightPx = b.height.toInt()
                             }
                         ) {
-                            Icon(Icons.Default.Notifications, contentDescription = "Notificaciones")
+                            BadgedBox(
+                                badge = {
+                                    if (unreadCount > 0) {
+                                        Badge {
+                                            Text(
+                                                text = if (unreadCount > 99) "99+" else unreadCount.toString(),
+                                                style = MaterialTheme.typography.labelSmall
+                                            )
+                                        }
+                                    }
+                                }
+                            ) {
+                                Icon(Icons.Default.Notifications, contentDescription = "Notificaciones")
+                            }
                         }
 
                         if (showNotifications) {

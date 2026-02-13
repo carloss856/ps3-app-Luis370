@@ -3,9 +3,12 @@ package com.example.inventappluis370.ui.reportes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.inventappluis370.data.model.Reporte
+import com.example.inventappluis370.data.model.ReporteParametros
 import com.example.inventappluis370.data.model.ReporteRequest
 import com.example.inventappluis370.domain.PermissionManager
+import com.example.inventappluis370.domain.RbacPermissionManager
 import com.example.inventappluis370.domain.repository.ReporteRepository
+import com.example.inventappluis370.domain.repository.RbacRepository
 import com.example.inventappluis370.domain.repository.TokenRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,13 +27,15 @@ sealed class ReportesUiState {
 @HiltViewModel
 class ReportesViewModel @Inject constructor(
     private val reporteRepository: ReporteRepository,
-    private val tokenRepository: TokenRepository
+    private val tokenRepository: TokenRepository,
+    private val rbacRepository: RbacRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<ReportesUiState>(ReportesUiState.Loading)
     val uiState: StateFlow<ReportesUiState> = _uiState.asStateFlow()
 
     private val userRole: String? get() = tokenRepository.getRole()
+    private val rbac get() = rbacRepository.getCached()
 
     init {
         getReportes()
@@ -45,11 +50,11 @@ class ReportesViewModel @Inject constructor(
         }
     }
 
-    fun createReporte(tipoReporte: String, parametros: String) {
+    fun createReporte(tipoReporte: String, parametros: ReporteParametros) {
         viewModelScope.launch {
             val userId = tokenRepository.getUserId() ?: ""
             _uiState.value = ReportesUiState.Loading
-            val request = ReporteRequest(tipoReporte, parametros, userId)
+            val request = ReporteRequest(tipoReporte = tipoReporte, parametrosUtilizados = parametros, idUsuario = userId)
             reporteRepository.createReporte(request)
                 .onSuccess { _uiState.value = ReportesUiState.OperationSuccess }
                 .onFailure { _uiState.value = ReportesUiState.Error(it.message ?: "Error") }
@@ -64,6 +69,13 @@ class ReportesViewModel @Inject constructor(
         }
     }
 
-    fun canCreate(): Boolean = PermissionManager.canCreate(userRole, "Reportes")
-    fun canDelete(): Boolean = PermissionManager.canDelete(userRole, "Reportes")
+    fun canCreate(): Boolean {
+        val rbacAllowed = RbacPermissionManager.canStore(rbac, "reportes")
+        return rbacAllowed || PermissionManager.canCreate(userRole, "Reportes")
+    }
+
+    fun canDelete(): Boolean {
+        val rbacAllowed = RbacPermissionManager.canDestroy(rbac, "reportes")
+        return rbacAllowed || PermissionManager.canDelete(userRole, "Reportes")
+    }
 }

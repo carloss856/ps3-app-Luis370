@@ -10,6 +10,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -27,6 +28,27 @@ class NotificacionesViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow<NotificacionesUiState>(NotificacionesUiState.Loading)
     val uiState: StateFlow<NotificacionesUiState> = _uiState.asStateFlow()
+
+    /**
+     * Cantidad de notificaciones NO leídas para el badge de la campana.
+     * Se calcula localmente desde el estado actual (sin otra llamada extra).
+     */
+    val unreadCount: StateFlow<Int> = uiState
+        .map { state ->
+            when (state) {
+                is NotificacionesUiState.Success -> state.notificaciones.count { it.leida != true }
+                else -> 0
+            }
+        }
+        .let { flow ->
+            // Convertimos a StateFlow con un valor inicial 0.
+            // Esto evita dependencias de Compose en el ViewModel.
+            MutableStateFlow(0).also { out ->
+                viewModelScope.launch {
+                    flow.collect { out.value = it }
+                }
+            }
+        }
 
     private val userRole: String? get() = tokenRepository.getRole()
 

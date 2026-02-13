@@ -10,7 +10,7 @@ data class ReporteRequest(
     val tipoReporte: String,
 
     @Json(name = "parametros_utilizados")
-    val parametrosUtilizados: String,
+    val parametrosUtilizados: ReporteParametros,
 
     @Json(name = "id_usuario")
     val idUsuario: String

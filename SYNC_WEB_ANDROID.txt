@@ -1,0 +1,74 @@
+SYNC WEB ↔ ANDROID — Inventluis370
+
+Este archivo registra cambios del lado Android para mantener paridad con el proyecto Web.
+Regla: cada cambio debe agregar al final fecha/hora, resumen, archivos tocados, endpoints y notas.
+
+2026-02-10
+CAMBIO: Configuración de notificaciones ahora lista siempre el catálogo canónico de tipos y muestra etiquetas amigables (en vez de strings crudos).
+ARCHIVOS: app/src/main/java/com/example/inventappluis370/ui/configuracion/ConfiguracionScreen.kt; SYNC_WEB_ANDROID.txt
+ENDPOINTS: GET /api/usuarios/{id}/notificaciones; POST /api/usuarios/{id}/notificaciones
+NOTAS/RIESGOS: Si el backend envía tipos adicionales, se agregan al final como “extras”.
+NECESARIO (WEB): ninguno.
+
+2026-02-11
+CAMBIO: Implementado módulo Permisos (RBAC overrides) consumiendo endpoints globales de permisos. UI permite ver módulos/acciones y Guardar/Reset.
+ARCHIVOS: app/src/main/java/com/example/inventappluis370/data/remote/PermissionsApiService.kt; app/src/main/java/com/example/inventappluis370/data/model/PermissionsModels.kt; app/src/main/java/com/example/inventappluis370/domain/repository/PermissionsRepository.kt; app/src/main/java/com/example/inventappluis370/data/repository/PermissionsRepositoryImpl.kt; app/src/main/java/com/example/inventappluis370/ui/permisos/PermisosViewModel.kt; app/src/main/java/com/example/inventappluis370/ui/permisos/PermisosScreen.kt; app/src/main/java/com/example/inventappluis370/di/NetworkModule.kt; app/src/main/java/com/example/inventappluis370/di/RepositoryModule.kt; SYNC_WEB_ANDROID.txt
+ENDPOINTS: GET /api/permissions; PUT /api/permissions; POST /api/permissions/reset
+NOTAS/RIESGOS: Si el backend devuelve un shape distinto (por ejemplo wrapper con effective/overrides), ajustar PermissionsResponse para mapearlo. Pendiente paridad total: overrides por usuario (/api/permissions/user/{id}).
+NECESARIO (WEB): ninguno.
+
+2026-02-11
+CAMBIO: NetworkModule: normalización correcta de paths /api/* para detectar rutas públicas y /token/extend; se reemplazó import wildcard por imports explícitos (reduce ambigüedad y evita auto-extend en /api/login).
+ARCHIVOS: app/src/main/java/com/example/inventappluis370/di/NetworkModule.kt; SYNC_WEB_ANDROID.txt
+ENDPOINTS: POST /api/login; POST /api/token/extend (lógica de auto-extend), rutas públicas de password reset
+NOTAS/RIESGOS: Este cambio no modifica BASE_URL/IP. Evita que el interceptor intente extender token durante login/registro y reduce riesgo de ciclos/errores en runtime.
+NECESARIO (WEB): ninguno.
+
+2026-02-11
+CAMBIO: Corregidos bindings de Hilt para Estadísticas: se registran `DashboardApiService` y `StatsApiService` en `NetworkModule` para evitar `Dagger/MissingBinding` al compilar `hiltJavaCompile*`.
+ARCHIVOS: app/src/main/java/com/example/inventappluis370/di/NetworkModule.kt; SYNC_WEB_ANDROID.txt
+ENDPOINTS: GET /api/dashboard; GET /api/stats/{module}
+NOTAS/RIESGOS: Esto es solo DI; no cambia BASE_URL/IP ni contratos. Si vuelve a aparecer MissingBinding, revisar qualifiers `@Named("default")` vs `@Named("auth")` en los repositorios/servicios.
+NECESARIO (WEB): ninguno.
+
+2026-02-11
+CAMBIO: Campana de notificaciones ahora muestra badge con contador de NO leídas (derivado del listado cargado), sin requests extra ni recargas al marcar como leída.
+ARCHIVOS: app/src/main/java/com/example/inventappluis370/ui/notificaciones/NotificacionesViewModel.kt; app/src/main/java/com/example/inventappluis370/ui/home/HomeScreen.kt; SYNC_WEB_ANDROID.txt
+ENDPOINTS: GET /api/notificaciones; PATCH /api/notificaciones/{id}/leida; POST /api/notificaciones/marcar-todas-leidas
+NOTAS/RIESGOS: El contador depende del último listado; si el backend cambia el campo `leida` (null/0/1), el cálculo usa `it.leida != true` para soportar null.
+NECESARIO (WEB): ninguno.
+
+2026-02-11
+CAMBIO: Permisos (RBAC overrides): se agregó soporte de overrides por usuario (pantalla reutiliza PermisosScreen con argumento userId) y acceso directo desde Editar Usuario.
+ARCHIVOS: app/src/main/java/com/example/inventappluis370/ui/permisos/PermisosViewModel.kt; app/src/main/java/com/example/inventappluis370/ui/permisos/PermisosScreen.kt; app/src/main/java/com/example/inventappluis370/ui/navigation/Routes.kt; app/src/main/java/com/example/inventappluis370/ui/navigation/AppNavGraph.kt; app/src/main/java/com/example/inventappluis370/ui/usuarios/CreateEditUsuarioScreen.kt; SYNC_WEB_ANDROID.txt
+ENDPOINTS: GET /api/permissions/user/{id}; PUT /api/permissions/user/{id}; POST /api/permissions/user/{id}/reset
+NOTAS/RIESGOS: El backend acepta {id} como id de negocio o _id; la app navega con el userId del módulo Usuarios. Si /permissions/user/{id} devuelve wrapper distinto, ajustar PermissionsResponse.
+NECESARIO (WEB): ninguno.
+
+[PENDIENTE]
+- Auditoría de paridad: revisar navegación/módulos para confirmar que todos los módulos del prompt maestro están presentes y cableados (tarifas-historial, rma, garantias, reportes con parámetros, etc.).
+
+=== IMPLEMENTADOS KOTLIN ===
+[2026-02-12 00:00]
+- Permisos (RBAC overrides) por usuario: el editor ahora soporta correctamente cargar/editar/guardar/resetear overrides individuales usando /api/permissions/user/{id}.
+- Normalización de acciones: 'show' se trata como equivalente de 'index' (ambos = Ver) y al guardar se sincronizan para evitar inconsistencias.
+- Si la respuesta trae override presente pero sin modules, se inicializa el borrador desde effective.modules para evitar pantalla vacía.
+
+Archivos tocados:
+- app/src/main/java/com/example/inventappluis370/data/model/PermissionsModels.kt
+- app/src/main/java/com/example/inventappluis370/ui/permisos/PermisosViewModel.kt
+- app/src/main/java/com/example/inventappluis370/ui/permisos/PermisosScreen.kt
+
+Endpoints usados/afectados:
+- GET  /api/permissions/user/{id}
+- PUT  /api/permissions/user/{id}
+- POST /api/permissions/user/{id}/reset
+
+Riesgos/notas:
+- Si el backend devuelve una matriz por usuario totalmente vacía (effective.modules == null y modules == null), la UI seguirá mostrando "No hay módulos...".
+- La app envía overrides con acciones en minúscula y con show/index siempre emparejados.
+
+NECESARIO (WEB): ninguno
+
+[PENDIENTE 9.10]
+- Confirmar shape real de /api/permissions y, si responde con wrapper adicional, adaptar el repo a parseo leniente (ResponseBody) como Notificaciones.

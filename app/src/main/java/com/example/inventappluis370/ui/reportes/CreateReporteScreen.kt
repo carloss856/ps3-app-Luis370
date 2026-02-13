@@ -8,6 +8,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.inventappluis370.data.model.ReporteParametros
 import com.example.inventappluis370.ui.common.ModuleTopBar
 
 private data class ModuleOption(val key: String, val label: String)
@@ -27,18 +28,24 @@ fun CreateReporteScreen(
         }
     }
 
+    // Nota: en web se usan valores estables para exportaciones: export_excel / export_pdf.
+    // Para el módulo "Generar reporte" mantenemos opciones simples y estables.
     val tipoOptions = listOf(
         "general",
         "inventario",
         "servicios",
         "repuestos",
-        "solicitudes_repuesto",
         "equipos",
-        "empresa",
         "usuarios",
-        "tarifas",
-        "notificaciones",
+        "empresas",
+        "tarifas-servicio",
         "reportes",
+        "notificaciones",
+        "rma",
+        "garantias",
+        // Exportaciones (paridad con web)
+        "export_excel",
+        "export_pdf",
     )
 
     val moduleOptions = listOf(
@@ -145,13 +152,12 @@ fun CreateReporteScreen(
             val enabled = uiState !is ReportesUiState.Loading
             Button(
                 onClick = {
-                    // Construimos un JSON chico predecible. El backend hoy guarda un string en parametros_utilizados.
-                    val modsJson = selectedModules.joinToString(prefix = "[\"", postfix = "\"]", separator = "\",\"")
-                    val parametros = "{" +
-                        "\"modules\":" + modsJson + "," +
-                        "\"source\":\"android\"" +
-                        "}"
-                    viewModel.createReporte(tipoReporte, parametros)
+                    val parametros = ReporteParametros(
+                        modules = selectedModules.toList().sorted(),
+                        filters = emptyMap(),
+                        source = "android",
+                    )
+                    viewModel.createReporte(tipoReporte = tipoReporte, parametros = parametros)
                 },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = enabled

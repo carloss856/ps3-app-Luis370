@@ -9,6 +9,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.inventappluis370.data.model.UserRequest
+import com.example.inventappluis370.ui.navigation.Routes
 import kotlinx.coroutines.launch
 
 @Composable
@@ -174,6 +175,18 @@ fun CreateEditUsuarioScreen(
                     CircularProgressIndicator(modifier = Modifier.size(24.dp))
                 } else {
                     Text("Guardar")
+                }
+            }
+
+            if (isEditing) {
+                OutlinedButton(
+                    onClick = {
+                        val route = Routes.PERMISOS_USER.replace("{userId}", userId!!)
+                        navController.navigate(route)
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text("Permisos de este usuario")
                 }
             }
         }

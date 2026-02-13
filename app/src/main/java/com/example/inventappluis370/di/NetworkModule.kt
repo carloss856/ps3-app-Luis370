@@ -240,6 +240,10 @@ object NetworkModule {
 
     @Provides
     @Singleton
+    fun provideRbacApiService(@Named("default") retrofit: Retrofit): RbacApiService = retrofit.create(RbacApiService::class.java)
+
+    @Provides
+    @Singleton
     fun provideRmaApiService(@Named("default") retrofit: Retrofit): RmaApiService = retrofit.create(RmaApiService::class.java)
 
     @Provides
@@ -255,7 +259,7 @@ object NetworkModule {
     fun provideAutenticacionUsuarioApiService(@Named("default") retrofit: Retrofit): AutenticacionUsuarioApiService =
         retrofit.create(AutenticacionUsuarioApiService::class.java)
 
-    // --- Dashboard real (Estadísticas) ---
+    // --- Dashboard / Stats / Permissions (faltaban en DI) ---
 
     @Provides
     @Singleton
@@ -266,4 +270,9 @@ object NetworkModule {
     @Singleton
     fun provideStatsApiService(@Named("default") retrofit: Retrofit): StatsApiService =
         retrofit.create(StatsApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun providePermissionsApiService(@Named("default") retrofit: Retrofit): PermissionsApiService =
+        retrofit.create(PermissionsApiService::class.java)
 }

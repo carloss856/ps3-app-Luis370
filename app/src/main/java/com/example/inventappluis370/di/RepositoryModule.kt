@@ -83,4 +83,12 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindStatsRepository(impl: StatsRepositoryImpl): StatsRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindRbacRepository(impl: RbacRepositoryImpl): RbacRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindPermissionsRepository(impl: PermissionsRepositoryImpl): PermissionsRepository
 }

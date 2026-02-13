@@ -1,8 +1,14 @@
 package com.example.inventappluis370.ui.home
 
-// NOTA:
-// Este archivo antes contenía un segundo composable `DashboardScreen` con la misma firma/nombre
-// que el de `HomeScreen.kt`, lo cual generaba ambigüedad de overload en `MainActivity`.
-// Mantendremos una única fuente de verdad en `HomeScreen.kt`.
+import androidx.compose.runtime.Composable
 
-// Puedes reintroducir aquí otras piezas auxiliares del dashboard en el futuro (sin duplicar nombres).
+// NOTA:
+// Este archivo existe solo para evitar conflictos históricos donde se duplicaba `DashboardScreen`
+// en dos archivos distintos. La implementación real del dashboard está en `HomeScreen.kt`.
+//
+// Mantener este stub ayuda a prevenir reintroducir ambigüedades de overload.
+
+@Composable
+fun DashboardScreenStub() {
+    // Intencionalmente vacío.
+}

@@ -150,6 +150,7 @@ fun AppNavGraph(
 
         // Permisos (RBAC)
         composable(Routes.PERMISOS) { PermisosScreen(navController) }
+        composable(Routes.PERMISOS_USER) { PermisosScreen(navController) }
 
         // Autenticación-usuarios (deshabilitado)
         // composable(Routes.AUTENTICACION_USUARIOS) { AutenticacionUsuariosScreen(navController) }
