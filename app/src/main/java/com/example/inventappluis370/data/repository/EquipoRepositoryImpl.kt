@@ -25,6 +25,19 @@ class EquipoRepositoryImpl @Inject constructor(
         } catch (e: Exception) { Result.failure(e) }
     }
 
+    override suspend fun getEquipo(id: String): Result<Equipo> {
+        return try {
+            val response = apiService.getEquipo(id)
+            if (response.isSuccessful) {
+                val body = response.body()
+                if (body != null) Result.success(body)
+                else Result.failure(IOException("Respuesta vacía"))
+            } else {
+                Result.failure(IOException(ApiErrorParser.parseError(response)))
+            }
+        } catch (e: Exception) { Result.failure(e) }
+    }
+
     override suspend fun createEquipo(equipoRequest: EquipoRequest): Result<Unit> {
         return try {
             val response = apiService.createEquipo(equipoRequest)

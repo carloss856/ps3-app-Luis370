@@ -1,0 +1,110 @@
+﻿CONTEXTO UNIFICADO Y CAMBIOS
+Generado: 2026-02-22
+
+==================== [CONTEXTO DE LA APLICACION] ====================
+
+Resumen general:
+- Proyecto: Inventluis370 (backend Laravel + MongoDB, frontend web y app Android).
+- Objetivo: gestion de inventario, equipos, servicios tecnicos, solicitudes de repuestos, garantias, notificaciones, reportes, RMA, tarifas y estadisticas.
+- Android consume API REST bajo /api con token Bearer.
+
+Arquitectura y contratos principales:
+- Autenticacion:
+  - POST /api/login
+  - POST /api/logout
+  - POST /api/token/extend
+  - POST /api/password/forgot
+  - POST /api/password/verify
+  - POST /api/password/reset
+- Modulos CRUD:
+  - /api/empresas
+  - /api/usuarios
+  - /api/equipos
+  - /api/propiedad-equipos
+  - /api/servicios
+  - /api/garantias
+  - /api/repuestos
+  - /api/inventario
+  - /api/solicitud-repuestos
+  - /api/notificaciones
+  - /api/reportes
+  - /api/rma
+  - /api/tarifas-servicio
+- RBAC / permisos:
+  - GET /api/rbac
+  - GET /api/permissions
+  - PUT /api/permissions
+  - POST /api/permissions/reset
+  - GET /api/permissions/user/{id}
+  - PUT /api/permissions/user/{id}
+  - POST /api/permissions/user/{id}/reset
+- Dashboard y estadisticas:
+  - GET /api/dashboard
+  - GET /api/stats/{module}
+  - POST /api/stats/batch
+
+Estado Android relevante (resumen operativo):
+- BASE_URL configurable por flavor en gradle.properties.
+- Tema claro/oscuro con toggle global (iconos solicitados).
+- Pantallas con topbars estandarizadas y recarga por gesto en modulos clave.
+- Estadisticas por modulo con tarjetas y mini-barras.
+- Validaciones numericas reforzadas para evitar guardar 0 por conversion silenciosa.
+
+Archivos clave Android:
+- app/build.gradle.kts
+- gradle.properties
+- app/src/main/java/com/example/inventappluis370/MainActivity.kt
+- app/src/main/java/com/example/inventappluis370/ui/common/ThemeToggleButton.kt
+- app/src/main/java/com/example/inventappluis370/ui/home/HomeScreen.kt
+- app/src/main/java/com/example/inventappluis370/ui/estadisticas/EstadisticasScreen.kt
+- app/src/main/java/com/example/inventappluis370/ui/login/LoginScreen.kt
+- app/src/main/java/com/example/inventappluis370/ui/login/PasswordResetScreen.kt
+
+final de archivos de contexto
+
+==================== [CAMBIOS IMPLEMENTADOS POR FECHA] ====================
+Fecha de ultima actualizacion del listado: 2026-02-22
+
+Fecha: 2026-02-10
+1. Configuracion de notificaciones: catalogo canonico de tipos y etiquetas amigables.
+
+Fecha: 2026-02-11
+1. Modulo Permisos (RBAC overrides) implementado con GET/PUT/RESET global.
+2. NetworkModule: normalizacion de rutas /api y auto-extend de token corregido.
+3. Hilt bindings de Estadisticas corregidos (DashboardApiService/StatsApiService).
+4. Campana con contador de no leidas basado en listado local.
+5. Permisos por usuario implementados (/permissions/user/{id}) y acceso desde Usuario.
+
+Fecha: 2026-02-12
+1. Permisos: equivalencia show/index y robustez de borrador cuando override viene vacio.
+
+Fecha: 2026-02-14
+1. Fix compilacion en Solicitudes (remocion de parametro titleStyle invalido).
+2. Ajustes de topbar/tema y mitigaciones de arranque para estabilidad.
+3. Historial de tarifas implementado (UI + ViewModel + endpoint historial).
+4. Empresas: validaciones por campo, payload alineado y mejoras UX crear/editar.
+
+Fecha: 2026-02-15
+1. Base URL por flavor (emulator/device) y guia de conectividad con adb reverse.
+2. Diagnostico de conexion mejorado (mensajes/hints por variant).
+3. Debug RAW para Empresas (captura de payload/body en 422 required).
+4. Pattern de refresh post create/edit usando SavedStateHandle("refresh").
+5. Formularios clave con dropdowns obligatorios y topbars consistentes.
+
+Fecha: 2026-02-21
+1. BASE_URL editable por gradle.properties; default en 10.0.2.2 para ambos flavors.
+2. Login simplificado: eliminado boton de diagnostico y texto de debug variant.
+3. Toggle de tema solicitado: luna plateada en claro / sol amarillo en oscuro.
+4. Password reset redisenado con boton Volver y estructura visual alineada a login.
+5. Nueva paleta Android basada en #48c con tokens light/dark semanticos.
+6. Campana: badge custom para evitar recorte de numeracion.
+7. Mini-graficos: implementados inicialmente en inicio y luego movidos al modulo Estadisticas (estado final actual).
+8. Optimizaciones de rendimiento en startup/notificaciones.
+
+Fecha: 2026-02-22
+1. Graficos removidos de botones del inicio y ubicados en tarjetas de Estadisticas por modulo.
+2. Campana ajustada a badge flotante rojo (incluye 99+) para eliminar recorte visual.
+3. Pull-to-refresh agregado/confirmado en modulos faltantes: Usuarios, Repuestos, Permisos y Estadisticas.
+4. Validacion numerica reforzada en formularios (sin conversion silenciosa a 0): Inventario, Solicitudes, Tarifas y Parte de Trabajo.
+5. Icono de recarga retirado de top bars de modulos (se mantiene recarga por gesto pull-down).
+6. Verificacion tecnica completa: assembleEmulatorDebug y testEmulatorDebugUnitTest en estado SUCCESSFUL.

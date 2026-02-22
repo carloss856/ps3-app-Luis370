@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import com.example.inventappluis370.data.common.ValidationException
 import com.example.inventappluis370.data.model.Empresa
 import com.example.inventappluis370.data.model.EmpresaRequest
 import com.example.inventappluis370.domain.PermissionManager
@@ -42,9 +43,31 @@ class EmpresasViewModel @Inject constructor(
     val empresasPaging: Flow<PagingData<Empresa>> =
         empresaRepository.getEmpresasPaged(perPage = 25).cachedIn(viewModelScope)
 
+    private val _fieldErrors = MutableStateFlow<Map<String, List<String>>>(emptyMap())
+    val fieldErrors: StateFlow<Map<String, List<String>>> = _fieldErrors.asStateFlow()
+
+    private val _operationSuccess = MutableStateFlow(false)
+    val operationSuccess: StateFlow<Boolean> = _operationSuccess.asStateFlow()
+
     init {
         // Mantengo carga legacy para la UI actual.
         getEmpresas()
+    }
+
+    fun clearFieldErrors() {
+        _fieldErrors.value = emptyMap()
+    }
+
+    /** Limpia solo el error de un campo (si existe). */
+    fun clearFieldError(key: String) {
+        val current = _fieldErrors.value
+        if (current.isEmpty()) return
+        if (!current.containsKey(key)) return
+        _fieldErrors.value = current.toMutableMap().also { it.remove(key) }
+    }
+
+    fun consumeOperationSuccess() {
+        _operationSuccess.value = false
     }
 
     fun getEmpresas() {
@@ -69,19 +92,44 @@ class EmpresasViewModel @Inject constructor(
 
     fun createEmpresa(empresaRequest: EmpresaRequest) {
         viewModelScope.launch {
+            clearFieldErrors()
             _uiState.value = EmpresasUiState.Loading
             empresaRepository.createEmpresa(empresaRequest)
-                .onSuccess { _uiState.value = EmpresasUiState.OperationSuccess }
-                .onFailure { _uiState.value = EmpresasUiState.Error(it.message ?: "Error al crear la empresa") }
+                .onSuccess {
+                    _operationSuccess.value = true
+                    _uiState.value = EmpresasUiState.OperationSuccess
+                }
+                .onFailure { t ->
+                    if (t is ValidationException) {
+                        _fieldErrors.value = t.fieldErrors
+                        _uiState.value = EmpresasUiState.Error(t.message)
+                    } else {
+                        val msg = com.example.inventappluis370.ui.common.ValidationMessageMapper.map(t.message)
+                        _uiState.value = EmpresasUiState.Error(msg.ifBlank { "Error al crear la empresa" })
+                    }
+                }
         }
     }
 
     fun updateEmpresa(id: String, empresaRequest: EmpresaRequest) {
         viewModelScope.launch {
+            clearFieldErrors()
             _uiState.value = EmpresasUiState.Loading
             empresaRepository.updateEmpresa(id, empresaRequest)
-                .onSuccess { _uiState.value = EmpresasUiState.OperationSuccess }
-                .onFailure { _uiState.value = EmpresasUiState.Error(it.message ?: "Error al actualizar la empresa") }
+                .onSuccess {
+                    _selectedEmpresa.value = null
+                    _operationSuccess.value = true
+                    _uiState.value = EmpresasUiState.OperationSuccess
+                }
+                .onFailure { t ->
+                    if (t is ValidationException) {
+                        _fieldErrors.value = t.fieldErrors
+                        _uiState.value = EmpresasUiState.Error(t.message)
+                    } else {
+                        val msg = com.example.inventappluis370.ui.common.ValidationMessageMapper.map(t.message)
+                        _uiState.value = EmpresasUiState.Error(msg.ifBlank { "Error al actualizar la empresa" })
+                    }
+                }
         }
     }
 
@@ -89,7 +137,10 @@ class EmpresasViewModel @Inject constructor(
         viewModelScope.launch {
             empresaRepository.deleteEmpresa(id)
                 .onSuccess { getEmpresas() }
-                .onFailure { _uiState.value = EmpresasUiState.Error(it.message ?: "Error") }
+                .onFailure {
+                    val msg = com.example.inventappluis370.ui.common.ValidationMessageMapper.map(it.message)
+                    _uiState.value = EmpresasUiState.Error(msg.ifBlank { "Error" })
+                }
         }
     }
 

@@ -31,6 +31,7 @@ fun EquiposScreen(
 
     val refreshing = uiState is EquiposUiState.Loading
 
+    // Refresco al volver desde Create/Edit (flag en SavedStateHandle)
     val refresh = navController.currentBackStackEntry?.savedStateHandle?.get<Boolean>("refresh")
     LaunchedEffect(refresh) {
         if (refresh == true) {

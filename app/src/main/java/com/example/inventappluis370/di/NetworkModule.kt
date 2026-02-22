@@ -60,13 +60,15 @@ object NetworkModule {
         tokenExtendManager: TokenExtendManager
     ): OkHttpClient {
         val loggingInterceptor = HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BODY
+            // BODY puede ser MUY costoso en emulador/teléfonos y causar ANR.
+            level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BASIC
+            else HttpLoggingInterceptor.Level.NONE
         }
 
         return OkHttpClient.Builder()
-            .connectTimeout(15, TimeUnit.SECONDS)
-            .readTimeout(15, TimeUnit.SECONDS)
-            .writeTimeout(15, TimeUnit.SECONDS)
+            .connectTimeout(20, TimeUnit.SECONDS)
+            .readTimeout(20, TimeUnit.SECONDS)
+            .writeTimeout(20, TimeUnit.SECONDS)
             .addInterceptor(loggingInterceptor)
             .addInterceptor { chain ->
                 val originalRequest = chain.request()
@@ -121,7 +123,8 @@ object NetworkModule {
     @Named("auth")
     fun provideAuthOkHttpClient(tokenRepository: TokenRepository): OkHttpClient {
         val loggingInterceptor = HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BODY
+            level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BASIC
+            else HttpLoggingInterceptor.Level.NONE
         }
 
         val authInterceptor = Interceptor { chain ->
@@ -146,9 +149,9 @@ object NetworkModule {
         }
 
         return OkHttpClient.Builder()
-            .connectTimeout(15, TimeUnit.SECONDS)
-            .readTimeout(15, TimeUnit.SECONDS)
-            .writeTimeout(15, TimeUnit.SECONDS)
+            .connectTimeout(20, TimeUnit.SECONDS)
+            .readTimeout(20, TimeUnit.SECONDS)
+            .writeTimeout(20, TimeUnit.SECONDS)
             .addInterceptor(loggingInterceptor)
             .addInterceptor(authInterceptor)
             .build()
@@ -229,6 +232,11 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideEmpresaApiService(@Named("default") retrofit: Retrofit): EmpresaApiService = retrofit.create(EmpresaApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideDebugEmpresaApiService(@Named("default") retrofit: Retrofit): com.example.inventappluis370.data.remote.DebugEmpresaApiService =
+        retrofit.create(com.example.inventappluis370.data.remote.DebugEmpresaApiService::class.java)
 
     @Provides
     @Singleton

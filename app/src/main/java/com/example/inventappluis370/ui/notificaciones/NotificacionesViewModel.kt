@@ -1,4 +1,4 @@
-package com.example.inventappluis370.ui.notificaciones
+﻿package com.example.inventappluis370.ui.notificaciones
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,9 +8,11 @@ import com.example.inventappluis370.domain.repository.NotificacionRepository
 import com.example.inventappluis370.domain.repository.TokenRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -29,10 +31,7 @@ class NotificacionesViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<NotificacionesUiState>(NotificacionesUiState.Loading)
     val uiState: StateFlow<NotificacionesUiState> = _uiState.asStateFlow()
 
-    /**
-     * Cantidad de notificaciones NO leídas para el badge de la campana.
-     * Se calcula localmente desde el estado actual (sin otra llamada extra).
-     */
+    // Badge count derivado del estado actual, sin request adicional.
     val unreadCount: StateFlow<Int> = uiState
         .map { state ->
             when (state) {
@@ -40,15 +39,11 @@ class NotificacionesViewModel @Inject constructor(
                 else -> 0
             }
         }
-        .let { flow ->
-            // Convertimos a StateFlow con un valor inicial 0.
-            // Esto evita dependencias de Compose en el ViewModel.
-            MutableStateFlow(0).also { out ->
-                viewModelScope.launch {
-                    flow.collect { out.value = it }
-                }
-            }
-        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = 0
+        )
 
     private val userRole: String? get() = tokenRepository.getRole()
 
@@ -71,7 +66,6 @@ class NotificacionesViewModel @Inject constructor(
 
     fun deleteNotificacion(id: String) {
         viewModelScope.launch {
-            // Optimista: quita de la lista actual si ya está cargada
             val prev = _uiState.value
             if (prev is NotificacionesUiState.Success) {
                 _uiState.value = prev.copy(notificaciones = prev.notificaciones.filterNot { it.idNotificacion == id })
@@ -79,10 +73,9 @@ class NotificacionesViewModel @Inject constructor(
 
             notificacionRepository.deleteNotificacion(id)
                 .onSuccess {
-                    // No recargamos: ya actualizamos localmente.
+                    // Lista ya ajustada en memoria.
                 }
                 .onFailure { error ->
-                    // Si falló, mejor recargar para volver al estado real.
                     getNotificaciones()
                     _uiState.value = NotificacionesUiState.Error(error.message ?: "Error")
                 }
@@ -102,7 +95,7 @@ class NotificacionesViewModel @Inject constructor(
 
             notificacionRepository.setLeida(id)
                 .onSuccess {
-                    // No recargamos: UI ya refleja el cambio.
+                    // UI ya refleja el cambio.
                 }
                 .onFailure { error ->
                     getNotificaciones()
@@ -120,7 +113,7 @@ class NotificacionesViewModel @Inject constructor(
 
             notificacionRepository.marcarTodasLeidas()
                 .onSuccess {
-                    // No recargamos.
+                    // Sin recarga para evitar trabajo extra.
                 }
                 .onFailure { error ->
                     getNotificaciones()

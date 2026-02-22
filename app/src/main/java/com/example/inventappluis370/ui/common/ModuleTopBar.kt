@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -62,12 +61,6 @@ fun ModuleTopBar(
                     modifier = Modifier.weight(1f)
                 )
 
-                if (onRefresh != null) {
-                    IconButton(onClick = onRefresh) {
-                        Icon(Icons.Default.Refresh, contentDescription = "Refrescar")
-                    }
-                }
-
                 if (endIcon != null) {
                     Icon(
                         imageVector = endIcon,
@@ -75,9 +68,9 @@ fun ModuleTopBar(
                         tint = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.padding(12.dp)
                     )
-                } else {
-                    Spacer(modifier = Modifier.width(48.dp))
                 }
+
+                ThemeToggleButton()
             }
         }
     }

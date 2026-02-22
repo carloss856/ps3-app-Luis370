@@ -5,6 +5,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -22,6 +23,15 @@ fun AutenticacionUsuariosScreen(
     viewModel: AutenticacionUsuariosViewModel = hiltViewModel<AutenticacionUsuariosViewModel>()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    // Escucha señal de refresco desde formularios.
+    val refresh = navController.currentBackStackEntry?.savedStateHandle?.get<Boolean>("refresh")
+    LaunchedEffect(refresh) {
+        if (refresh == true) {
+            viewModel.getAutenticaciones()
+            navController.currentBackStackEntry?.savedStateHandle?.set("refresh", false)
+        }
+    }
 
     val refreshing = uiState is AutenticacionUsuariosUiState.Loading
 

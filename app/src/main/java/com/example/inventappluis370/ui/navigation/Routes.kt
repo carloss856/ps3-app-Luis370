@@ -29,6 +29,7 @@ object Routes {
     const val TARIFAS = "tarifas"
     const val TARIFAS_NEW = "tarifas/new"
     const val TARIFAS_EDIT = "tarifas/{tarifaId}"
+    const val TARIFAS_HISTORIAL = "tarifas/{tarifaId}/historial"
 
     const val PROPIEDAD_EQUIPOS = "propiedad-equipos"
     const val PROPIEDAD_EQUIPOS_NEW = "propiedad-equipos/new"

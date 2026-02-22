@@ -10,6 +10,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -25,6 +26,15 @@ fun EmpresasScreen(
     viewModel: EmpresasViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    // Refresh cuando volvemos desde Create/Edit.
+    val refresh = navController.currentBackStackEntry?.savedStateHandle?.get<Boolean>("refresh")
+    LaunchedEffect(refresh) {
+        if (refresh == true) {
+            viewModel.getEmpresas()
+            navController.currentBackStackEntry?.savedStateHandle?.set("refresh", false)
+        }
+    }
 
     androidx.compose.runtime.LaunchedEffect(uiState) {
         if (uiState is EmpresasUiState.OperationSuccess) {

@@ -8,15 +8,25 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.inventappluis370.data.model.CreateServicioRequest
+import com.example.inventappluis370.data.model.Equipo
+import com.example.inventappluis370.ui.common.ModuleTopBar
+import com.example.inventappluis370.ui.equipos.EquiposUiState
+import com.example.inventappluis370.ui.equipos.EquiposViewModel
 import kotlinx.coroutines.launch
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Build
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateEditServicioScreen(
     navController: NavController,
     viewModel: ServiciosViewModel = hiltViewModel(),
+    equiposViewModel: EquiposViewModel = hiltViewModel(),
     servicioId: String? = null
 ) {
     var equipoId by remember { mutableStateOf("") }
+    // Dropdown
+    var equipoExpanded by remember { mutableStateOf(false) }
     var problemaReportado by remember { mutableStateOf("") }
     var estado by remember { mutableStateOf("") }
     var codigoRma by remember { mutableStateOf("") }
@@ -59,7 +69,26 @@ fun CreateEditServicioScreen(
         }
     }
 
-    Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) { padding ->
+    // Cargar equipos para dropdown
+    val equiposState by equiposViewModel.uiState.collectAsState()
+    LaunchedEffect(Unit) {
+        if (equiposState !is EquiposUiState.Success) {
+            equiposViewModel.getEquipos()
+        }
+    }
+    val equipos: List<Equipo> = (equiposState as? EquiposUiState.Success)?.equipos.orEmpty()
+
+    Scaffold(
+        topBar = {
+            ModuleTopBar(
+                title = if (isEditing) "Editar Servicio" else "Nuevo Servicio",
+                onBack = { navController.popBackStack() },
+                endIcon = Icons.Default.Build,
+                endIconContentDescription = "Servicios",
+            )
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -67,19 +96,51 @@ fun CreateEditServicioScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(text = if (isEditing) "Editar Servicio" else "Nuevo Servicio", style = MaterialTheme.typography.headlineSmall)
+            // Equipo dropdown
+            ExposedDropdownMenuBox(
+                expanded = equipoExpanded,
+                onExpandedChange = { equipoExpanded = !equipoExpanded }
+            ) {
+                OutlinedTextField(
+                    value = equipoId,
+                    onValueChange = {
+                        equipoId = it
+                        viewModel.clearFieldErrors()
+                    },
+                    label = { Text("Equipo (id_equipo) *") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .menuAnchor(),
+                    trailingIcon = {
+                        if (equiposState is EquiposUiState.Loading) {
+                            CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                        } else {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = equipoExpanded)
+                        }
+                    },
+                    singleLine = true,
+                    isError = fieldError("id_equipo") != null,
+                    supportingText = { fieldError("id_equipo")?.let { Text(it) } }
+                )
 
-            OutlinedTextField(
-                value = equipoId,
-                onValueChange = {
-                    equipoId = it
-                    viewModel.clearFieldErrors()
-                },
-                label = { Text("ID del Equipo") },
-                modifier = Modifier.fillMaxWidth(),
-                isError = fieldError("id_equipo") != null,
-                supportingText = { fieldError("id_equipo")?.let { Text(it) } }
-            )
+                ExposedDropdownMenu(
+                    expanded = equipoExpanded,
+                    onDismissRequest = { equipoExpanded = false }
+                ) {
+                    equipos.forEach { e ->
+                        val id = e.idEquipo.orEmpty()
+                        val tipo = e.tipoEquipo ?: "(Sin tipo)"
+                        DropdownMenuItem(
+                            text = { Text("$id — $tipo") },
+                            onClick = {
+                                equipoId = id
+                                equipoExpanded = false
+                                viewModel.clearFieldErrors()
+                            }
+                        )
+                    }
+                }
+            }
 
             OutlinedTextField(
                 value = problemaReportado,
@@ -135,11 +196,11 @@ fun CreateEditServicioScreen(
             Button(
                 onClick = {
                     val request = CreateServicioRequest(
-                        idEquipo = equipoId,
-                        codigoRma = codigoRma,
-                        fechaIngreso = fechaIngreso,
-                        problemaReportado = problemaReportado,
-                        estado = estado
+                        idEquipo = equipoId.trim(),
+                        codigoRma = codigoRma.trim(),
+                        fechaIngreso = fechaIngreso.trim(),
+                        problemaReportado = problemaReportado.trim(),
+                        estado = estado.trim()
                     )
                     if (isEditing) {
                         viewModel.updateServicio(servicioId!!, request)
@@ -153,7 +214,7 @@ fun CreateEditServicioScreen(
                 if (uiState is ServiciosUiState.Loading) {
                     CircularProgressIndicator(modifier = Modifier.size(24.dp))
                 } else {
-                    Text("Guardar")
+                    Text(if (isEditing) "Actualizar" else "Guardar")
                 }
             }
         }

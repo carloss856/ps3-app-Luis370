@@ -1,8 +1,11 @@
 package com.example.inventappluis370.data.repository
 
+import android.util.Log
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import com.example.inventappluis370.BuildConfig
+import com.example.inventappluis370.data.common.ValidationException
 import com.example.inventappluis370.data.model.Empresa
 import com.example.inventappluis370.data.model.EmpresaRequest
 import com.example.inventappluis370.data.paging.GenericPagingSource
@@ -13,10 +16,14 @@ import kotlinx.coroutines.flow.Flow
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONObject
 
 @Singleton
 class EmpresaRepositoryImpl @Inject constructor(
-    private val apiService: EmpresaApiService
+    private val apiService: EmpresaApiService,
+    private val debugApiService: com.example.inventappluis370.data.remote.DebugEmpresaApiService
 ) : EmpresaRepository {
 
     override suspend fun getEmpresas(): Result<List<Empresa>> {
@@ -47,12 +54,88 @@ class EmpresaRepositoryImpl @Inject constructor(
 
     override suspend fun createEmpresa(empresaRequest: EmpresaRequest): Result<Unit> {
         return try {
-            val response = apiService.createEmpresa(empresaRequest)
+            val trimmedNombre = empresaRequest.nombreEmpresa.trim()
+            val trimmedEmail = empresaRequest.email.trim()
+
+            if (BuildConfig.DEBUG) {
+                Log.d(
+                    "EmpresaRepository",
+                    "POST /empresas payload nombre_empresa='${trimmedNombre}' email='${trimmedEmail}' direccion='${empresaRequest.direccion}' telefono='${empresaRequest.telefono}'"
+                )
+            }
+
+            // Aseguramos que nunca se envíen strings con espacios que el backend interprete como vacío.
+            val safeRequest = empresaRequest.copy(
+                nombreEmpresa = trimmedNombre,
+                email = trimmedEmail,
+                direccion = empresaRequest.direccion?.trim()?.ifBlank { null },
+                telefono = empresaRequest.telefono?.trim()?.ifBlank { null }
+            )
+
+            val response = apiService.createEmpresa(safeRequest)
             if (response.isSuccessful) {
                 Result.success(Unit)
             } else {
-                // Captura el mensaje de "ya está siendo usado" o similar del servidor
-                Result.failure(IOException(ApiErrorParser.parseError(response)))
+                val parsed = ApiErrorParser.parseErrorResponse(response)
+                if (BuildConfig.DEBUG) {
+                    Log.d(
+                        "EmpresaRepository",
+                        "POST /empresas failed status=${response.code()} message='${parsed.message}' errors=${parsed.errors}"
+                    )
+                }
+
+                // Debug RAW: imprime el JSON exacto en snake_case que Android cree estar enviando.
+                if (BuildConfig.DEBUG && (response.code() == 422 || parsed.message?.contains("validation", true) == true)) {
+                    runCatching {
+                        val json = buildString {
+                            append('{')
+                            append("\"nombre_empresa\":")
+                            append(JSONObject.quote(safeRequest.nombreEmpresa))
+                            append(',')
+                            append("\"email\":")
+                            append(JSONObject.quote(safeRequest.email))
+                            if (!safeRequest.direccion.isNullOrBlank()) {
+                                append(',')
+                                append("\"direccion\":")
+                                append(JSONObject.quote(safeRequest.direccion))
+                            }
+                            if (!safeRequest.telefono.isNullOrBlank()) {
+                                append(',')
+                                append("\"telefono\":")
+                                append(JSONObject.quote(safeRequest.telefono))
+                            }
+                            if (!safeRequest.fechaCreacion.isNullOrBlank()) {
+                                append(',')
+                                append("\"fecha_creacion\":")
+                                append(JSONObject.quote(safeRequest.fechaCreacion))
+                            }
+                            append('}')
+                        }
+                        Log.d("EmpresaRepository", "DEBUG raw POST /empresas sending=$json")
+
+                        val body = json.toRequestBody("application/json; charset=utf-8".toMediaType())
+                        val rawResp = debugApiService.createEmpresaRaw(body)
+                        val rawText = rawResp.errorBody()?.string() ?: rawResp.body()?.string()
+                        Log.d(
+                            "EmpresaRepository",
+                            "DEBUG raw POST /empresas status=${rawResp.code()} body=${rawText ?: "<empty>"}"
+                        )
+                    }.onFailure { t ->
+                        Log.w("EmpresaRepository", "DEBUG raw POST /empresas falló", t)
+                    }
+                }
+
+                if (response.code() == 422 && !parsed.errors.isNullOrEmpty()) {
+                    Result.failure(
+                        ValidationException(
+                            fieldErrors = parsed.errors,
+                            message = parsed.message ?: "Error de validación"
+                        )
+                    )
+                } else {
+                    // Si el backend no manda dictionary de errors, al menos devuelve el message.
+                    Result.failure(IOException(parsed.message ?: ApiErrorParser.parseError(response)))
+                }
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -61,11 +144,80 @@ class EmpresaRepositoryImpl @Inject constructor(
 
     override suspend fun updateEmpresa(id: String, empresaRequest: EmpresaRequest): Result<Unit> {
         return try {
-            val response = apiService.updateEmpresa(id, empresaRequest)
+            val trimmedNombre = empresaRequest.nombreEmpresa.trim()
+            val trimmedEmail = empresaRequest.email.trim()
+
+            if (BuildConfig.DEBUG) {
+                Log.d(
+                    "EmpresaRepository",
+                    "PUT /empresas/$id payload nombre_empresa='${trimmedNombre}' email='${trimmedEmail}' direccion='${empresaRequest.direccion}' telefono='${empresaRequest.telefono}'"
+                )
+            }
+
+            val safeRequest = empresaRequest.copy(
+                nombreEmpresa = trimmedNombre,
+                email = trimmedEmail,
+                direccion = empresaRequest.direccion?.trim()?.ifBlank { null },
+                telefono = empresaRequest.telefono?.trim()?.ifBlank { null }
+            )
+
+            val response = apiService.updateEmpresa(id, safeRequest)
             if (response.isSuccessful) {
                 Result.success(Unit)
             } else {
-                Result.failure(IOException(ApiErrorParser.parseError(response)))
+                val parsed = ApiErrorParser.parseErrorResponse(response)
+                if (BuildConfig.DEBUG) {
+                    Log.d(
+                        "EmpresaRepository",
+                        "PUT /empresas/$id failed status=${response.code()} message='${parsed.message}' errors=${parsed.errors}"
+                    )
+                }
+
+                if (BuildConfig.DEBUG && (response.code() == 422 || parsed.message?.contains("validation", true) == true)) {
+                    runCatching {
+                        val json = buildString {
+                            append('{')
+                            append("\"nombre_empresa\":")
+                            append(JSONObject.quote(safeRequest.nombreEmpresa))
+                            append(',')
+                            append("\"email\":")
+                            append(JSONObject.quote(safeRequest.email))
+                            if (!safeRequest.direccion.isNullOrBlank()) {
+                                append(',')
+                                append("\"direccion\":")
+                                append(JSONObject.quote(safeRequest.direccion))
+                            }
+                            if (!safeRequest.telefono.isNullOrBlank()) {
+                                append(',')
+                                append("\"telefono\":")
+                                append(JSONObject.quote(safeRequest.telefono))
+                            }
+                            append('}')
+                        }
+                        Log.d("EmpresaRepository", "DEBUG raw PUT /empresas/$id sending=$json")
+
+                        val body = json.toRequestBody("application/json; charset=utf-8".toMediaType())
+                        val rawResp = debugApiService.updateEmpresaRaw(id, body)
+                        val rawText = rawResp.errorBody()?.string() ?: rawResp.body()?.string()
+                        Log.d(
+                            "EmpresaRepository",
+                            "DEBUG raw PUT /empresas/$id status=${rawResp.code()} body=${rawText ?: "<empty>"}"
+                        )
+                    }.onFailure { t ->
+                        Log.w("EmpresaRepository", "DEBUG raw PUT /empresas/$id falló", t)
+                    }
+                }
+
+                if (response.code() == 422 && !parsed.errors.isNullOrEmpty()) {
+                    Result.failure(
+                        ValidationException(
+                            fieldErrors = parsed.errors,
+                            message = parsed.message ?: "Error de validación"
+                        )
+                    )
+                } else {
+                    Result.failure(IOException(parsed.message ?: ApiErrorParser.parseError(response)))
+                }
             }
         } catch (e: Exception) {
             Result.failure(e)

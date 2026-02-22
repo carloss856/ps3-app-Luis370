@@ -1,4 +1,4 @@
-package com.example.inventappluis370.ui.repuestos
+﻿package com.example.inventappluis370.ui.repuestos
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,6 +35,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.inventappluis370.data.model.Repuesto
 import com.example.inventappluis370.ui.common.ModuleTopBar
+import com.example.inventappluis370.ui.common.PullToRefreshContainer
 
 @Composable
 fun RepuestosScreen(
@@ -51,6 +52,8 @@ fun RepuestosScreen(
         }
     }
 
+    val refreshing = uiState is RepuestosUiState.Loading
+
     Scaffold(
         topBar = {
             ModuleTopBar(
@@ -63,58 +66,58 @@ fun RepuestosScreen(
         floatingActionButton = {
             if (viewModel.canCreate()) {
                 FloatingActionButton(onClick = { navController.navigate("repuestos/new") }) {
-                    Icon(Icons.Default.Add, contentDescription = "Añadir Repuesto")
+                    Icon(Icons.Default.Add, contentDescription = "Anadir Repuesto")
                 }
             }
         }
     ) { paddingValues ->
-        Box(
+        PullToRefreshContainer(
+            refreshing = refreshing,
+            onRefresh = { viewModel.getRepuestos() },
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            Column(modifier = Modifier.fillMaxSize()) {
-                Box(modifier = Modifier.fillMaxSize()) {
-                    when (val state = uiState) {
-                        is RepuestosUiState.Loading -> {
-                            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                        }
+            Box(modifier = Modifier.fillMaxSize()) {
+                when (val state = uiState) {
+                    is RepuestosUiState.Loading -> {
+                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                    }
 
-                        is RepuestosUiState.Error -> {
-                            Text(
-                                "Error: ${state.message}",
-                                color = MaterialTheme.colorScheme.error,
-                                modifier = Modifier.align(Alignment.Center)
-                            )
-                        }
+                    is RepuestosUiState.Error -> {
+                        Text(
+                            "Error: ${state.message}",
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    }
 
-                        is RepuestosUiState.Success -> {
-                            val repuestos = state.repuestos
-                            if (repuestos.isEmpty()) {
-                                Text(text = "No hay repuestos para mostrar.", modifier = Modifier.align(Alignment.Center))
-                            } else {
-                                LazyColumn(
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentPadding = PaddingValues(16.dp),
-                                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                                ) {
-                                    items(repuestos) { repuesto ->
-                                        val id = repuesto.idRepuesto
-                                        RepuestoItem(
-                                            repuesto = repuesto,
-                                            onDelete = { if (!id.isNullOrBlank()) viewModel.deleteRepuesto(id) },
-                                            onEdit = { if (!id.isNullOrBlank()) navController.navigate("repuestos/$id") },
-                                            canUpdate = viewModel.canUpdate(),
-                                            canDelete = viewModel.canDelete()
-                                        )
-                                    }
+                    is RepuestosUiState.Success -> {
+                        val repuestos = state.repuestos
+                        if (repuestos.isEmpty()) {
+                            Text(text = "No hay repuestos para mostrar.", modifier = Modifier.align(Alignment.Center))
+                        } else {
+                            LazyColumn(
+                                modifier = Modifier.fillMaxSize(),
+                                contentPadding = PaddingValues(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                items(repuestos) { repuesto ->
+                                    val id = repuesto.idRepuesto
+                                    RepuestoItem(
+                                        repuesto = repuesto,
+                                        onDelete = { if (!id.isNullOrBlank()) viewModel.deleteRepuesto(id) },
+                                        onEdit = { if (!id.isNullOrBlank()) navController.navigate("repuestos/$id") },
+                                        canUpdate = viewModel.canUpdate(),
+                                        canDelete = viewModel.canDelete()
+                                    )
                                 }
                             }
                         }
+                    }
 
-                        RepuestosUiState.OperationSuccess -> {
-                            LaunchedEffect(Unit) { viewModel.getRepuestos() }
-                        }
+                    RepuestosUiState.OperationSuccess -> {
+                        LaunchedEffect(Unit) { viewModel.getRepuestos() }
                     }
                 }
             }
@@ -122,7 +125,8 @@ fun RepuestosScreen(
     }
 }
 
-@Composable fun RepuestoItem(
+@Composable
+fun RepuestoItem(
     repuesto: Repuesto,
     onDelete: () -> Unit,
     onEdit: () -> Unit,

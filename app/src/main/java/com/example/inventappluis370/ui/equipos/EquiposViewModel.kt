@@ -4,9 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.inventappluis370.data.model.Equipo
 import com.example.inventappluis370.data.model.EquipoRequest
+import com.example.inventappluis370.domain.PermissionManager
 import com.example.inventappluis370.domain.repository.EquipoRepository
 import com.example.inventappluis370.domain.repository.TokenRepository
-import com.example.inventappluis370.domain.PermissionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -33,6 +33,12 @@ class EquiposViewModel @Inject constructor(
     private val _selectedEquipo = MutableStateFlow<Equipo?>(null)
     val selectedEquipo: StateFlow<Equipo?> = _selectedEquipo.asStateFlow()
 
+    private val _selectedEquipoLoading = MutableStateFlow(false)
+    val selectedEquipoLoading: StateFlow<Boolean> = _selectedEquipoLoading.asStateFlow()
+
+    private val _selectedEquipoError = MutableStateFlow<String?>(null)
+    val selectedEquipoError: StateFlow<String?> = _selectedEquipoError.asStateFlow()
+
     private val userRole: String? get() = tokenRepository.getRole()
 
     init {
@@ -48,10 +54,22 @@ class EquiposViewModel @Inject constructor(
         }
     }
 
-    fun getEquipoById(id: String) {
-        val equipos = (uiState.value as? EquiposUiState.Success)?.equipos
-        // Corregido: Usar idEquipo
-        _selectedEquipo.value = equipos?.find { it.idEquipo == id }
+    /** Carga el equipo completo desde el backend para edición. */
+    fun fetchEquipoById(id: String) {
+        viewModelScope.launch {
+            _selectedEquipoLoading.value = true
+            _selectedEquipoError.value = null
+            equipoRepository.getEquipo(id)
+                .onSuccess { equipo -> _selectedEquipo.value = equipo }
+                .onFailure { _selectedEquipoError.value = it.message ?: "Error" }
+            _selectedEquipoLoading.value = false
+        }
+    }
+
+    fun clearSelectedEquipo() {
+        _selectedEquipo.value = null
+        _selectedEquipoError.value = null
+        _selectedEquipoLoading.value = false
     }
 
     fun createEquipo(equipoRequest: EquipoRequest) {

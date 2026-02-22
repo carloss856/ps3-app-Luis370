@@ -163,7 +163,15 @@ fun CreateEditTarifaScreen(
 
             Button(
                 onClick = {
-                    val tarifaVal = tarifaHora.toDoubleOrNull() ?: 0.0
+                    val tarifaVal = tarifaHora.trim().replace(",", ".").toDoubleOrNull()
+                    if (tarifaVal == null) {
+                        scope.launch { snackbarHostState.showSnackbar("Tarifa invalida: usa un numero decimal valido") }
+                        return@Button
+                    }
+                    if (tarifaVal <= 0.0) {
+                        scope.launch { snackbarHostState.showSnackbar("La tarifa por hora debe ser mayor que cero") }
+                        return@Button
+                    }
                     val nivelTecnicoNullable = nivelTecnico.trim().ifBlank { null }
                     if (isEditing) {
                         viewModel.updateTarifa(tarifaId!!, UpdateTarifaRequest(tarifaVal, moneda, activo))

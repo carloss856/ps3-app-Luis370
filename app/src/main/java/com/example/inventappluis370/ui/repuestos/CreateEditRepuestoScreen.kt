@@ -10,7 +10,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.inventappluis370.data.model.RepuestoRequest
+import com.example.inventappluis370.ui.common.ModuleTopBar
 import kotlinx.coroutines.launch
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Construction
 
 @Composable
 fun CreateEditRepuestoScreen(
@@ -57,28 +60,60 @@ fun CreateEditRepuestoScreen(
         }
     }
 
-    Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) {
+    Scaffold(
+        topBar = {
+            ModuleTopBar(
+                title = if (isEditing) "Editar Repuesto" else "Nuevo Repuesto",
+                onBack = { navController.popBackStack() },
+                endIcon = Icons.Default.Construction,
+                endIconContentDescription = "Repuestos",
+            )
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(it)
+                .padding(padding)
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(text = if (isEditing) "Editar Repuesto" else "Nuevo Repuesto", style = MaterialTheme.typography.headlineSmall)
-
-            OutlinedTextField(value = nombre, onValueChange = { nombre = it }, label = { Text("Nombre del Repuesto") }, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(value = cantidad, onValueChange = { cantidad = it }, label = { Text("Cantidad Disponible") }, modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
-            OutlinedTextField(value = nivelCritico, onValueChange = { nivelCritico = it }, label = { Text("Nivel Crítico") }, modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
+            OutlinedTextField(
+                value = nombre,
+                onValueChange = { nombre = it },
+                label = { Text("Nombre del Repuesto *") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            OutlinedTextField(
+                value = cantidad,
+                onValueChange = { cantidad = it },
+                label = { Text("Cantidad Disponible *") },
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+            )
+            OutlinedTextField(
+                value = nivelCritico,
+                onValueChange = { nivelCritico = it },
+                label = { Text("Nivel Crítico *") },
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
                 onClick = {
+                    val cantidadInt = cantidad.toIntOrNull()
+                    val nivelCriticoInt = nivelCritico.toIntOrNull()
+                    if (nombre.isBlank() || cantidadInt == null || nivelCriticoInt == null) {
+                        scope.launch { snackbarHostState.showSnackbar("Completa los campos obligatorios") }
+                        return@Button
+                    }
+
                     val repuestoRequest = RepuestoRequest(
-                        nombreRepuesto = nombre,
-                        cantidadDisponible = cantidad.toIntOrNull(),
-                        nivelCritico = nivelCritico.toIntOrNull()
+                        nombreRepuesto = nombre.trim(),
+                        cantidadDisponible = cantidadInt.coerceAtLeast(0),
+                        nivelCritico = nivelCriticoInt.coerceAtLeast(0)
                     )
                     if (isEditing) {
                         viewModel.updateRepuesto(repuestoId!!, repuestoRequest)
@@ -89,10 +124,10 @@ fun CreateEditRepuestoScreen(
                 modifier = Modifier.fillMaxWidth(),
                 enabled = uiState !is RepuestosUiState.Loading
             ) {
-                if(uiState is RepuestosUiState.Loading){
+                if (uiState is RepuestosUiState.Loading) {
                     CircularProgressIndicator(modifier = Modifier.size(24.dp))
                 } else {
-                    Text("Guardar")
+                    Text(if (isEditing) "Actualizar" else "Guardar")
                 }
             }
         }

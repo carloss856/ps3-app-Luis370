@@ -1,0 +1,26 @@
+Para TELÉFONO FÍSICO por USB (variant deviceDebug, BASE_URL=http://127.0.0.1:8000/api/)
+
+1) Asegura que Android SDK Platform-Tools esté en PATH, o usa la ruta completa:
+   Ejemplo típico Windows:
+   C:\Users\<tu_usuario>\AppData\Local\Android\Sdk\platform-tools\adb.exe
+
+2) Comandos:
+   adb devices
+   adb reverse tcp:8000 tcp:8000
+   adb reverse --list
+
+3) Verificación rápida (en la app):
+   En Login (DEBUG) verás: baseUrl=http://127.0.0.1:8000/api/
+   Luego usa “Diagnóstico API (/login)” para confirmar que ya no sale CONNECT/TIMEOUT.
+
+IMPORTANTE (diagnóstico rápido)
+- Si ves en la app: variant=deviceDebug y baseUrl=http://127.0.0.1:8000/api/ PERO falla CONNECT/TIMEOUT:
+  => casi siempre falta ejecutar `adb reverse tcp:8000 tcp:8000` EN ESTA PC.
+- Si ves: variant=emulatorDebug y baseUrl=http://10.0.2.2:8000/api/ PERO estás en TELÉFONO:
+  => no va a funcionar (10.0.2.2 es solo para emulador). Cambia a deviceDebug.
+- Si ves: variant=deviceDebug y baseUrl=http://127.0.0.1:8000/api/ PERO estás en EMULADOR:
+  => no va a funcionar (127.0.0.1 es el emulador). Cambia a emulatorDebug.
+
+Notas:
+- En EMULADOR usa emulatorDebug (BASE_URL=http://10.0.2.2:8000/api/).
+- 127.0.0.1 en EMULADOR apunta al EMULADOR (no a tu PC).

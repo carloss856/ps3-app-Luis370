@@ -22,6 +22,8 @@ private val DarkColorScheme = darkColorScheme(
     onBackground = md_theme_dark_onBackground,
     surface = md_theme_dark_surface,
     onSurface = md_theme_dark_onSurface,
+    surfaceVariant = md_theme_dark_surfaceVariant,
+    onSurfaceVariant = md_theme_dark_onSurfaceVariant,
     secondary = md_theme_dark_secondary,
     onSecondary = md_theme_dark_onSecondary,
     tertiary = md_theme_dark_tertiary,
@@ -35,18 +37,19 @@ private val LightColorScheme = lightColorScheme(
     onBackground = md_theme_light_onBackground,
     surface = md_theme_light_surface,
     onSurface = md_theme_light_onSurface,
+    surfaceVariant = md_theme_light_surfaceVariant,
+    onSurfaceVariant = md_theme_light_onSurfaceVariant,
     secondary = md_theme_light_secondary,
     onSecondary = md_theme_light_onSecondary,
     tertiary = md_theme_light_tertiary,
-    onTertiary = md_theme_light_onTertiary,
-    onSurfaceVariant = md_theme_light_onSurfaceVariant
+    onTertiary = md_theme_light_onTertiary
 )
 
 @Composable
 fun InventAppLuis370Theme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
@@ -63,7 +66,7 @@ fun InventAppLuis370Theme(
         SideEffect {
             val window = (view.context as Activity).window
             window.statusBarColor = colorScheme.primary.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
         }
     }
 

@@ -10,6 +10,8 @@ interface EquipoRepository {
 
     suspend fun getEquipos(): Result<List<Equipo>>
 
+    suspend fun getEquipo(id: String): Result<Equipo>
+
     // Corregido: Las operaciones de escritura devuelven Unit.
     suspend fun createEquipo(equipoRequest: EquipoRequest): Result<Unit>
 

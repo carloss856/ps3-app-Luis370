@@ -7,6 +7,7 @@ import com.example.inventappluis370.data.common.ApiResult
 import com.example.inventappluis370.data.common.safeApiCall
 import com.example.inventappluis370.data.model.CreateTarifaRequest
 import com.example.inventappluis370.data.model.TarifaServicio
+import com.example.inventappluis370.data.model.TarifaServicioHistorial
 import com.example.inventappluis370.data.model.UpdateTarifaRequest
 import com.example.inventappluis370.data.paging.GenericPagingSource
 import com.example.inventappluis370.data.remote.ApiErrorParser
@@ -65,7 +66,7 @@ class TarifaServicioRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getHistorialTarifa(id: String): Result<List<TarifaServicio>> {
+    override suspend fun getHistorialTarifa(id: String): Result<List<TarifaServicioHistorial>> {
         return try {
             val response = apiService.getHistorialTarifa(id)
             if (response.isSuccessful) {

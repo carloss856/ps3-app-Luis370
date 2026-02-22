@@ -4,6 +4,7 @@ import androidx.paging.PagingData
 import com.example.inventappluis370.data.common.ApiResult
 import com.example.inventappluis370.data.model.CreateTarifaRequest
 import com.example.inventappluis370.data.model.TarifaServicio
+import com.example.inventappluis370.data.model.TarifaServicioHistorial
 import com.example.inventappluis370.data.model.UpdateTarifaRequest
 import kotlinx.coroutines.flow.Flow
 
@@ -22,7 +23,7 @@ interface TarifaServicioRepository {
     suspend fun updateTarifaResult(id: String, request: UpdateTarifaRequest): ApiResult<Unit>
 
     suspend fun deleteTarifa(id: String): Result<Unit>
-    suspend fun getHistorialTarifa(id: String): Result<List<TarifaServicio>>
+    suspend fun getHistorialTarifa(id: String): Result<List<TarifaServicioHistorial>>
 
     /**
      * Modo paginado (contrato dual-mode): usa query params page/per_page y recibe wrapper {data, meta}.

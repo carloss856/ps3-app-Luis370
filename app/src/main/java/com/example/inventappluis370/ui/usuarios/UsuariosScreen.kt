@@ -1,4 +1,4 @@
-package com.example.inventappluis370.ui.usuarios
+﻿package com.example.inventappluis370.ui.usuarios
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -19,6 +19,7 @@ import androidx.paging.compose.itemKey
 import com.example.inventappluis370.data.model.Usuario
 import com.example.inventappluis370.ui.common.ModuleTopBar
 import com.example.inventappluis370.ui.common.PagingUi
+import com.example.inventappluis370.ui.common.PullToRefreshContainer
 
 @Composable
 fun UsuariosScreen(
@@ -26,7 +27,6 @@ fun UsuariosScreen(
     viewModel: UsuariosViewModel = hiltViewModel()
 ) {
     val users = viewModel.usuariosPaged.collectAsLazyPagingItems()
-
     val refreshing = users.loadState.refresh is LoadState.Loading
 
     Scaffold(
@@ -41,15 +41,20 @@ fun UsuariosScreen(
         floatingActionButton = {
             if (viewModel.canCreate()) {
                 FloatingActionButton(onClick = { navController.navigate("usuarios/new") }) {
-                    Icon(Icons.Default.Add, contentDescription = "Añadir Usuario")
+                    Icon(Icons.Default.Add, contentDescription = "Anadir Usuario")
                 }
             }
         }
     ) { paddingValues ->
-        Column(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
+        PullToRefreshContainer(
+            refreshing = refreshing,
+            onRefresh = { users.refresh() },
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
             Box(
-                modifier = Modifier
-                    .fillMaxSize(),
+                modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
                 when {
@@ -85,7 +90,6 @@ fun UsuariosScreen(
                                 UsuarioItem(
                                     user = user,
                                     onDelete = {
-                                        // Solo usar id_persona como id principal.
                                         if (!userIdPersona.isNullOrBlank()) viewModel.deleteUser(userIdPersona)
                                     },
                                     onEdit = {
@@ -108,7 +112,7 @@ fun UsuariosScreen(
                                 if (users.loadState.append is LoadState.Error) {
                                     val error = (users.loadState.append as LoadState.Error).error
                                     Text(
-                                        text = "Error cargando más: ${PagingUi.messageOf(error)}",
+                                        text = "Error cargando mas: ${PagingUi.messageOf(error)}",
                                         color = MaterialTheme.colorScheme.error,
                                         modifier = Modifier.padding(16.dp)
                                     )
@@ -134,7 +138,6 @@ fun UsuarioItem(
     val displayEmail = user.email ?: ""
     val displayRol = user.tipo ?: ""
 
-    // Regla del proyecto: el ID principal debe ser id_persona. No mostramos/ni usamos _id como fallback.
     val businessId = user.idPersona
 
     Card(modifier = Modifier.fillMaxWidth()) {

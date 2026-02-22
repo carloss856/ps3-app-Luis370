@@ -110,7 +110,15 @@ fun CreateEditParteTrabajoScreen(
 
             Button(
                 onClick = {
-                    val minInt = minutos.toIntOrNull() ?: 0
+                    val minInt = minutos.trim().toIntOrNull()
+                    if (minInt == null) {
+                        scope.launch { snackbarHostState.showSnackbar("Minutos invalidos: usa solo numeros enteros") }
+                        return@Button
+                    }
+                    if (minInt <= 0) {
+                        scope.launch { snackbarHostState.showSnackbar("Los minutos deben ser mayores que cero") }
+                        return@Button
+                    }
                     if (isEditing) {
                         viewModel.updateParte(servicioId, parteId!!, UpdateParteTrabajoRequest(minInt, notas))
                     } else {

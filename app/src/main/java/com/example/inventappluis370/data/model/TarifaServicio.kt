@@ -61,3 +61,35 @@ data class UpdateTarifaRequest(
     val moneda: String,
     val activo: Boolean
 )
+
+/**
+ * Representa el historial de cambios de una tarifa de servicio.
+ */
+@JsonClass(generateAdapter = true)
+data class TarifaServicioHistorial(
+    @field:Json(name = "id_historial")
+    val idHistorial: String? = null,
+
+    @field:Json(name = "id_tarifa")
+    val idTarifa: String? = null,
+
+    @field:Json(name = "tipo_tarea")
+    val tipoTarea: String? = null,
+
+    @field:Json(name = "nivel_tecnico")
+    val nivelTecnico: String? = null,
+
+    @field:Json(name = "tarifa_hora")
+    val tarifaHora: Double? = null,
+
+    val moneda: String? = null,
+
+    @field:Json(name = "fecha_registro")
+    val fechaRegistro: String? = null,
+
+    @field:Json(name = "id_usuario")
+    val idUsuario: String? = null,
+
+    @field:Json(name = "nombre_usuario")
+    val nombreUsuario: String? = null,
+)

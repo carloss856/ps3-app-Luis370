@@ -1,10 +1,12 @@
-package com.example.inventappluis370.ui.home
+﻿package com.example.inventappluis370.ui.home
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Notifications
@@ -13,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.IntOffset
@@ -21,6 +24,7 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.inventappluis370.ui.common.ThemeToggleButton
 import com.example.inventappluis370.ui.dashboard.DashboardViewModel
 import com.example.inventappluis370.ui.notificaciones.NotificacionesViewModel
 import com.example.inventappluis370.ui.notificaciones.NotificationsPanel
@@ -36,7 +40,7 @@ fun DashboardScreen(
     val dashboardItems by viewModel.dashboardItems.collectAsState()
     val userDisplayName by viewModel.userDisplayName.collectAsState()
 
-    // Hilt puede reusar instancias por backstack; tipamos explícito.
+    // Hilt puede reusar instancias por backstack; tipamos explicito.
     val notificacionesViewModel = hiltViewModel<NotificacionesViewModel>()
     val rbacViewModel = hiltViewModel<RbacViewModel>()
 
@@ -52,7 +56,7 @@ fun DashboardScreen(
         }
     }
 
-    // Badge de no leídas (campana)
+    // Badge de no leidas (campana)
     val unreadCount by notificacionesViewModel.unreadCount.collectAsState(initial = 0)
 
     Scaffold(
@@ -68,29 +72,41 @@ fun DashboardScreen(
                     Box(modifier = Modifier.weight(1f).padding(start = 8.dp)) {
                         Text(text = "Inventario Luis370", style = MaterialTheme.typography.titleLarge)
                     }
+                    ThemeToggleButton()
 
                     Box {
-                        IconButton(
-                            onClick = { showNotifications = !showNotifications },
-                            modifier = Modifier.onGloballyPositioned { coords ->
-                                val b = coords.boundsInWindow()
-                                bellOffset = IntOffset(b.left.toInt(), b.top.toInt())
-                                bellHeightPx = b.height.toInt()
-                            }
-                        ) {
-                            BadgedBox(
-                                badge = {
-                                    if (unreadCount > 0) {
-                                        Badge {
-                                            Text(
-                                                text = if (unreadCount > 99) "99+" else unreadCount.toString(),
-                                                style = MaterialTheme.typography.labelSmall
-                                            )
-                                        }
-                                    }
+                        Box(
+                            modifier = Modifier
+                                .padding(top = 2.dp)
+                                .onGloballyPositioned { coords ->
+                                    val b = coords.boundsInWindow()
+                                    bellOffset = IntOffset(b.left.toInt(), b.top.toInt())
+                                    bellHeightPx = b.height.toInt()
                                 }
-                            ) {
+                        ) {
+                            IconButton(onClick = { showNotifications = !showNotifications }) {
                                 Icon(Icons.Default.Notifications, contentDescription = "Notificaciones")
+                            }
+                            if (unreadCount > 0) {
+                                val badgeText = if (unreadCount > 99) "99+" else unreadCount.toString()
+                                val badgeSize = if (badgeText.length >= 3) 24.dp else 20.dp
+                                Box(
+                                    modifier = Modifier
+                                        .align(Alignment.TopEnd)
+                                        .offset(x = 8.dp, y = (-4).dp)
+                                        .size(badgeSize)
+                                        .clip(CircleShape)
+                                        .background(MaterialTheme.colorScheme.error)
+                                        .padding(0.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = badgeText,
+                                        color = MaterialTheme.colorScheme.onError,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        maxLines = 1
+                                    )
+                                }
                             }
                         }
 
@@ -126,7 +142,7 @@ fun DashboardScreen(
                     }
 
                     IconButton(onClick = onLogout) {
-                        Icon(Icons.Default.ExitToApp, contentDescription = "Cerrar Sesión")
+                        Icon(Icons.Default.ExitToApp, contentDescription = "Cerrar Sesion")
                     }
                 }
             }
@@ -154,7 +170,7 @@ fun DashboardScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier.fillMaxSize()
             ) {
-                items(dashboardItems) { item ->
+                items(items = dashboardItems, key = { it.route }) { item ->
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -183,3 +199,4 @@ fun DashboardScreen(
         }
     }
 }
+

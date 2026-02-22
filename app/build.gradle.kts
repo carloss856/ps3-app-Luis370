@@ -1,9 +1,19 @@
-plugins {
+﻿plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.dagger.hilt.android")
     id("com.google.devtools.ksp")
 }
+
+val emulatorBaseUrl = providers
+    .gradleProperty("INVENTAPP_BASE_URL_EMULATOR")
+    .orElse("http://10.0.2.2:8000/api/")
+    .get()
+
+val deviceBaseUrl = providers
+    .gradleProperty("INVENTAPP_BASE_URL_DEVICE")
+    .orElse(emulatorBaseUrl)
+    .get()
 
 android {
     namespace = "com.example.inventappluis370"
@@ -29,8 +39,8 @@ android {
 
     buildTypes {
         debug {
-            // IMPORTANTE: no definir BASE_URL aquí para no pisar los productFlavors.
-            // Usa emulatorDebug (10.0.2.2) o deviceDebug (127.0.0.1 con adb reverse).
+            // IMPORTANTE: no definir BASE_URL aquÃ­ para no pisar los productFlavors.
+            // Usa emulatorDebug/deviceDebug con BASE_URL configurable desde gradle.properties.
         }
         release {
             isMinifyEnabled = false
@@ -60,27 +70,22 @@ android {
     testOptions {
         unitTests {
             isReturnDefaultValues = true
-            all {
-                // PENDIENTE: reactivar cuando dejemos tests en verde
-                it.ignoreFailures = true
-            }
         }
     }
 
-    // Permite elegir destino sin tocar código: ./gradlew installEmulatorDebug o installDeviceDebug
+    // Permite elegir destino sin tocar cÃ³digo: ./gradlew installEmulatorDebug o installDeviceDebug
     flavorDimensions += "target"
     productFlavors {
         create("emulator") {
             dimension = "target"
             // Android Studio AVD: 10.0.2.2 apunta al localhost del host (tu PC)
-            buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:8000/api/\"")
+            buildConfigField("String", "BASE_URL", "\"$emulatorBaseUrl\"")
         }
         create("device") {
             dimension = "target"
-            // Dispositivo físico:
-            // - recomendado: usar `adb reverse tcp:8000 tcp:8000` y apuntar a localhost
-            // - alternativa: usar la IP LAN de tu PC (ej: http://192.168.0.X:8000/api/)
-            buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:8000/api/\"")
+            // TELÃ‰FONO FÃSICO por USB con `adb reverse tcp:8000 tcp:8000`:
+            // en el telÃ©fono, 127.0.0.1 apunta al puerto reversado hacia tu PC.
+            buildConfigField("String", "BASE_URL", "\"$deviceBaseUrl\"")
         }
     }
 }
@@ -135,7 +140,7 @@ dependencies {
     // Pull-to-refresh (Compose Material)
     implementation("androidx.compose.material:material")
 
-    // Paging 3 (paginación)
+    // Paging 3 (paginaciÃ³n)
     implementation("androidx.paging:paging-runtime:3.3.5")
     implementation("androidx.paging:paging-compose:3.3.5")
 

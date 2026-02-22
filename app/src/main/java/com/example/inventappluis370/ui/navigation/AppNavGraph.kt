@@ -33,6 +33,7 @@ import com.example.inventappluis370.ui.servicios.ServiciosScreen
 import com.example.inventappluis370.ui.solicitudes.CreateSolicitudScreen
 import com.example.inventappluis370.ui.solicitudes.SolicitudesRepuestoScreen
 import com.example.inventappluis370.ui.tarifas.CreateEditTarifaScreen
+import com.example.inventappluis370.ui.tarifas.TarifaHistorialScreen
 import com.example.inventappluis370.ui.tarifas.TarifasScreen
 import com.example.inventappluis370.ui.usuarios.CreateEditUsuarioScreen
 import com.example.inventappluis370.ui.usuarios.UsuariosScreen
@@ -100,6 +101,10 @@ fun AppNavGraph(
         composable(Routes.TARIFAS_EDIT) { backStackEntry ->
             val tarifaId = backStackEntry.arguments?.getString("tarifaId")
             CreateEditTarifaScreen(navController, tarifaId = tarifaId)
+        }
+        composable(Routes.TARIFAS_HISTORIAL) { backStackEntry ->
+            val tarifaId = backStackEntry.arguments?.getString("tarifaId") ?: ""
+            TarifaHistorialScreen(navController, tarifaId = tarifaId)
         }
 
         // Propiedad de Equipos

@@ -8,6 +8,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -84,6 +85,9 @@ fun TarifasScreen(
                             viewModel = viewModel,
                             onEdit = { tarifa ->
                                 tarifa.idTarifa?.let { navController.navigate("tarifas/$it") }
+                            },
+                            onViewHistory = { tarifa ->
+                                tarifa.idTarifa?.let { navController.navigate("tarifas/$it/historial") }
                             }
                         )
                     }
@@ -104,7 +108,12 @@ fun TarifasScreen(
 }
 
 @Composable
-fun TarifasList(tarifas: List<TarifaServicio>, viewModel: TarifasViewModel, onEdit: (TarifaServicio) -> Unit) {
+fun TarifasList(
+    tarifas: List<TarifaServicio>,
+    viewModel: TarifasViewModel,
+    onEdit: (TarifaServicio) -> Unit,
+    onViewHistory: (TarifaServicio) -> Unit,
+) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
@@ -113,10 +122,11 @@ fun TarifasList(tarifas: List<TarifaServicio>, viewModel: TarifasViewModel, onEd
         items(tarifas) { tarifa ->
             TarifaItem(
                 tarifa = tarifa,
-                onDelete = { 
-                    tarifa.idTarifa?.let { viewModel.deleteTarifa(it) } 
+                onDelete = {
+                    tarifa.idTarifa?.let { viewModel.deleteTarifa(it) }
                 },
                 onEdit = { onEdit(tarifa) },
+                onViewHistory = { onViewHistory(tarifa) },
                 canUpdate = viewModel.canUpdate(),
                 canDelete = viewModel.canDelete()
             )
@@ -125,7 +135,14 @@ fun TarifasList(tarifas: List<TarifaServicio>, viewModel: TarifasViewModel, onEd
 }
 
 @Composable
-fun TarifaItem(tarifa: TarifaServicio, onDelete: () -> Unit, onEdit: () -> Unit, canUpdate: Boolean, canDelete: Boolean) {
+fun TarifaItem(
+    tarifa: TarifaServicio,
+    onDelete: () -> Unit,
+    onEdit: () -> Unit,
+    onViewHistory: () -> Unit,
+    canUpdate: Boolean,
+    canDelete: Boolean
+) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(1f)) {
@@ -138,6 +155,9 @@ fun TarifaItem(tarifa: TarifaServicio, onDelete: () -> Unit, onEdit: () -> Unit,
                 if (tarifa.activo == false) {
                     Text(text = "INACTIVO", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelSmall)
                 }
+            }
+            IconButton(onClick = onViewHistory) {
+                Icon(Icons.Default.History, contentDescription = "Ver historial")
             }
             if (canUpdate) {
                 IconButton(onClick = onEdit) {

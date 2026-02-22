@@ -19,6 +19,9 @@ interface EquipoApiService {
         @Query("per_page") perPage: Int
     ): Response<com.example.inventappluis370.data.model.PaginatedResponseDto<Equipo>>
 
+    @GET("equipos/{id}")
+    suspend fun getEquipo(@Path("id") id: String): Response<Equipo>
+
     // Corregido: No esperamos un cuerpo en la respuesta.
     @POST("equipos")
     suspend fun createEquipo(@Body equipoRequest: EquipoRequest): Response<Unit>
