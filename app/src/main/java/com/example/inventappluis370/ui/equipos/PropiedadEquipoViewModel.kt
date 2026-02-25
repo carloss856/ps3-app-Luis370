@@ -50,7 +50,7 @@ class PropiedadEquipoViewModel @Inject constructor(
 
     fun getPropiedadById(id: String) {
         val current = (uiState.value as? PropiedadEquipoUiState.Success)?.propiedades
-        // Corregido: Usar idPropiedad para la búsqueda
+        // Corregido: Usar idPropiedad para la busqueda
         _selectedPropiedad.value = current?.find { it.idPropiedad == id }
     }
 
@@ -84,3 +84,4 @@ class PropiedadEquipoViewModel @Inject constructor(
     fun canUpdate(): Boolean = PermissionManager.canUpdate(userRole, "PropiedadEquipo")
     fun canDelete(): Boolean = PermissionManager.canDelete(userRole, "PropiedadEquipo")
 }
+

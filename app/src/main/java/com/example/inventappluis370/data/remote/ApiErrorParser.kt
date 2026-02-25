@@ -13,16 +13,16 @@ object ApiErrorParser {
     fun parseError(response: Response<*>): String {
         return try {
             val errorBody = response.errorBody()?.string()
-            if (errorBody == null) return "Error desconocido (Código: ${response.code()})"
+            if (errorBody == null) return "Error desconocido (Codigo: ${response.code()})"
 
             val jsonObject = JSONObject(errorBody)
 
-            // Caso 1: Existe un mensaje de validación detallado
+            // Caso 1: Existe un mensaje de validacion detallado
             if (jsonObject.has("errors")) {
                 val errors = jsonObject.getJSONObject("errors")
                 val firstKey = errors.keys().next()
                 val firstErrorArray = errors.getJSONArray(firstKey)
-                // Retornamos el primer error de validación encontrado
+                // Retornamos el primer error de validacion encontrado
                 return firstErrorArray.getString(0)
             }
 
@@ -39,7 +39,7 @@ object ApiErrorParser {
     fun parseErrorResponse(response: Response<*>): ApiErrorResponse {
         return try {
             val errorBody = response.errorBody()?.string() ?: return ApiErrorResponse(
-                message = "Error desconocido (Código: ${response.code()})"
+                message = "Error desconocido (Codigo: ${response.code()})"
             )
 
             val jsonObject = JSONObject(errorBody)
@@ -87,3 +87,4 @@ object ApiErrorParser {
         }
     }
 }
+

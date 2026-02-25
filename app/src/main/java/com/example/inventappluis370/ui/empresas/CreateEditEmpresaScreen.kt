@@ -1,6 +1,8 @@
 package com.example.inventappluis370.ui.empresas
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Business
@@ -52,14 +54,14 @@ fun CreateEditEmpresaScreen(
             return null
         }
 
-        // keys esperadas según contrato Laravel: snake_case
+        // keys esperadas segun contrato Laravel: snake_case
         firstMsg("nombre_empresa", "nombreEmpresa", "nombre", "nombre de la empresa")?.let { msg ->
             nombreState = nombreState.copy(error = msg)
         }
-        firstMsg("direccion", "dirección")?.let { msg ->
+        firstMsg("direccion", "direccion")?.let { msg ->
             direccionState = direccionState.copy(error = msg)
         }
-        firstMsg("telefono", "teléfono")?.let { msg ->
+        firstMsg("telefono", "telefono")?.let { msg ->
             telefonoState = telefonoState.copy(error = msg)
         }
         firstMsg("email", "correo")?.let { msg ->
@@ -68,8 +70,8 @@ fun CreateEditEmpresaScreen(
     }
 
     fun applyBackendErrorToFields(message: String) {
-        // Si el backend manda “validation.required” sin field,
-        // resaltamos obligatorios SOLO si están vacíos.
+        // Si el backend manda "validation.required" sin field,
+        // resaltamos obligatorios SOLO si estan vacios.
         if (
             message.contains("required", ignoreCase = true) ||
             message.contains("validation.required", ignoreCase = true)
@@ -78,8 +80,8 @@ fun CreateEditEmpresaScreen(
             if (emailState.value.isBlank()) emailState = emailState.copy(error = "Obligatorio")
         }
 
-        // Heurística para mensajes que incluyan nombre de campo:
-        // no sobreescribas con “Revisa” si ya hay un error más específico.
+        // Heuristica para mensajes que incluyan nombre de campo:
+        // no sobreescribas con "Revisa" si ya hay un error mas especifico.
         if (message.contains("nombre", ignoreCase = true) && nombreState.error == null) {
             nombreState = nombreState.copy(error = "Revisa este campo")
         }
@@ -109,6 +111,10 @@ fun CreateEditEmpresaScreen(
         if (operationSuccess) {
             // Marca refresh ANTES de volver.
             navController.previousBackStackEntry?.savedStateHandle?.set("refresh", true)
+            navController.previousBackStackEntry?.savedStateHandle?.set(
+                "operation_message",
+                if (isEditing) "Empresa editada correctamente" else "Empresa creada correctamente"
+            )
             viewModel.consumeOperationSuccess()
             navController.popBackStack()
         }
@@ -118,7 +124,7 @@ fun CreateEditEmpresaScreen(
     LaunchedEffect(uiState) {
         val currentState = uiState
         if (currentState is EmpresasUiState.Error) {
-            // Si el backend devolvió un error genérico, intentamos reflejar en campos.
+            // Si el backend devolvio un error generico, intentamos reflejar en campos.
             applyBackendErrorToFields(currentState.message)
             scope.launch {
                 snackbarHostState.showSnackbar(currentState.message)
@@ -149,14 +155,15 @@ fun CreateEditEmpresaScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp),
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             OutlinedTextField(
                 value = nombreState.value,
                 onValueChange = {
                     nombreState = nombreState.copy(value = it, error = null)
-                    // Si había error backend de este campo, lo consumimos al editar.
+                    // Si habia error backend de este campo, lo consumimos al editar.
                     if (fieldErrors.isNotEmpty()) viewModel.clearFieldError("nombre_empresa")
                 },
                 label = { Text("Nombre de la Empresa *") },
@@ -173,7 +180,7 @@ fun CreateEditEmpresaScreen(
                     direccionState = direccionState.copy(value = it, error = null)
                     if (fieldErrors.isNotEmpty()) viewModel.clearFieldError("direccion")
                 },
-                label = { Text("Dirección") },
+                label = { Text("Direccion") },
                 modifier = Modifier.fillMaxWidth(),
                 isError = direccionState.error != null,
                 supportingText = {
@@ -187,7 +194,7 @@ fun CreateEditEmpresaScreen(
                     telefonoState = telefonoState.copy(value = it, error = null)
                     if (fieldErrors.isNotEmpty()) viewModel.clearFieldError("telefono")
                 },
-                label = { Text("Teléfono") },
+                label = { Text("Telefono") },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                 isError = telefonoState.error != null,
@@ -253,7 +260,7 @@ fun CreateEditEmpresaScreen(
                                 direccion = direccion,
                                 telefono = telefono,
                                 email = emailState.value.trim(),
-                                // MUY IMPORTANTE: no enviar fecha_creacion. En el backend puede romper validación en update.
+                                // MUY IMPORTANTE: no enviar fecha_creacion. En el backend puede romper validacion en update.
                                 fechaCreacion = null
                             )
 
@@ -277,3 +284,6 @@ fun CreateEditEmpresaScreen(
         }
     }
 }
+
+
+

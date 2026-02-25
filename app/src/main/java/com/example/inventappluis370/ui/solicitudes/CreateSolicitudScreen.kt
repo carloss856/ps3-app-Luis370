@@ -1,11 +1,41 @@
-package com.example.inventappluis370.ui.solicitudes
+﻿package com.example.inventappluis370.ui.solicitudes
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddShoppingCart
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -14,6 +44,7 @@ import androidx.navigation.NavController
 import com.example.inventappluis370.data.model.CreateSolicitudRequest
 import com.example.inventappluis370.data.model.Repuesto
 import com.example.inventappluis370.data.model.Servicio
+import com.example.inventappluis370.data.model.UpdateSolicitudRequest
 import com.example.inventappluis370.data.model.Usuario
 import com.example.inventappluis370.ui.common.ModuleTopBar
 import com.example.inventappluis370.ui.repuestos.RepuestosUiState
@@ -32,10 +63,16 @@ fun CreateSolicitudScreen(
     repuestosViewModel: RepuestosViewModel = hiltViewModel(),
     serviciosViewModel: ServiciosViewModel = hiltViewModel(),
     usuariosViewModel: UsuariosViewModel = hiltViewModel(),
+    solicitudId: String? = null,
 ) {
+    val isEditing = !solicitudId.isNullOrBlank()
+
     var repuestoId by remember { mutableStateOf("") }
+    var repuestoLabel by remember { mutableStateOf("") }
     var servicioId by remember { mutableStateOf("") }
+    var servicioLabel by remember { mutableStateOf("") }
     var idUsuario by remember { mutableStateOf("") }
+    var usuarioLabel by remember { mutableStateOf("") }
     var cantidad by remember { mutableStateOf("") }
     var estado by remember { mutableStateOf("") }
     var comentarios by remember { mutableStateOf("") }
@@ -43,15 +80,29 @@ fun CreateSolicitudScreen(
     var repuestoExpanded by remember { mutableStateOf(false) }
     var servicioExpanded by remember { mutableStateOf(false) }
     var usuarioExpanded by remember { mutableStateOf(false) }
+    var estadoExpanded by remember { mutableStateOf(false) }
+    val estadoBaseOptions = listOf(
+        "Pendiente",
+        "Aprobada",
+        "En proceso",
+        "Completada",
+        "Rechazada",
+        "Cancelada"
+    )
+    val estadoOptions = remember(estado) {
+        if (estado.isNotBlank() && estado !in estadoBaseOptions) estadoBaseOptions + estado else estadoBaseOptions
+    }
+
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    var errorDialog by remember { mutableStateOf<String?>(null) }
+    var successDialog by remember { mutableStateOf<String?>(null) }
 
     val uiState by viewModel.uiState.collectAsState()
-    LaunchedEffect(uiState) {
-        if (uiState is SolicitudesUiState.OperationSuccess) {
-            navController.previousBackStackEntry?.savedStateHandle?.set("refresh", true)
-            navController.popBackStack()
-        }
+    val selectedSolicitud by viewModel.selectedSolicitud.collectAsState()
+
+    LaunchedEffect(solicitudId) {
+        if (isEditing) viewModel.getSolicitudById(solicitudId!!)
     }
 
     // Cargar data para dropdowns
@@ -69,10 +120,40 @@ fun CreateSolicitudScreen(
     val servicios: List<Servicio> = (serviciosState as? ServiciosUiState.Success)?.servicios.orEmpty()
     val usuarios: List<Usuario> = (usuariosState as? UsuariosUiState.Success)?.users.orEmpty()
 
+    LaunchedEffect(selectedSolicitud, repuestos, servicios, usuarios) {
+        val s = selectedSolicitud ?: return@LaunchedEffect
+        if (!isEditing) return@LaunchedEffect
+
+        repuestoId = s.idRepuesto ?: ""
+        servicioId = s.idServicio ?: ""
+        idUsuario = s.idUsuario ?: ""
+        cantidad = (s.cantidadSolicitada ?: "").toString()
+        estado = s.estadoSolicitud.orEmpty()
+        comentarios = s.comentarios.orEmpty()
+
+        repuestoLabel = repuestos.firstOrNull { it.idRepuesto == repuestoId }?.nombreRepuesto
+            ?: repuestoId
+        servicioLabel = servicios.firstOrNull { it.idServicio == servicioId }?.let {
+            val tipo = it.problemaReportado?.takeIf { txt -> txt.isNotBlank() } ?: (it.estado ?: "Servicio")
+            "$tipo"
+        } ?: servicioId
+        usuarioLabel = usuarios.firstOrNull { (it.idPersona ?: it.idRaw ?: "") == idUsuario }?.nombre
+            ?: idUsuario
+    }
+
+    LaunchedEffect(uiState) {
+        if (uiState is SolicitudesUiState.OperationSuccess) {
+            successDialog = if (isEditing) "Solicitud editada correctamente" else "Solicitud creada correctamente"
+        }
+        if (uiState is SolicitudesUiState.Error) {
+            errorDialog = (uiState as SolicitudesUiState.Error).message
+        }
+    }
+
     Scaffold(
         topBar = {
             ModuleTopBar(
-                title = "Nueva Solicitud de Repuesto",
+                title = if (isEditing) "Editar Solicitud" else "Nueva Solicitud de Repuesto",
                 onBack = { navController.popBackStack() },
                 endIcon = Icons.Default.AddShoppingCart,
                 endIconContentDescription = "Solicitudes",
@@ -84,7 +165,8 @@ fun CreateSolicitudScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(16.dp),
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             ExposedDropdownMenuBox(
@@ -92,15 +174,14 @@ fun CreateSolicitudScreen(
                 onExpandedChange = { repuestoExpanded = !repuestoExpanded }
             ) {
                 OutlinedTextField(
-                    value = repuestoId,
-                    onValueChange = { repuestoId = it },
+                    value = repuestoLabel,
+                    onValueChange = {},
+                    readOnly = true,
                     label = { Text("Repuesto *") },
                     modifier = Modifier
                         .fillMaxWidth()
                         .menuAnchor(),
-                    trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = repuestoExpanded)
-                    },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = repuestoExpanded) },
                     singleLine = true,
                 )
                 ExposedDropdownMenu(
@@ -111,9 +192,10 @@ fun CreateSolicitudScreen(
                         val id = r.idRepuesto.orEmpty()
                         val nombre = r.nombreRepuesto ?: "(Sin nombre)"
                         DropdownMenuItem(
-                            text = { Text("$id — $nombre") },
+                            text = { Text(nombre) },
                             onClick = {
                                 repuestoId = id
+                                repuestoLabel = nombre
                                 repuestoExpanded = false
                             }
                         )
@@ -126,15 +208,14 @@ fun CreateSolicitudScreen(
                 onExpandedChange = { servicioExpanded = !servicioExpanded }
             ) {
                 OutlinedTextField(
-                    value = servicioId,
-                    onValueChange = { servicioId = it },
+                    value = servicioLabel,
+                    onValueChange = {},
+                    readOnly = true,
                     label = { Text("Servicio *") },
                     modifier = Modifier
                         .fillMaxWidth()
                         .menuAnchor(),
-                    trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = servicioExpanded)
-                    },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = servicioExpanded) },
                     singleLine = true,
                 )
                 ExposedDropdownMenu(
@@ -143,11 +224,13 @@ fun CreateSolicitudScreen(
                 ) {
                     servicios.forEach { s ->
                         val id = s.idServicio.orEmpty()
-                        val estadoTxt = s.estado ?: ""
+                        val label = s.problemaReportado?.takeIf { it.isNotBlank() }
+                            ?: (s.estado ?: "Servicio $id")
                         DropdownMenuItem(
-                            text = { Text("$id — $estadoTxt") },
+                            text = { Text(label) },
                             onClick = {
                                 servicioId = id
+                                servicioLabel = label
                                 servicioExpanded = false
                             }
                         )
@@ -160,15 +243,14 @@ fun CreateSolicitudScreen(
                 onExpandedChange = { usuarioExpanded = !usuarioExpanded }
             ) {
                 OutlinedTextField(
-                    value = idUsuario,
-                    onValueChange = { idUsuario = it },
+                    value = usuarioLabel,
+                    onValueChange = {},
+                    readOnly = true,
                     label = { Text("Usuario solicitante *") },
                     modifier = Modifier
                         .fillMaxWidth()
                         .menuAnchor(),
-                    trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = usuarioExpanded)
-                    },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = usuarioExpanded) },
                     singleLine = true,
                 )
                 ExposedDropdownMenu(
@@ -179,9 +261,10 @@ fun CreateSolicitudScreen(
                         val id = u.idPersona ?: u.idRaw ?: ""
                         val nombre = u.nombre ?: "(Sin nombre)"
                         DropdownMenuItem(
-                            text = { Text("$id — $nombre") },
+                            text = { Text(nombre) },
                             onClick = {
                                 idUsuario = id
+                                usuarioLabel = nombre
                                 usuarioExpanded = false
                             }
                         )
@@ -197,68 +280,145 @@ fun CreateSolicitudScreen(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
             )
 
-            OutlinedTextField(
-                value = estado,
-                onValueChange = { estado = it },
-                label = { Text("Estado (Pendiente/Aprobada/Rechazada)") },
-                modifier = Modifier.fillMaxWidth()
-            )
+            ExposedDropdownMenuBox(
+                expanded = estadoExpanded,
+                onExpandedChange = { estadoExpanded = !estadoExpanded }
+            ) {
+                OutlinedTextField(
+                    value = estado,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Estado") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .menuAnchor(),
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = estadoExpanded) },
+                    singleLine = true,
+                )
+                ExposedDropdownMenu(
+                    expanded = estadoExpanded,
+                    onDismissRequest = { estadoExpanded = false }
+                ) {
+                    estadoOptions.forEach { item ->
+                        DropdownMenuItem(
+                            text = { Text(item) },
+                            onClick = {
+                                estado = item
+                                estadoExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
 
             OutlinedTextField(
                 value = comentarios,
                 onValueChange = { comentarios = it },
-                label = { Text("Comentarios (Opcional)") },
+                label = { Text("Comentarios") },
                 modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Button(
-                onClick = {
-                    val cantidadInt = cantidad.trim().toIntOrNull()
-                    when {
-                        repuestoId.isBlank() -> {
-                            scope.launch { snackbarHostState.showSnackbar("Debes seleccionar un repuesto") }
-                            return@Button
-                        }
-                        servicioId.isBlank() -> {
-                            scope.launch { snackbarHostState.showSnackbar("Debes seleccionar un servicio") }
-                            return@Button
-                        }
-                        idUsuario.isBlank() -> {
-                            scope.launch { snackbarHostState.showSnackbar("Debes seleccionar un usuario") }
-                            return@Button
-                        }
-                        cantidadInt == null -> {
-                            scope.launch { snackbarHostState.showSnackbar("Cantidad invalida: usa solo numeros enteros") }
-                            return@Button
-                        }
-                        cantidadInt <= 0 -> {
-                            scope.launch { snackbarHostState.showSnackbar("La cantidad debe ser mayor que cero") }
-                            return@Button
-                        }
-                    }
-                    val cantidadSolicitada = cantidadInt!!
-
-                    val request = CreateSolicitudRequest(
-                        repuestoId = repuestoId.trim(),
-                        servicioId = servicioId.trim(),
-                        cantidadSolicitada = cantidadSolicitada,
-                        idUsuario = idUsuario.trim(),
-                        estadoSolicitud = estado.trim().ifBlank { null },
-                        comentarios = comentarios.trim().ifBlank { null }
-                    )
-                    viewModel.createSolicitud(request)
-                },
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                enabled = uiState !is SolicitudesUiState.Loading
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                if (uiState is SolicitudesUiState.Loading) {
-                    CircularProgressIndicator(modifier = Modifier.size(24.dp))
-                } else {
-                    Text("Crear Solicitud")
+                OutlinedButton(
+                    onClick = { navController.popBackStack() },
+                    modifier = Modifier.weight(1f)
+                ) { Text("Volver") }
+
+                Button(
+                    onClick = {
+                    if (repuestoId.isBlank()) {
+                        scope.launch { snackbarHostState.showSnackbar("Debes seleccionar un repuesto") }
+                        return@Button
+                    }
+                    if (servicioId.isBlank()) {
+                        scope.launch { snackbarHostState.showSnackbar("Debes seleccionar un servicio") }
+                        return@Button
+                    }
+                    if (idUsuario.isBlank()) {
+                        scope.launch { snackbarHostState.showSnackbar("Debes seleccionar un usuario") }
+                        return@Button
+                    }
+                    val cantidadInt = cantidad.trim().toIntOrNull()
+                    if (cantidadInt == null) {
+                        scope.launch { snackbarHostState.showSnackbar("Cantidad invalida: usa solo numeros enteros") }
+                        return@Button
+                    }
+                    if (cantidadInt <= 0) {
+                        scope.launch { snackbarHostState.showSnackbar("La cantidad debe ser mayor que cero") }
+                        return@Button
+                    }
+                    val estadoValue = estado.trim().ifBlank { "Pendiente" }
+                    val comentariosValue = comentarios.trim().ifBlank { null }
+
+                    if (isEditing) {
+                        viewModel.updateSolicitud(
+                            solicitudId!!,
+                            UpdateSolicitudRequest(
+                                repuestoId = repuestoId.trim(),
+                                servicioId = servicioId.trim(),
+                                cantidadSolicitada = cantidadInt,
+                                idUsuario = idUsuario.trim(),
+                                estadoSolicitud = estadoValue,
+                                comentarios = comentariosValue
+                            )
+                        )
+                    } else {
+                        viewModel.createSolicitud(
+                            CreateSolicitudRequest(
+                                repuestoId = repuestoId.trim(),
+                                servicioId = servicioId.trim(),
+                                cantidadSolicitada = cantidadInt,
+                                idUsuario = idUsuario.trim(),
+                                estadoSolicitud = estadoValue,
+                                comentarios = comentariosValue
+                            )
+                        )
+                    }
+                    },
+                    modifier = Modifier.weight(1f),
+                    enabled = uiState !is SolicitudesUiState.Loading
+                ) {
+                    if (uiState is SolicitudesUiState.Loading) {
+                        CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                    } else {
+                        Text(if (isEditing) "Actualizar Solicitud" else "Crear Solicitud")
+                    }
                 }
             }
         }
+
+        if (errorDialog != null) {
+            AlertDialog(
+                onDismissRequest = { errorDialog = null },
+                confirmButton = { TextButton(onClick = { errorDialog = null }) { Text("Aceptar") } },
+                title = { Text("Error") },
+                text = { Text(errorDialog!!) }
+            )
+        }
+
+        if (successDialog != null) {
+            AlertDialog(
+                onDismissRequest = {},
+                confirmButton = {
+                    TextButton(onClick = {
+                        val msg = successDialog!!
+                        successDialog = null
+                        navController.previousBackStackEntry?.savedStateHandle?.set("refresh", true)
+                        navController.previousBackStackEntry?.savedStateHandle?.set("operation_message", msg)
+                        navController.popBackStack()
+                    }) { Text("Aceptar") }
+                },
+                title = { Text("Operacion completada") },
+                text = { Text(successDialog!!) }
+            )
+        }
     }
 }
+
+
+

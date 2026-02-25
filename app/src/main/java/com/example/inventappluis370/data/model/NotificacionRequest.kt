@@ -3,7 +3,7 @@ package com.example.inventappluis370.data.model
 import com.squareup.moshi.Json
 
 /**
- * Payload para crear o actualizar una notificación.
+ * Payload para crear o actualizar una notificacion.
  */
 data class NotificacionRequest(
     @field:Json(name = "id_servicio")
@@ -18,3 +18,4 @@ data class NotificacionRequest(
     @field:Json(name = "estado_envio")
     val estadoEnvio: String = "Pendiente"
 )
+

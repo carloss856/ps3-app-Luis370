@@ -1,4 +1,4 @@
-package com.example.inventappluis370.data.repository
+﻿package com.example.inventappluis370.data.repository
 
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -143,3 +143,4 @@ class ServicioRepositoryImpl @Inject constructor(
         return safeApiCall { apiService.updateParte(servicioId, parteId, request) }
     }
 }
+

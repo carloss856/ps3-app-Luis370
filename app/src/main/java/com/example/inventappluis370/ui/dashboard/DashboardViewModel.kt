@@ -1,4 +1,4 @@
-package com.example.inventappluis370.ui.dashboard
+﻿package com.example.inventappluis370.ui.dashboard
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -40,3 +40,4 @@ class DashboardViewModel @Inject constructor(
         initialValue = emptyList()
     )
 }
+

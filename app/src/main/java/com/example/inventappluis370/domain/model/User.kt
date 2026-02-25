@@ -1,4 +1,4 @@
-package com.example.inventappluis370.domain.model
+﻿package com.example.inventappluis370.domain.model
 
 /**
  * Modelo de dominio para usuario autenticado.
@@ -20,4 +20,5 @@ data class User(
     val recibirNotificaciones: Boolean?,
     val tiposNotificacion: List<String>?,
 )
+
 

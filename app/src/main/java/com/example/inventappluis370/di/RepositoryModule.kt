@@ -74,7 +74,7 @@ abstract class RepositoryModule {
         impl: AutenticacionUsuarioRepositoryImpl
     ): AutenticacionUsuarioRepository
 
-    // --- Dashboard real (Estadísticas) ---
+    // --- Dashboard real (Estadisticas) ---
 
     @Binds
     @Singleton
@@ -92,3 +92,4 @@ abstract class RepositoryModule {
     @Singleton
     abstract fun bindPermissionsRepository(impl: PermissionsRepositoryImpl): PermissionsRepository
 }
+

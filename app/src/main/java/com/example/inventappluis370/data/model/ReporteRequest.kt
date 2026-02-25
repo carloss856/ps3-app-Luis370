@@ -3,7 +3,7 @@ package com.example.inventappluis370.data.model
 import com.squareup.moshi.Json
 
 /**
- * Representa el cuerpo de la petición para crear un nuevo reporte.
+ * Representa el cuerpo de la peticion para crear un nuevo reporte.
  */
 data class ReporteRequest(
     @Json(name = "tipo_reporte")
@@ -15,3 +15,4 @@ data class ReporteRequest(
     @Json(name = "id_usuario")
     val idUsuario: String
 )
+

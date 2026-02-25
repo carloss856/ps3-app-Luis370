@@ -17,9 +17,9 @@ import java.net.UnknownHostException
  * - headers (incluyendo X-Token-Expires-At)
  * - body (si aplica)
  * - errorBody cuando el backend responde error
- * - excepción (incluyendo parse errors de Moshi)
+ * - excepcion (incluyendo parse errors de Moshi)
  *
- * NOTA: Esto NO debe ir a producción. Úsalo solo en debug.
+ * NOTA: Esto NO debe ir a produccion. Usalo solo en debug.
  */
 object EndpointProbe {
 
@@ -43,12 +43,12 @@ object EndpointProbe {
         val hint = when {
             BuildConfig.BASE_URL.contains("127.0.0.1") ->
                 "HINT: 127.0.0.1 dentro del EMULADOR apunta al propio emulador (NO a tu PC).\n" +
-                    "- Si estás en EMULADOR: ejecuta el variant emulatorDebug (BASE_URL=10.0.2.2).\n" +
-                    "- Si estás en TELÉFONO por USB: usa deviceDebug y ejecuta en tu PC: adb reverse tcp:8000 tcp:8000"
+                    "- Si estas en EMULADOR: ejecuta el variant emulatorDebug (BASE_URL=10.0.2.2).\n" +
+                    "- Si estas en TELEFONO por USB: usa deviceDebug y ejecuta en tu PC: adb reverse tcp:8000 tcp:8000"
 
             BuildConfig.BASE_URL.contains("10.0.2.2") ->
                 "HINT: 10.0.2.2 solo funciona en EMULADOR (redirige al localhost de tu PC).\n" +
-                    "- Si estás en TELÉFONO: usa deviceDebug con adb reverse tcp:8000 tcp:8000 (o apunta a IP LAN del PC)."
+                    "- Si estas en TELEFONO: usa deviceDebug con adb reverse tcp:8000 tcp:8000 (o apunta a IP LAN del PC)."
 
             else -> null
         }
@@ -105,3 +105,4 @@ object EndpointProbe {
         results
     }
 }
+

@@ -1,4 +1,4 @@
-package com.example.inventappluis370.ui.inventario
+﻿package com.example.inventappluis370.ui.inventario
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -66,3 +66,4 @@ class InventarioViewModel @Inject constructor(
     fun canCreate(): Boolean = PermissionManager.canCreate(userRole, "Inventario")
     fun canDelete(): Boolean = PermissionManager.canDelete(userRole, "Inventario")
 }
+

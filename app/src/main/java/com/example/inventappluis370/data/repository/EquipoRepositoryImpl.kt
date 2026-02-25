@@ -31,7 +31,7 @@ class EquipoRepositoryImpl @Inject constructor(
             if (response.isSuccessful) {
                 val body = response.body()
                 if (body != null) Result.success(body)
-                else Result.failure(IOException("Respuesta vacía"))
+                else Result.failure(IOException("Respuesta vacia"))
             } else {
                 Result.failure(IOException(ApiErrorParser.parseError(response)))
             }
@@ -74,3 +74,4 @@ class EquipoRepositoryImpl @Inject constructor(
     // PENDIENTE: Paging Equipos (dual-mode)
     // fun getEquiposPaged(perPage: Int): Flow<PagingData<Equipo>> { ... }
 }
+

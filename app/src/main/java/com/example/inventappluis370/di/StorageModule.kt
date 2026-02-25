@@ -25,7 +25,7 @@ object StorageModule {
     @Singleton
     fun provideSharedPreferences(@ApplicationContext context: Context): SharedPreferences {
         // En algunos dispositivos (especialmente MIUI) / ciertos estados del keystore, puede quedar un
-        // keyset corrupto y EncryptedSharedPreferences lanza AEADBadTagException (o una excepción de keystore).
+        // keyset corrupto y EncryptedSharedPreferences lanza AEADBadTagException (o una excepcion de keystore).
         // En ese caso borramos el archivo de prefs y reintentamos para recuperarnos sin crashear.
 
         fun createEncrypted(): SharedPreferences {
@@ -75,25 +75,25 @@ object StorageModule {
             if (looksLikeKeystoreProblem(t)) {
                 Log.w(
                     "StorageModule",
-                    "EncryptedSharedPreferences falló por keyset/keystore inválido. Reintentando tras borrar prefs...",
+                    "EncryptedSharedPreferences fallo por keyset/keystore invalido. Reintentando tras borrar prefs...",
                     t
                 )
                 deletePrefsFile()
 
-                // Reintento una vez. Si vuelve a fallar, ya caemos al almacenamiento estándar.
+                // Reintento una vez. Si vuelve a fallar, ya caemos al almacenamiento estandar.
                 try {
                     return createEncrypted()
                 } catch (t2: Throwable) {
                     Log.w(
                         "StorageModule",
-                        "Segundo intento de EncryptedSharedPreferences falló. Usando SharedPreferences estándar.",
+                        "Segundo intento de EncryptedSharedPreferences fallo. Usando SharedPreferences estandar.",
                         t2
                     )
                 }
             } else {
                 Log.w(
                     "StorageModule",
-                    "El dispositivo no soporta EncryptedSharedPreferences. Usando SharedPreferences estándar.",
+                    "El dispositivo no soporta EncryptedSharedPreferences. Usando SharedPreferences estandar.",
                     t
                 )
             }
@@ -102,3 +102,4 @@ object StorageModule {
         }
     }
 }
+

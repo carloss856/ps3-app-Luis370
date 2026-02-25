@@ -1,4 +1,4 @@
-package com.example.inventappluis370
+﻿package com.example.inventappluis370
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -82,3 +82,4 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+

@@ -20,19 +20,19 @@ class AuthRepositoryImpl @Inject constructor(
         return try {
             val response = apiService.login(loginRequest)
             if (response.isSuccessful) {
-                val loginResponse = response.body() ?: return Result.failure(IOException("Respuesta vacía"))
+                val loginResponse = response.body() ?: return Result.failure(IOException("Respuesta vacia"))
 
                 val token = loginResponse.token
-                    ?: return Result.failure(IOException("Respuesta inválida: falta token"))
+                    ?: return Result.failure(IOException("Respuesta invalida: falta token"))
 
                 val usuario = loginResponse.usuario
 
-                // Guardar nombre visible para UI (menú principal). Si el backend no trae apellido,
+                // Guardar nombre visible para UI (menu principal). Si el backend no trae apellido,
                 // mostramos al menos `nombre`.
                 tokenRepository.saveUserDisplayName(usuario?.nombre)
 
                 // Contrato: id principal de negocio = id_persona. El _id de Mongo se guarda aparte solo
-                // para endpoints explícitos (p.ej. /usuarios/{id}/notificaciones).
+                // para endpoints explicitos (p.ej. /usuarios/{id}/notificaciones).
                 val businessId = usuario?.idPersona
                 val mongoId = usuario?.mongoIdResolved()
 
@@ -59,7 +59,7 @@ class AuthRepositoryImpl @Inject constructor(
         try {
             apiService.logout()
         } catch (e: Exception) {
-            Log.w("AuthRepository", "Fallo al cerrar sesión", e)
+            Log.w("AuthRepository", "Fallo al cerrar sesion", e)
         }
         tokenRepository.clearSession()
     }
@@ -94,3 +94,4 @@ class AuthRepositoryImpl @Inject constructor(
         }
     }
 }
+

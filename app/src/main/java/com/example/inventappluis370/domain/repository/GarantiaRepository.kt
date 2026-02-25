@@ -4,7 +4,7 @@ import com.example.inventappluis370.data.model.Garantia
 import com.example.inventappluis370.data.model.GarantiaRequest
 
 /**
- * Interfaz del repositorio para las operaciones del módulo de Garantías.
+ * Interfaz del repositorio para las operaciones del modulo de Garantias.
  */
 interface GarantiaRepository {
     suspend fun getGarantias(): Result<List<Garantia>>
@@ -18,3 +18,4 @@ interface GarantiaRepository {
      */
     // fun getGarantiasPaged(perPage: Int = 25): Flow<PagingData<Garantia>>
 }
+

@@ -1,4 +1,4 @@
-package com.example.inventappluis370.ui.rbac
+﻿package com.example.inventappluis370.ui.rbac
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -20,3 +20,4 @@ class RbacViewModel @Inject constructor(
         viewModelScope.launch { rbacRepository.refreshRbac() }
     }
 }
+

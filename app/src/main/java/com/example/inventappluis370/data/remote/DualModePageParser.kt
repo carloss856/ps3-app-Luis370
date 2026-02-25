@@ -10,7 +10,7 @@ import okio.Buffer
 import java.io.IOException
 
 /**
- * Helper para endpoints index con paginación dual-mode:
+ * Helper para endpoints index con paginacion dual-mode:
  * - Si el body es un array -> se interpreta como List<T> (legacy)
  * - Si el body es un objeto -> se interpreta como PagedResponseDto<T>
  *
@@ -29,7 +29,7 @@ object DualModePageParser {
             // OJO: ResponseBody.string() solo se puede leer una vez.
             body.string().trim()
         } catch (e: Throwable) {
-            // En vez de tumbar la app, devolvemos vacío con un mensaje en exception si el caller lo quiere.
+            // En vez de tumbar la app, devolvemos vacio con un mensaje en exception si el caller lo quiere.
             throw IOException("No se pudo leer el body de la respuesta", e)
         }
 
@@ -47,11 +47,11 @@ object DualModePageParser {
         }
 
         if (!raw.startsWith("{")) {
-            // Formato rarísimo; no rompemos la app.
+            // Formato rarisimo; no rompemos la app.
             return ParsedPage.LegacyList(emptyList())
         }
 
-        // 1) Intento principal: wrapper estándar { data: [...], meta: {...} }
+        // 1) Intento principal: wrapper estandar { data: [...], meta: {...} }
         runCatching {
             val pageType = Types.newParameterizedType(PagedResponseDto::class.java, itemClass)
             val adapter: JsonAdapter<PagedResponseDto<T>> = moshi.adapter(pageType)
@@ -62,7 +62,7 @@ object DualModePageParser {
             }
         }
 
-        // 2) Fallback seguro: buscar un array en el objeto, incluso si está anidado.
+        // 2) Fallback seguro: buscar un array en el objeto, incluso si esta anidado.
         val listType = Types.newParameterizedType(List::class.java, itemClass)
         val listAdapter: JsonAdapter<List<T>> = moshi.adapter(listType)
 
@@ -112,7 +112,8 @@ object DualModePageParser {
         val items = runCatching { readFirstArrayInObject() }.getOrNull()
         if (items != null) return ParsedPage.LegacyList(items)
 
-        // Último fallback: no rompemos la app. Queda visible como lista vacía.
+        // Ultimo fallback: no rompemos la app. Queda visible como lista vacia.
         return ParsedPage.LegacyList(emptyList())
     }
 }
+

@@ -1,4 +1,4 @@
-package com.example.inventappluis370.domain.repository
+﻿package com.example.inventappluis370.domain.repository
 
 import androidx.paging.PagingData
 import com.example.inventappluis370.data.common.ApiResult
@@ -39,3 +39,4 @@ interface ServicioRepository {
      */
     fun getServiciosPaged(perPage: Int = 25): Flow<PagingData<Servicio>>
 }
+

@@ -63,7 +63,7 @@ Archivos clave Android:
 final de archivos de contexto
 
 ==================== [CAMBIOS IMPLEMENTADOS POR FECHA] ====================
-Fecha de ultima actualizacion del listado: 2026-02-22
+Fecha de ultima actualizacion del listado: 2026-02-24
 
 Fecha: 2026-02-10
 1. Configuracion de notificaciones: catalogo canonico de tipos y etiquetas amigables.
@@ -88,7 +88,7 @@ Fecha: 2026-02-15
 1. Base URL por flavor (emulator/device) y guia de conectividad con adb reverse.
 2. Diagnostico de conexion mejorado (mensajes/hints por variant).
 3. Debug RAW para Empresas (captura de payload/body en 422 required).
-4. Pattern de refresh post create/edit usando SavedStateHandle("refresh").
+4. Pattern de refresh post create/edit usando SavedStateHandle('refresh").
 5. Formularios clave con dropdowns obligatorios y topbars consistentes.
 
 Fecha: 2026-02-21
@@ -108,3 +108,35 @@ Fecha: 2026-02-22
 4. Validacion numerica reforzada en formularios (sin conversion silenciosa a 0): Inventario, Solicitudes, Tarifas y Parte de Trabajo.
 5. Icono de recarga retirado de top bars de modulos (se mantiene recarga por gesto pull-down).
 6. Verificacion tecnica completa: assembleEmulatorDebug y testEmulatorDebugUnitTest en estado SUCCESSFUL.
+
+Fecha: 2026-02-24
+1. Estadisticas por dia ajustadas para consultar y mostrar solo datos del dia actual cuando el periodo seleccionado es DAY.
+2. Solicitudes: corregido flujo de edicion que cerraba la app; se agrego ruta de edicion y carga por id con prellenado estable del formulario.
+3. Solicitudes, Equipos y Servicios: agregado popup de detalle al seleccionar elementos, confirmacion al eliminar y mensaje de operacion exitosa (crear/editar/eliminar).
+4. Equipos: en lista ahora se muestra el nombre del dueno (usuario asignado) y en editar se corrige fallback para traer id_asignado desde propiedad cuando aplique.
+5. Servicios: se retiro accion/boton de Partes en la pantalla principal del modulo.'
+6. Formularios: incorporado DatePicker reutilizable para campos de fecha y aplicado en Servicios/Garantias.
+7. Formularios de listas seleccionables: dropdowns alineados para mostrar nombres legibles en lugar de ids tecnicos (Solicitudes, Inventario, Servicios, Propiedad de equipos).
+8. Propiedad de equipos: formulario redisenado con boton volver, etiquetas funcionales (Equipo/Dueno) y sin exponer nombres tecnicos tipo id_equipo/id_persona.
+9. Permisos: eliminada duplicidad visual de 'Ver' (accion show/index), agregado selector Global/Usuario y visualizacion por nombre de usuario con rol efectivo.
+10. Configuracion: al desactivar 'Recibir notificaciones' se ocultan tipos de notificacion; agregado bloque de perfil del usuario actual con acceso a editar mi perfil.
+11. Verificacion tecnica posterior a cambios: `:app:assembleEmulatorDebug` y `:app:testEmulatorDebugUnitTest` en estado SUCCESSFUL.
+12. Conectividad USB: `adb reverse tcp:8000 tcp:8000` reejecutado y validado con `adb reverse --list` (activo para pruebas con `127.0.0.1:8000`).
+13. Usuarios: formulario crear/editar actualizado con topbar y boton volver; selector de empresa por nombre (dropdown) en lugar de ingreso manual por ID.
+14. Usuarios: lista con popup de detalle, confirmacion de eliminacion y mensaje de operacion completada; se removio exposicion visual de ID tecnico en tarjeta.
+15. Empresas/Repuestos/Tarifas/Garantias/Inventario: estandarizados popup de detalle al seleccionar, confirmacion al eliminar y popup de exito de operacion.
+16. Formularios Empresas/Repuestos/Tarifas: agregado `operation_message` en create/edit para notificar 'creado/editado correctamente' al volver al listado.
+17. Tarifas: campo de fecha `vigente_desde` migrado a selector con DatePicker popup (reemplaza ingreso manual de fecha).
+18. Inventario: en listado de movimientos se resuelve y muestra nombre de repuesto en lugar de id_repuesto cuando la data del catalogo esta disponible.
+19. Formularios: CreateEditParteTrabajo actualizado con topbar estandarizada y boton volver; agrega mensaje de exito post crear/editar.
+20. Garantias: eliminado archivo huerfano `EditGarantiaScreen.kt` (no referenciado por rutas de navegacion activas), manteniendo `CreateEditGarantiaScreen` como unica pantalla de create/edit.
+21. Permisos: agregado filtro por rol de usuario en el selector para cargar permisos por usuario filtrando por rol.
+22. Verificacion tecnica final de esta iteracion: `:app:assembleEmulatorDebug` y `:app:testEmulatorDebugUnitTest` en estado SUCCESSFUL.
+23. KPIs de estadisticas: parser leniente ahora conserva objetos/arrays (ej. servicios por estado y usuarios) y el render muestra 'Sin datos' si viene vacio.
+24. Usuarios: rol ahora es dropdown; botones Volver/Guardar en una fila; telefono acepta solo numeros; estado inicial de formulario ya no queda en Loading.
+25. Usuarios: cargar edicion desde backend con fallback al listado; corregidas etiquetas con caracteres extraños.
+26. Solicitudes: campo Estado ahora es lista seleccionable con opciones predefinidas (mantiene estado actual si es personalizado).
+27. Repuestos: cantidad disponible inicia en 0 al crear; en edicion no se sobreescribe al escribir; cantidad solo numeros.
+28. Servicios: formulario ampliado con usuario, costos, validado y estado por rol; fecha de ingreso solo lectura (hoy en crear, fecha original en editar).
+29. Equipos: formulario con scroll vertical, precarga estable en editar; usuario asignado muestra Nombre + RMA en selector.
+30. Formularios largos: agregado scroll vertical en create/edit de Empresas, Garantias, Inventario, Propiedad de equipos, Repuestos, Solicitudes, Parte de trabajo, Reportes, Tarifas y Usuarios.

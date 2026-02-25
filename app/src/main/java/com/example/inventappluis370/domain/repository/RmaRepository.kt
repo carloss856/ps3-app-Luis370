@@ -1,9 +1,9 @@
-package com.example.inventappluis370.domain.repository
+﻿package com.example.inventappluis370.domain.repository
 
 import com.example.inventappluis370.data.model.RMA
 
 /**
- * Interfaz del repositorio para las operaciones del módulo de RMA.
+ * Interfaz del repositorio para las operaciones del modulo de RMA.
  */
 interface RmaRepository {
 
@@ -16,3 +16,4 @@ interface RmaRepository {
      */
     // fun getRmasPaged(perPage: Int = 25): Flow<PagingData<RMA>>
 }
+

@@ -16,7 +16,7 @@ data class KpiCardDto(
     @Json(name = "key") val key: String = "",
     @Json(name = "title") val title: String = "",
     /**
-     * El backend debería mandar número/int, pero en legacy puede venir como number/string/boolean.
+     * El backend deberia mandar numero/int, pero en legacy puede venir como number/string/boolean.
      * Lo tipamos a String con adapter leniente para evitar que Moshi caiga en ObjectJsonAdapter.
      */
     @LenientString
@@ -44,3 +44,4 @@ data class NotificacionRecienteDto(
     @Json(name = "estado_envio") val estadoEnvio: String? = null,
     @Json(name = "fecha_envio") val fechaEnvio: String? = null,
 )
+

@@ -1,4 +1,4 @@
-﻿plugins {
+plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.dagger.hilt.android")
@@ -39,7 +39,7 @@ android {
 
     buildTypes {
         debug {
-            // IMPORTANTE: no definir BASE_URL aquÃ­ para no pisar los productFlavors.
+            // IMPORTANTE: no definir BASE_URL aqui para no pisar los productFlavors.
             // Usa emulatorDebug/deviceDebug con BASE_URL configurable desde gradle.properties.
         }
         release {
@@ -73,7 +73,7 @@ android {
         }
     }
 
-    // Permite elegir destino sin tocar cÃ³digo: ./gradlew installEmulatorDebug o installDeviceDebug
+    // Permite elegir destino sin tocar codigo: ./gradlew installEmulatorDebug o installDeviceDebug
     flavorDimensions += "target"
     productFlavors {
         create("emulator") {
@@ -83,8 +83,8 @@ android {
         }
         create("device") {
             dimension = "target"
-            // TELÃ‰FONO FÃSICO por USB con `adb reverse tcp:8000 tcp:8000`:
-            // en el telÃ©fono, 127.0.0.1 apunta al puerto reversado hacia tu PC.
+            // TELEFONO FISICO por USB con `adb reverse tcp:8000 tcp:8000`:
+            // en el telefono, 127.0.0.1 apunta al puerto reversado hacia tu PC.
             buildConfigField("String", "BASE_URL", "\"$deviceBaseUrl\"")
         }
     }
@@ -140,7 +140,7 @@ dependencies {
     // Pull-to-refresh (Compose Material)
     implementation("androidx.compose.material:material")
 
-    // Paging 3 (paginaciÃ³n)
+    // Paging 3 (paginacion)
     implementation("androidx.paging:paging-runtime:3.3.5")
     implementation("androidx.paging:paging-compose:3.3.5")
 

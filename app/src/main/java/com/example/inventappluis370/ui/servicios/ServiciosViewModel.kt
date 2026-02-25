@@ -31,7 +31,7 @@ class ServiciosViewModel @Inject constructor(
     private val tokenRepository: TokenRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<ServiciosUiState>(ServiciosUiState.Loading)
+    private val _uiState = MutableStateFlow<ServiciosUiState>(ServiciosUiState.Success(emptyList()))
     val uiState: StateFlow<ServiciosUiState> = _uiState.asStateFlow()
 
     private val _selectedServicio = MutableStateFlow<Servicio?>(null)
@@ -41,6 +41,10 @@ class ServiciosViewModel @Inject constructor(
     val fieldErrors: StateFlow<Map<String, List<String>>> = _fieldErrors.asStateFlow()
 
     private val userRole: String? get() = tokenRepository.getRole()
+    fun canEditEstado(): Boolean {
+        val role = userRole?.trim()?.lowercase().orEmpty()
+        return role == "administrador" || role == "admin" || role == "gerente"
+    }
 
     /**
      * Paging (dual-mode): usa query params page/per_page y wrapper {data, meta}.
@@ -66,14 +70,17 @@ class ServiciosViewModel @Inject constructor(
                     _uiState.value = ServiciosUiState.Success(servicios)
                 }
                 .onFailure { error ->
-                    _uiState.value = ServiciosUiState.Error(error.message ?: "Ocurrió un error inesperado")
+                    _uiState.value = ServiciosUiState.Error(error.message ?: "Ocurrio un error inesperado")
                 }
         }
     }
 
     fun getServicioById(id: String) {
-        val servicios = (uiState.value as? ServiciosUiState.Success)?.servicios
-        _selectedServicio.value = servicios?.find { it.idServicio == id }
+        viewModelScope.launch {
+            servicioRepository.getServicioById(id)
+                .onSuccess { _selectedServicio.value = it }
+                .onFailure { _uiState.value = ServiciosUiState.Error(it.message ?: "No se pudo cargar el servicio") }
+        }
     }
 
     fun createServicio(request: CreateServicioRequest) {
@@ -128,3 +135,4 @@ class ServiciosViewModel @Inject constructor(
     fun canUpdate(): Boolean = PermissionManager.canUpdate(userRole, "Servicios")
     fun canDelete(): Boolean = PermissionManager.canDelete(userRole, "Servicios")
 }
+

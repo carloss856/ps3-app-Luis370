@@ -6,7 +6,7 @@ import com.example.inventappluis370.data.model.PaginatedResponseDto
 import retrofit2.Response
 
 /**
- * PagingSource genérico para endpoints dual-mode.
+ * PagingSource generico para endpoints dual-mode.
  *
  * Contrato:
  * - Con page/per_page => wrapper {data, meta}
@@ -32,7 +32,7 @@ class GenericPagingSource<T : Any>(
                 return LoadResult.Error(RuntimeException("HTTP ${response.code()}"))
             }
 
-            val body = response.body() ?: return LoadResult.Error(RuntimeException("Respuesta vacía"))
+            val body = response.body() ?: return LoadResult.Error(RuntimeException("Respuesta vacia"))
             val data = body.data
             val meta = body.meta
 
@@ -52,3 +52,4 @@ class GenericPagingSource<T : Any>(
         }
     }
 }
+

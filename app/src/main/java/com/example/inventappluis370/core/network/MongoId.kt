@@ -1,4 +1,4 @@
-package com.example.inventappluis370.core.network
+﻿package com.example.inventappluis370.core.network
 
 import com.squareup.moshi.JsonQualifier
 
@@ -11,4 +11,5 @@ import com.squareup.moshi.JsonQualifier
 @JsonQualifier
 @Retention(AnnotationRetention.RUNTIME)
 annotation class MongoId
+
 

@@ -1,14 +1,36 @@
-package com.example.inventappluis370.ui.servicios
+﻿package com.example.inventappluis370.ui.servicios
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material3.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -28,8 +50,19 @@ fun ServiciosScreen(
     viewModel: ServiciosViewModel = hiltViewModel()
 ) {
     val servicios = viewModel.serviciosPaged.collectAsLazyPagingItems()
-
     val refreshing = servicios.loadState.refresh is LoadState.Loading
+
+    var selectedServicio by remember { mutableStateOf<Servicio?>(null) }
+    var pendingDeleteId by remember { mutableStateOf<String?>(null) }
+    var operationMessage by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(Unit) {
+        val msg = navController.currentBackStackEntry?.savedStateHandle?.get<String>("operation_message")
+        if (!msg.isNullOrBlank()) {
+            operationMessage = msg
+            navController.currentBackStackEntry?.savedStateHandle?.remove<String>("operation_message")
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -87,9 +120,9 @@ fun ServiciosScreen(
 
                                 ServicioItem(
                                     servicio = servicio,
-                                    onDelete = { if (!id.isNullOrBlank()) viewModel.deleteServicio(id) },
+                                    onDelete = { if (!id.isNullOrBlank()) pendingDeleteId = id },
                                     onEdit = { if (!id.isNullOrBlank()) navController.navigate("servicios/$id") },
-                                    onViewPartes = { if (!id.isNullOrBlank()) navController.navigate("servicios/$id/partes") },
+                                    onView = { selectedServicio = servicio },
                                     canUpdate = viewModel.canUpdate() && !id.isNullOrBlank(),
                                     canDelete = viewModel.canDelete() && !id.isNullOrBlank()
                                 )
@@ -107,7 +140,7 @@ fun ServiciosScreen(
                                 if (servicios.loadState.append is LoadState.Error) {
                                     val error = (servicios.loadState.append as LoadState.Error).error
                                     Text(
-                                        text = "Error cargando más: ${PagingUi.messageOf(error)}",
+                                        text = "Error cargando mas: ${PagingUi.messageOf(error)}",
                                         color = MaterialTheme.colorScheme.error,
                                         modifier = Modifier.padding(16.dp)
                                     )
@@ -118,41 +151,75 @@ fun ServiciosScreen(
                 }
             }
         }
+
+        if (selectedServicio != null) {
+            val s = selectedServicio!!
+            AlertDialog(
+                onDismissRequest = { selectedServicio = null },
+                confirmButton = { TextButton(onClick = { selectedServicio = null }) { Text("Cerrar") } },
+                title = { Text("Detalle de servicio") },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Text("Equipo: ${s.idEquipo ?: "-"}")
+                        Text("Problema: ${s.problemaReportado ?: "-"}")
+                        Text("Estado: ${s.estado ?: "-"}")
+                        Text("Codigo RMA: ${s.codigoRma ?: "-"}")
+                        Text("Fecha ingreso: ${s.fechaIngreso ?: "-"}")
+                    }
+                }
+            )
+        }
+
+        if (pendingDeleteId != null) {
+            AlertDialog(
+                onDismissRequest = { pendingDeleteId = null },
+                confirmButton = {
+                    TextButton(onClick = {
+                        val id = pendingDeleteId
+                        pendingDeleteId = null
+                        if (!id.isNullOrBlank()) {
+                            viewModel.deleteServicio(id)
+                            operationMessage = "Servicio eliminado correctamente"
+                        }
+                    }) { Text("Eliminar") }
+                },
+                dismissButton = { TextButton(onClick = { pendingDeleteId = null }) { Text("Cancelar") } },
+                title = { Text("Confirmar eliminacion") },
+                text = { Text("Deseas eliminar este servicio?") }
+            )
+        }
+
+        if (operationMessage != null) {
+            AlertDialog(
+                onDismissRequest = { operationMessage = null },
+                confirmButton = { TextButton(onClick = { operationMessage = null }) { Text("Aceptar") } },
+                title = { Text("Operacion completada") },
+                text = { Text(operationMessage!!) }
+            )
+        }
     }
 }
 
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 fun ServicioItem(
     servicio: Servicio,
     onDelete: () -> Unit,
     onEdit: () -> Unit,
-    onViewPartes: () -> Unit,
+    onView: () -> Unit,
     canUpdate: Boolean,
     canDelete: Boolean
 ) {
-    val id = servicio.idServicio
-
-    Card(modifier = Modifier.fillMaxWidth()) {
+    Card(modifier = Modifier.fillMaxWidth(), onClick = onView) {
         Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(1f)) {
-                if (!id.isNullOrBlank()) {
-                    Text("Servicio: $id", style = MaterialTheme.typography.titleMedium)
-                } else {
-                    Text(
-                        "ERROR: servicio sin id_servicio (debe corregirse en backend)",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.error
-                    )
-                }
+                Text("Servicio", style = MaterialTheme.typography.titleMedium)
 
                 val idEquipo = servicio.idEquipo
                 if (!idEquipo.isNullOrBlank()) Text("Equipo: $idEquipo")
 
                 val estado = servicio.estado
                 if (!estado.isNullOrBlank()) Text("Estado: $estado")
-            }
-            IconButton(onClick = onViewPartes, enabled = !id.isNullOrBlank()) {
-                Icon(Icons.Default.History, contentDescription = "Partes")
             }
             if (canUpdate) {
                 IconButton(onClick = onEdit) {
@@ -167,3 +234,4 @@ fun ServicioItem(
         }
     }
 }
+

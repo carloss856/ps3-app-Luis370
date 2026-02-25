@@ -14,14 +14,14 @@ import javax.inject.Singleton
 /**
  * Implementa la estrategia del front React:
  * - threshold: si faltan < 5 min para expirar, intentar extender.
- * - throttle: no intentar más de 1 vez cada 10 min.
+ * - throttle: no intentar mas de 1 vez cada 10 min.
  * - evitar bucles: el request que ejecuta extend debe setear una marca "skip".
  *
  * Nota: el contrato indica que el server expone header X-Token-Expires-At y existe POST /token/extend.
  *
  * Nota de anti-bucle:
  * El request de /token/extend se ejecuta usando el AuthApiService (cliente "auth"), y ese cliente
- * no dispara el auto-extend. Si además quieres blindaje extra, puedes enviar un header interno
+ * no dispara el auto-extend. Si ademas quieres blindaje extra, puedes enviar un header interno
  * (p.ej. X-Skip-Token-Extend) desde un interceptor del cliente auth.
  */
 @Singleton
@@ -48,7 +48,7 @@ class TokenExtendManager @Inject constructor(
     }
 
     /**
-     * Versión determinística (suspend) para poder testear sin sleeps.
+     * Version deterministica (suspend) para poder testear sin sleeps.
      */
     suspend fun extendIfNeeded() {
         val token = tokenRepository.getToken() ?: return
@@ -86,3 +86,4 @@ class TokenExtendManager @Inject constructor(
         private const val THROTTLE_MS = 10 * 60 * 1000L
     }
 }
+

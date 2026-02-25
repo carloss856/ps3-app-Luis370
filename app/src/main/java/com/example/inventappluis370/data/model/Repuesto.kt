@@ -5,9 +5,9 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 /**
- * Representa la entidad Repuesto según el contrato.
+ * Representa la entidad Repuesto segun el contrato.
  *
- * Nota: id_repuesto debería venir siempre. Si falta, es un problema de datos/backend.
+ * Nota: id_repuesto deberia venir siempre. Si falta, es un problema de datos/backend.
  */
 @JsonClass(generateAdapter = true)
 data class Repuesto(
@@ -27,3 +27,4 @@ data class Repuesto(
     @field:Json(name = "nivel_critico")
     val nivelCritico: Int? = null
 )
+

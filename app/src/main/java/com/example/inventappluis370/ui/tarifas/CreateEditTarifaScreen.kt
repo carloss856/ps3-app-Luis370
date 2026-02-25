@@ -1,6 +1,8 @@
-package com.example.inventappluis370.ui.tarifas
+﻿package com.example.inventappluis370.ui.tarifas
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
@@ -13,6 +15,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.inventappluis370.data.model.CreateTarifaRequest
 import com.example.inventappluis370.data.model.UpdateTarifaRequest
+import com.example.inventappluis370.ui.common.DatePickerField
 import com.example.inventappluis370.ui.common.ModuleTopBar
 import kotlinx.coroutines.launch
 
@@ -58,6 +61,10 @@ fun CreateEditTarifaScreen(
     LaunchedEffect(uiState) {
         if (uiState is TarifasUiState.OperationSuccess) {
             navController.previousBackStackEntry?.savedStateHandle?.set("refresh", true)
+            navController.previousBackStackEntry?.savedStateHandle?.set(
+                "operation_message",
+                if (isEditing) "Tarifa editada correctamente" else "Tarifa creada correctamente"
+            )
             navController.popBackStack()
         }
         if (uiState is TarifasUiState.Error) {
@@ -74,11 +81,7 @@ fun CreateEditTarifaScreen(
                 onBack = { navController.popBackStack() },
                 endIcon = Icons.Default.AttachMoney,
                 endIconContentDescription = "Tarifas",
-                onRefresh = if (isEditing) {
-                    {
-                        tarifaId?.let { viewModel.getTarifaById(it) }
-                    }
-                } else null,
+                onRefresh = null,
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
@@ -87,7 +90,8 @@ fun CreateEditTarifaScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp),
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             if (!isEditing) {
@@ -97,7 +101,7 @@ fun CreateEditTarifaScreen(
                         tipoTarea = it
                         viewModel.clearFieldErrors()
                     },
-                    label = { Text("Tipo de Tarea (software, físico, etc.)") },
+                    label = { Text("Tipo de Tarea (software, fisico, etc.)") },
                     modifier = Modifier.fillMaxWidth(),
                     isError = fieldError("tipo_tarea") != null,
                     supportingText = { fieldError("tipo_tarea")?.let { Text(it) } }
@@ -108,21 +112,19 @@ fun CreateEditTarifaScreen(
                         nivelTecnico = it
                         viewModel.clearFieldErrors()
                     },
-                    label = { Text("Nivel Técnico (junior, senior, etc.)") },
+                    label = { Text("Nivel Tecnico (junior, senior, etc.)") },
                     modifier = Modifier.fillMaxWidth(),
                     isError = fieldError("nivel_tecnico") != null,
                     supportingText = { fieldError("nivel_tecnico")?.let { Text(it) } }
                 )
-                OutlinedTextField(
+                DatePickerField(
+                    label = "Vigente desde",
                     value = vigenteDesde,
-                    onValueChange = {
+                    onDateSelected = {
                         vigenteDesde = it
                         viewModel.clearFieldErrors()
                     },
-                    label = { Text("Vigente Desde (YYYY-MM-DD)") },
                     modifier = Modifier.fillMaxWidth(),
-                    isError = fieldError("vigente_desde") != null,
-                    supportingText = { fieldError("vigente_desde")?.let { Text(it) } }
                 )
             }
 
@@ -200,3 +202,6 @@ fun CreateEditTarifaScreen(
         }
     }
 }
+
+
+

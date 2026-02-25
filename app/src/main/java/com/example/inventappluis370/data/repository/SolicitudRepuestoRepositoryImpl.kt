@@ -27,7 +27,7 @@ class SolicitudRepuestoRepositoryImpl @Inject constructor(
             }
         } catch (e: Exception) {
             // Si esto es un fallo de parseo (Moshi/JSON) o de conectividad, queremos verlo claro.
-            Log.e("SolicitudesRepo", "getSolicitudes() falló. baseUrl=${BuildConfig.BASE_URL}", e)
+            Log.e("SolicitudesRepo", "getSolicitudes() fallo. baseUrl=${BuildConfig.BASE_URL}", e)
 
             // Intento extra: pedir RAW para tener algo tangible en el error cuando el parseo rompe.
             val rawSnippet = runCatching {
@@ -55,7 +55,7 @@ class SolicitudRepuestoRepositoryImpl @Inject constructor(
                 Result.failure(IOException(ApiErrorParser.parseError(response)))
             }
         } catch (e: Exception) {
-            Log.e("SolicitudesRepo", "getSolicitudById($id) falló. baseUrl=${BuildConfig.BASE_URL}", e)
+            Log.e("SolicitudesRepo", "getSolicitudById($id) fallo. baseUrl=${BuildConfig.BASE_URL}", e)
             Result.failure(e)
         }
     }
@@ -69,7 +69,7 @@ class SolicitudRepuestoRepositoryImpl @Inject constructor(
                 Result.failure(IOException(ApiErrorParser.parseError(response)))
             }
         } catch (e: Exception) {
-            Log.e("SolicitudesRepo", "createSolicitud() falló. baseUrl=${BuildConfig.BASE_URL}", e)
+            Log.e("SolicitudesRepo", "createSolicitud() fallo. baseUrl=${BuildConfig.BASE_URL}", e)
             Result.failure(e)
         }
     }
@@ -83,7 +83,7 @@ class SolicitudRepuestoRepositoryImpl @Inject constructor(
                 Result.failure(IOException(ApiErrorParser.parseError(response)))
             }
         } catch (e: Exception) {
-            Log.e("SolicitudesRepo", "updateSolicitud($id) falló. baseUrl=${BuildConfig.BASE_URL}", e)
+            Log.e("SolicitudesRepo", "updateSolicitud($id) fallo. baseUrl=${BuildConfig.BASE_URL}", e)
             Result.failure(e)
         }
     }
@@ -97,7 +97,7 @@ class SolicitudRepuestoRepositoryImpl @Inject constructor(
                 Result.failure(IOException(ApiErrorParser.parseError(response)))
             }
         } catch (e: Exception) {
-            Log.e("SolicitudesRepo", "deleteSolicitud($id) falló. baseUrl=${BuildConfig.BASE_URL}", e)
+            Log.e("SolicitudesRepo", "deleteSolicitud($id) fallo. baseUrl=${BuildConfig.BASE_URL}", e)
             Result.failure(e)
         }
     }
@@ -105,3 +105,4 @@ class SolicitudRepuestoRepositoryImpl @Inject constructor(
     // PENDIENTE: Paging Solicitud-repuestos (dual-mode)
     // fun getSolicitudesPaged(perPage: Int): Flow<PagingData<SolicitudRepuesto>> { ... }
 }
+

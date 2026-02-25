@@ -1,6 +1,8 @@
 package com.example.inventappluis370.ui.repuestos
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -22,14 +24,15 @@ fun CreateEditRepuestoScreen(
     repuestoId: String? = null
 ) {
     var nombre by remember { mutableStateOf("") }
-    var cantidad by remember { mutableStateOf("") }
+    var cantidad by remember { mutableStateOf("0") }
     var nivelCritico by remember { mutableStateOf("") }
+    var loadedFromSelected by remember { mutableStateOf(false) }
 
     val isEditing = repuestoId != null
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    // Cargar datos si estamos en modo edición
+    // Cargar datos si estamos en modo edicion
     LaunchedEffect(repuestoId) {
         if (isEditing) {
             viewModel.getRepuestoById(repuestoId!!)
@@ -38,11 +41,13 @@ fun CreateEditRepuestoScreen(
 
     // Observar el repuesto seleccionado y rellenar los campos
     val selectedRepuesto by viewModel.selectedRepuesto.collectAsState()
-    LaunchedEffect(selectedRepuesto) {
+    LaunchedEffect(selectedRepuesto, isEditing, loadedFromSelected) {
         selectedRepuesto?.let {
+            if (!isEditing || loadedFromSelected) return@let
             nombre = it.nombreRepuesto ?: ""
             cantidad = (it.cantidadDisponible ?: 0).toString()
             nivelCritico = it.nivelCritico?.toString() ?: ""
+            loadedFromSelected = true
         }
     }
     
@@ -51,6 +56,10 @@ fun CreateEditRepuestoScreen(
         val currentState = uiState
         if (currentState is RepuestosUiState.OperationSuccess) {
             navController.previousBackStackEntry?.savedStateHandle?.set("refresh", true)
+            navController.previousBackStackEntry?.savedStateHandle?.set(
+                "operation_message",
+                if (isEditing) "Repuesto editado correctamente" else "Repuesto creado correctamente"
+            )
             navController.popBackStack()
         }
         if (currentState is RepuestosUiState.Error) {
@@ -75,7 +84,8 @@ fun CreateEditRepuestoScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(16.dp),
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             OutlinedTextField(
@@ -86,7 +96,7 @@ fun CreateEditRepuestoScreen(
             )
             OutlinedTextField(
                 value = cantidad,
-                onValueChange = { cantidad = it },
+                onValueChange = { cantidad = it.filter { ch -> ch.isDigit() } },
                 label = { Text("Cantidad Disponible *") },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
@@ -94,42 +104,55 @@ fun CreateEditRepuestoScreen(
             OutlinedTextField(
                 value = nivelCritico,
                 onValueChange = { nivelCritico = it },
-                label = { Text("Nivel Crítico *") },
+                label = { Text("Nivel Critico *") },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Button(
-                onClick = {
-                    val cantidadInt = cantidad.toIntOrNull()
-                    val nivelCriticoInt = nivelCritico.toIntOrNull()
-                    if (nombre.isBlank() || cantidadInt == null || nivelCriticoInt == null) {
-                        scope.launch { snackbarHostState.showSnackbar("Completa los campos obligatorios") }
-                        return@Button
-                    }
-
-                    val repuestoRequest = RepuestoRequest(
-                        nombreRepuesto = nombre.trim(),
-                        cantidadDisponible = cantidadInt.coerceAtLeast(0),
-                        nivelCritico = nivelCriticoInt.coerceAtLeast(0)
-                    )
-                    if (isEditing) {
-                        viewModel.updateRepuesto(repuestoId!!, repuestoRequest)
-                    } else {
-                        viewModel.createRepuesto(repuestoRequest)
-                    }
-                },
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                enabled = uiState !is RepuestosUiState.Loading
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                if (uiState is RepuestosUiState.Loading) {
-                    CircularProgressIndicator(modifier = Modifier.size(24.dp))
-                } else {
-                    Text(if (isEditing) "Actualizar" else "Guardar")
+                OutlinedButton(
+                    onClick = { navController.popBackStack() },
+                    modifier = Modifier.weight(1f)
+                ) { Text("Volver") }
+
+                Button(
+                    onClick = {
+                        val cantidadInt = cantidad.toIntOrNull()
+                        val nivelCriticoInt = nivelCritico.toIntOrNull()
+                        if (nombre.isBlank() || cantidadInt == null || nivelCriticoInt == null) {
+                            scope.launch { snackbarHostState.showSnackbar("Completa los campos obligatorios") }
+                            return@Button
+                        }
+
+                        val repuestoRequest = RepuestoRequest(
+                            nombreRepuesto = nombre.trim(),
+                            cantidadDisponible = cantidadInt.coerceAtLeast(0),
+                            nivelCritico = nivelCriticoInt.coerceAtLeast(0)
+                        )
+                        if (isEditing) {
+                            viewModel.updateRepuesto(repuestoId!!, repuestoRequest)
+                        } else {
+                            viewModel.createRepuesto(repuestoRequest)
+                        }
+                    },
+                    modifier = Modifier.weight(1f),
+                    enabled = uiState !is RepuestosUiState.Loading
+                ) {
+                    if (uiState is RepuestosUiState.Loading) {
+                        CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                    } else {
+                        Text(if (isEditing) "Actualizar" else "Guardar")
+                    }
                 }
             }
         }
     }
 }
+
+
+

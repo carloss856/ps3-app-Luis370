@@ -1,4 +1,4 @@
-package com.example.inventappluis370.domain.repository
+﻿package com.example.inventappluis370.domain.repository
 
 import androidx.paging.PagingData
 import com.example.inventappluis370.data.common.ApiResult
@@ -9,7 +9,7 @@ import com.example.inventappluis370.data.model.UpdateTarifaRequest
 import kotlinx.coroutines.flow.Flow
 
 /**
- * Interfaz del repositorio para las operaciones del módulo de Tarifas de Servicio.
+ * Interfaz del repositorio para las operaciones del modulo de Tarifas de Servicio.
  */
 interface TarifaServicioRepository {
     suspend fun getTarifas(): Result<List<TarifaServicio>>
@@ -30,3 +30,4 @@ interface TarifaServicioRepository {
      */
     fun getTarifasPaged(perPage: Int = 25): Flow<PagingData<TarifaServicio>>
 }
+

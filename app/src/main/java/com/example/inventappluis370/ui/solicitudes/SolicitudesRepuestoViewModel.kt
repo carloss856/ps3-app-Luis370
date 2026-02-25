@@ -1,4 +1,4 @@
-package com.example.inventappluis370.ui.solicitudes
+﻿package com.example.inventappluis370.ui.solicitudes
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -31,6 +31,9 @@ class SolicitudesRepuestoViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<SolicitudesUiState>(SolicitudesUiState.Loading)
     val uiState: StateFlow<SolicitudesUiState> = _uiState.asStateFlow()
 
+    private val _selectedSolicitud = MutableStateFlow<SolicitudRepuesto?>(null)
+    val selectedSolicitud: StateFlow<SolicitudRepuesto?> = _selectedSolicitud.asStateFlow()
+
     private val userRole: String? get() = tokenRepository.getRole()
 
     init {
@@ -43,6 +46,14 @@ class SolicitudesRepuestoViewModel @Inject constructor(
             repository.getSolicitudes()
                 .onSuccess { _uiState.value = SolicitudesUiState.Success(it) }
                 .onFailure { _uiState.value = SolicitudesUiState.Error(it.message ?: "Error") }
+        }
+    }
+
+    fun getSolicitudById(id: String) {
+        viewModelScope.launch {
+            repository.getSolicitudById(id)
+                .onSuccess { _selectedSolicitud.value = it }
+                .onFailure { _uiState.value = SolicitudesUiState.Error(it.message ?: "Error al cargar la solicitud") }
         }
     }
 
@@ -76,3 +87,4 @@ class SolicitudesRepuestoViewModel @Inject constructor(
     fun canUpdate(): Boolean = PermissionManager.canUpdate(userRole, "SolicitudRepuestos")
     fun canDelete(): Boolean = PermissionManager.canDelete(userRole, "SolicitudRepuestos")
 }
+

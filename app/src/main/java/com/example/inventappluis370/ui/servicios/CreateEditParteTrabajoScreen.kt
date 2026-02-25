@@ -1,6 +1,8 @@
-package com.example.inventappluis370.ui.servicios
+﻿package com.example.inventappluis370.ui.servicios
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -11,6 +13,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.inventappluis370.data.model.CreateParteTrabajoRequest
 import com.example.inventappluis370.data.model.UpdateParteTrabajoRequest
+import com.example.inventappluis370.ui.common.ModuleTopBar
 import kotlinx.coroutines.launch
 
 @Composable
@@ -50,6 +53,10 @@ fun CreateEditParteTrabajoScreen(
     LaunchedEffect(uiState) {
         if (uiState is PartesTrabajoUiState.OperationSuccess) {
             navController.previousBackStackEntry?.savedStateHandle?.set("refresh", true)
+            navController.previousBackStackEntry?.savedStateHandle?.set(
+                "operation_message",
+                if (isEditing) "Parte de trabajo editada correctamente" else "Parte de trabajo creada correctamente"
+            )
             navController.popBackStack()
         }
         if (uiState is PartesTrabajoUiState.Error) {
@@ -59,13 +66,22 @@ fun CreateEditParteTrabajoScreen(
         }
     }
 
-    Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) { padding ->
+    Scaffold(
+        topBar = {
+            ModuleTopBar(
+                title = if (isEditing) "Editar Parte de Trabajo" else "Nuevo Parte de Trabajo",
+                onBack = { navController.popBackStack() },
+                endIcon = null,
+                endIconContentDescription = null
+            )
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { padding ->
         Column(
-            modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp),
+            modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp)
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(text = if (isEditing) "Editar Parte de Trabajo" else "Nuevo Parte de Trabajo", style = MaterialTheme.typography.headlineSmall)
-
             if (!isEditing) {
                 OutlinedTextField(
                     value = tipoTarea,
@@ -137,3 +153,6 @@ fun CreateEditParteTrabajoScreen(
         }
     }
 }
+
+
+

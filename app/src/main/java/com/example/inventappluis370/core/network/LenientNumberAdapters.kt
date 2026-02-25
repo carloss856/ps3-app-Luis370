@@ -10,13 +10,13 @@ import java.lang.reflect.Type
 /**
  * Adapters Moshi para tolerar datos inconsistentes de MongoDB.
  *
- * En la BD real se observaron números guardados como strings u objetos (Mongo Extended JSON):
+ * En la BD real se observaron numeros guardados como strings u objetos (Mongo Extended JSON):
  * - cantidad_disponible
  * - nivel_critico
  * - costo_unitario
  * - cantidad_entrada
  *
- * Importante: NO usar @FromJson con parámetro `Any?` porque eso registra un adapter genérico
+ * Importante: NO usar @FromJson con parametro `Any?` porque eso registra un adapter generico
  * para `Object` y puede provocar StackOverflowError.
  */
 object LenientIntAdapter : JsonAdapter.Factory {
@@ -141,3 +141,4 @@ object LenientDoubleAdapter : JsonAdapter.Factory {
         return cleaned.toDoubleOrNull() ?: throw JsonDataException("Expected Double as String but was '$raw'")
     }
 }
+

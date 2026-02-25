@@ -1,4 +1,4 @@
-package com.example.inventappluis370.ui.permisos
+﻿package com.example.inventappluis370.ui.permisos
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -36,7 +36,7 @@ class PermisosViewModel @Inject constructor(
     private val _userId = MutableStateFlow<String?>(null)
     val userId: StateFlow<String?> = _userId.asStateFlow()
 
-    /** Mapa editable (módulo -> acciones) */
+    /** Mapa editable (modulo -> acciones) */
     private val _draftModules = MutableStateFlow<Map<String, Set<String>>>(emptyMap())
     val draftModules: StateFlow<Map<String, Set<String>>> = _draftModules.asStateFlow()
 
@@ -151,3 +151,4 @@ class PermisosViewModel @Inject constructor(
         }
     }
 }
+

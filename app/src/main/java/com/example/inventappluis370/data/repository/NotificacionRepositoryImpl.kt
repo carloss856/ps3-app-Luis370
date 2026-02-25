@@ -17,7 +17,7 @@ class NotificacionRepositoryImpl @Inject constructor(
 
     override suspend fun getNotificaciones(): Result<List<Notificacion>> {
         return try {
-            // Preferimos RAW para tolerar backends que devuelven vacíos o wrappers.
+            // Preferimos RAW para tolerar backends que devuelven vacios o wrappers.
             val raw = apiService.getNotificacionesRaw()
             if (raw.isSuccessful) {
                 val txt = raw.body()?.string()?.trim().orEmpty()
@@ -43,7 +43,7 @@ class NotificacionRepositoryImpl @Inject constructor(
                 Result.failure(IOException("Error al obtener las notificaciones: ${raw.code()}"))
             }
         } catch (e: Exception) {
-            // Fallback: intentar la versión tipada (por si el RAW falla por alguna razón rara)
+            // Fallback: intentar la version tipada (por si el RAW falla por alguna razon rara)
             try {
                 val response = apiService.getNotificaciones()
                 if (response.isSuccessful) {
@@ -63,7 +63,7 @@ class NotificacionRepositoryImpl @Inject constructor(
             if (response.isSuccessful) {
                 Result.success(Unit)
             } else {
-                Result.failure(IOException("Error al eliminar la notificación: ${response.code()}"))
+                Result.failure(IOException("Error al eliminar la notificacion: ${response.code()}"))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -76,7 +76,7 @@ class NotificacionRepositoryImpl @Inject constructor(
             if (response.isSuccessful) {
                 Result.success(Unit)
             } else {
-                Result.failure(IOException("Error al marcar como leída: ${response.code()}"))
+                Result.failure(IOException("Error al marcar como leida: ${response.code()}"))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -89,7 +89,7 @@ class NotificacionRepositoryImpl @Inject constructor(
             if (response.isSuccessful) {
                 Result.success(Unit)
             } else {
-                Result.failure(IOException("Error al marcar todas como leídas: ${response.code()}"))
+                Result.failure(IOException("Error al marcar todas como leidas: ${response.code()}"))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -99,3 +99,4 @@ class NotificacionRepositoryImpl @Inject constructor(
     // PENDIENTE: Paging Notificaciones (dual-mode)
     // fun getNotificacionesPaged(perPage: Int): Flow<PagingData<Notificacion>> { ... }
 }
+

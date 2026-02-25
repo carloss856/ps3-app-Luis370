@@ -36,7 +36,7 @@ class AuthViewModel @Inject constructor(
                     _uiState.value = LoginUiState.Success
                 }
                 .onFailure { error ->
-                    _uiState.value = LoginUiState.Error(error.message ?: "Ocurrió un error desconocido")
+                    _uiState.value = LoginUiState.Error(error.message ?: "Ocurrio un error desconocido")
                 }
         }
     }
@@ -47,3 +47,4 @@ class AuthViewModel @Inject constructor(
         }
     }
 }
+

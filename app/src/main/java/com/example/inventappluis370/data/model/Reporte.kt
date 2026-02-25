@@ -4,9 +4,9 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 /**
- * Representa la entidad Reporte según el contrato.
+ * Representa la entidad Reporte segun el contrato.
  *
- * Nota: id_reporte debería venir siempre. Si falta, es un problema de datos/backend.
+ * Nota: id_reporte deberia venir siempre. Si falta, es un problema de datos/backend.
  */
 @JsonClass(generateAdapter = true)
 data class Reporte(
@@ -25,3 +25,4 @@ data class Reporte(
     @field:Json(name = "id_usuario")
     val idUsuario: String? = null
 )
+

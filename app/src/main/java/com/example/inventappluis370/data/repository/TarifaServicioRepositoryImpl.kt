@@ -1,4 +1,4 @@
-package com.example.inventappluis370.data.repository
+﻿package com.example.inventappluis370.data.repository
 
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -102,3 +102,4 @@ class TarifaServicioRepositoryImpl @Inject constructor(
         ).flow
     }
 }
+

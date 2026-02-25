@@ -1,11 +1,11 @@
-package com.example.inventappluis370.domain.repository
+﻿package com.example.inventappluis370.domain.repository
 
 import com.example.inventappluis370.data.model.CreateSolicitudRequest
 import com.example.inventappluis370.data.model.SolicitudRepuesto
 import com.example.inventappluis370.data.model.UpdateSolicitudRequest
 
 /**
- * Interfaz del repositorio para las operaciones del módulo de Solicitudes de Repuestos.
+ * Interfaz del repositorio para las operaciones del modulo de Solicitudes de Repuestos.
  */
 interface SolicitudRepuestoRepository {
     suspend fun getSolicitudes(): Result<List<SolicitudRepuesto>>
@@ -19,3 +19,4 @@ interface SolicitudRepuestoRepository {
      */
     // fun getSolicitudesPaged(perPage: Int = 25): Flow<PagingData<SolicitudRepuesto>>
 }
+

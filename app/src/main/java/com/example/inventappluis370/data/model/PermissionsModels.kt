@@ -10,7 +10,7 @@ import com.squareup.moshi.JsonClass
  * - effective: { role, modules, routes }
  * - override:  { modules, routes } | null
  *
- * Pero para compatibilidad puede devolver también el shape "plano":
+ * Pero para compatibilidad puede devolver tambien el shape "plano":
  * - { role, modules, routes }
  */
 @JsonClass(generateAdapter = true)
@@ -18,7 +18,7 @@ data class PermissionsMatrix(
     @Json(name = "role") val role: String? = null,
     /** actions por moduleKey, p.ej {"servicios":["index","store"]} */
     @Json(name = "modules") val modules: Map<String, List<String>>? = null,
-    /** nombres de ruta permitidas/override (opcional según backend) */
+    /** nombres de ruta permitidas/override (opcional segun backend) */
     @Json(name = "routes") val routes: List<String>? = null,
 )
 
@@ -45,10 +45,10 @@ data class PermissionsResponse(
         get() = effective ?: PermissionsMatrix(role = role, modules = modules, routes = routes)
 
     /**
-     * Para edición en UI:
+     * Para edicion en UI:
      * - Si el backend trae shape rico con `override` PRESENTE pero sin `modules`, eso normalmente significa
-     *   que existe documento override pero aún no define módulos (o viene parcial). En ese caso, tomamos
-     *   `effective.modules` como base para no mostrar la pantalla vacía.
+     *   que existe documento override pero aun no define modulos (o viene parcial). En ese caso, tomamos
+     *   `effective.modules` como base para no mostrar la pantalla vacia.
      * - Si `override.modules` existe, editamos eso.
      * - Si no hay shape rico, usamos `modules` del shape plano.
      */
@@ -66,9 +66,10 @@ data class PermissionsResponse(
 
 /**
  * Request para PUT /permissions (override completo/parcial).
- * En web se trabaja por módulos y acciones.
+ * En web se trabaja por modulos y acciones.
  */
 @JsonClass(generateAdapter = true)
 data class PermissionsOverrideRequest(
     @Json(name = "modules") val modules: Map<String, List<String>>
 )
+

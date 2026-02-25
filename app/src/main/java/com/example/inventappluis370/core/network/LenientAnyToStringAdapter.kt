@@ -1,4 +1,4 @@
-package com.example.inventappluis370.core.network
+﻿package com.example.inventappluis370.core.network
 
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonReader
@@ -7,11 +7,11 @@ import com.squareup.moshi.Moshi
 import java.lang.reflect.Type
 
 /**
- * Adapter leniente para *campos específicos* `String` anotados con [LenientString]
+ * Adapter leniente para *campos especificos* `String` anotados con [LenientString]
  * que en backend legacy pueden venir como Number/Boolean/Null.
  *
- * Importante: antes esto estaba implementado con métodos @FromJson que aceptaban `Any?`.
- * Eso hace que Moshi lo trate como adapter genérico de `Object` y puede provocar recursión
+ * Importante: antes esto estaba implementado con metodos @FromJson que aceptaban `Any?`.
+ * Eso hace que Moshi lo trate como adapter generico de `Object` y puede provocar recursion
  * infinita (StackOverflowError) al parsear respuestas.
  */
 object LenientAnyToStringAdapter : JsonAdapter.Factory {
@@ -20,7 +20,7 @@ object LenientAnyToStringAdapter : JsonAdapter.Factory {
         if (type != String::class.java) return null
         if (annotations.none { it is LenientString }) return null
 
-        // Consumimos nuestra anotación para que Moshi no siga buscando otro adapter con ella.
+        // Consumimos nuestra anotacion para que Moshi no siga buscando otro adapter con ella.
         val delegateAnnotations = annotations.filterNot { it is LenientString }.toSet()
         val delegate = moshi.nextAdapter<String>(this, type, delegateAnnotations)
 
@@ -35,10 +35,9 @@ object LenientAnyToStringAdapter : JsonAdapter.Factory {
                         if (d == asLong.toDouble()) asLong.toString() else d.toString()
                     }
                     JsonReader.Token.BOOLEAN -> reader.nextBoolean().toString()
-                    // Si llega un objeto/array, evitamos explotar: lo saltamos y devolvemos string vacía.
+                    // Si llega un objeto/array, lo conservamos como string para no perder KPIs agregados.
                     JsonReader.Token.BEGIN_ARRAY, JsonReader.Token.BEGIN_OBJECT -> {
-                        reader.skipValue()
-                        ""
+                        reader.readJsonValue()?.toString().orEmpty()
                     }
                     else -> delegate.fromJson(reader)
                 }
@@ -54,3 +53,5 @@ object LenientAnyToStringAdapter : JsonAdapter.Factory {
         }
     }
 }
+
+

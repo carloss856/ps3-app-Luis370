@@ -1,4 +1,4 @@
-package com.example.inventappluis370.ui.tarifas
+﻿package com.example.inventappluis370.ui.tarifas
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -91,3 +91,4 @@ class TarifasViewModel @Inject constructor(
     fun canUpdate(): Boolean = PermissionManager.canUpdate(userRole, "Tarifas")
     fun canDelete(): Boolean = PermissionManager.canDelete(userRole, "Tarifas")
 }
+

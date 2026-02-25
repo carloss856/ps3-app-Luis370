@@ -1,4 +1,4 @@
-package com.example.inventappluis370.data.mapper
+﻿package com.example.inventappluis370.data.mapper
 
 import com.example.inventappluis370.data.model.NotificacionSettings
 import com.example.inventappluis370.domain.model.NotificationSettings
@@ -12,4 +12,5 @@ fun NotificationSettings.toDto(): NotificacionSettings = NotificacionSettings(
     recibirNotificaciones = recibirNotificaciones,
     tiposNotificacion = tiposNotificacion,
 )
+
 

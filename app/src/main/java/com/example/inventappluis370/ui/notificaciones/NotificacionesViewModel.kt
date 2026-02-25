@@ -124,3 +124,4 @@ class NotificacionesViewModel @Inject constructor(
 
     fun canDelete(): Boolean = PermissionManager.canDelete(userRole, "Notificaciones")
 }
+

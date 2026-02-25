@@ -1,4 +1,4 @@
-package com.example.inventappluis370.data.remote
+﻿package com.example.inventappluis370.data.remote
 
 import com.example.inventappluis370.data.model.*
 import retrofit2.Response
@@ -24,3 +24,4 @@ interface AuthApiService {
     @POST("token/extend")
     suspend fun extendToken(): Response<TokenExtendResponse>
 }
+

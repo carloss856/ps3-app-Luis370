@@ -1,10 +1,10 @@
-package com.example.inventappluis370.domain.repository
+﻿package com.example.inventappluis370.domain.repository
 
 import com.example.inventappluis370.data.model.Inventario
 import com.example.inventappluis370.data.model.InventarioRequest
 
 /**
- * Interfaz del repositorio para las operaciones del módulo de Inventario.
+ * Interfaz del repositorio para las operaciones del modulo de Inventario.
  */
 interface InventarioRepository {
     suspend fun getInventario(): Result<List<Inventario>>
@@ -18,3 +18,4 @@ interface InventarioRepository {
      */
     // fun getInventarioPaged(perPage: Int = 25): Flow<PagingData<Inventario>>
 }
+

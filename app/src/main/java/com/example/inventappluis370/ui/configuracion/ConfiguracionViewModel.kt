@@ -1,4 +1,4 @@
-package com.example.inventappluis370.ui.configuracion
+﻿package com.example.inventappluis370.ui.configuracion
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -18,6 +18,8 @@ sealed class ConfiguracionUiState {
     object Loading : ConfiguracionUiState()
     data class Success(
         val settings: NotificationSettings,
+        val currentUserId: String? = null,
+        val currentUserName: String? = null,
         val readOnly: Boolean = false,
         val message: String? = null,
     ) : ConfiguracionUiState()
@@ -45,18 +47,20 @@ class ConfiguracionViewModel @Inject constructor(
     )
 
     private suspend fun ensureUserId(): String? {
-        // Contrato actual: /usuarios/{id}/notificaciones usa {id} = id_persona (USR-...).
         return tokenRepository.getUserId()
     }
 
     fun loadSettings() {
         viewModelScope.launch {
             val userId = ensureUserId()
+            val displayName = tokenRepository.getUserDisplayName()
             if (userId.isNullOrBlank()) {
                 _uiState.value = ConfiguracionUiState.Success(
                     settings = defaultSettings(),
+                    currentUserId = null,
+                    currentUserName = displayName,
                     readOnly = true,
-                    message = "No se pudo cargar la configuración: falta id_persona del usuario en la sesión. " +
+                    message = "No se pudo cargar la configuracion: falta id_persona del usuario en la sesion. " +
                         "Verifica que /login devuelva usuario.id_persona (ej: USR-XXXX)."
                 )
                 return@launch
@@ -65,10 +69,14 @@ class ConfiguracionViewModel @Inject constructor(
             _uiState.value = ConfiguracionUiState.Loading
             usuarioRepository.getNotificationSettings(userId)
                 .onSuccess { dto ->
-                    _uiState.value = ConfiguracionUiState.Success(dto.toDomain())
+                    _uiState.value = ConfiguracionUiState.Success(
+                        settings = dto.toDomain(),
+                        currentUserId = userId,
+                        currentUserName = displayName,
+                    )
                 }
                 .onFailure { e ->
-                    _uiState.value = ConfiguracionUiState.Error(e.message ?: "Error al cargar configuración")
+                    _uiState.value = ConfiguracionUiState.Error(e.message ?: "Error al cargar configuracion")
                 }
         }
     }
@@ -78,7 +86,7 @@ class ConfiguracionViewModel @Inject constructor(
             val userId = ensureUserId()
             if (userId.isNullOrBlank()) {
                 _uiState.value = ConfiguracionUiState.Error(
-                    "No se pudo guardar la configuración: falta id_persona del usuario (verifica /login)."
+                    "No se pudo guardar la configuracion: falta id_persona del usuario (verifica /login)."
                 )
                 return@launch
             }
@@ -88,8 +96,9 @@ class ConfiguracionViewModel @Inject constructor(
                     _uiState.value = ConfiguracionUiState.OperationSuccess
                 }
                 .onFailure { e ->
-                    _uiState.value = ConfiguracionUiState.Error(e.message ?: "Error al guardar configuración")
+                    _uiState.value = ConfiguracionUiState.Error(e.message ?: "Error al guardar configuracion")
                 }
         }
     }
 }
+

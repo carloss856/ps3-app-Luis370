@@ -54,13 +54,25 @@ class EquiposViewModel @Inject constructor(
         }
     }
 
-    /** Carga el equipo completo desde el backend para edición. */
+    /** Carga el equipo completo desde el backend para edicion. */
     fun fetchEquipoById(id: String) {
         viewModelScope.launch {
             _selectedEquipoLoading.value = true
             _selectedEquipoError.value = null
             equipoRepository.getEquipo(id)
-                .onSuccess { equipo -> _selectedEquipo.value = equipo }
+                .onSuccess { equipo ->
+                    val resolvedAssignedId = equipo.idAsignado
+                        ?: equipo.propiedad?.idPersona
+                        ?: equipoRepository.getEquipos().getOrNull()
+                            ?.firstOrNull { it.idEquipo == id }
+                            ?.let { fromList -> fromList.idAsignado ?: fromList.propiedad?.idPersona }
+
+                    _selectedEquipo.value = if (resolvedAssignedId.isNullOrBlank()) {
+                        equipo
+                    } else {
+                        equipo.copy(idAsignado = resolvedAssignedId)
+                    }
+                }
                 .onFailure { _selectedEquipoError.value = it.message ?: "Error" }
             _selectedEquipoLoading.value = false
         }
@@ -102,3 +114,4 @@ class EquiposViewModel @Inject constructor(
     fun canUpdate(): Boolean = PermissionManager.canUpdate(userRole, "Equipos")
     fun canDelete(): Boolean = PermissionManager.canDelete(userRole, "Equipos")
 }
+

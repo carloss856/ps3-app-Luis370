@@ -13,7 +13,7 @@ import org.junit.Test
 class LoginResponseMoshiTest {
 
     private val moshi: Moshi = Moshi.Builder()
-        // Igual que en producción
+        // Igual que en produccion
         .add(LenientIntAdapter)
         .add(LenientDoubleAdapter)
         .add(LenientStringListAdapter)

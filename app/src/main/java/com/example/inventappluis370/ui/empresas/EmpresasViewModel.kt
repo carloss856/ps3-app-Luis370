@@ -1,4 +1,4 @@
-package com.example.inventappluis370.ui.empresas
+﻿package com.example.inventappluis370.ui.empresas
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -149,3 +149,4 @@ class EmpresasViewModel @Inject constructor(
     fun canUpdate(): Boolean = PermissionManager.canUpdate(userRole, "Empresas")
     fun canDelete(): Boolean = PermissionManager.canDelete(userRole, "Empresas")
 }
+

@@ -1,10 +1,10 @@
-package com.example.inventappluis370.domain.repository
+﻿package com.example.inventappluis370.domain.repository
 
 import com.example.inventappluis370.data.model.Reporte
 import com.example.inventappluis370.data.model.ReporteRequest
 
 /**
- * Interfaz del repositorio para las operaciones del módulo de Reportes.
+ * Interfaz del repositorio para las operaciones del modulo de Reportes.
  */
 interface ReporteRepository {
 
@@ -21,3 +21,4 @@ interface ReporteRepository {
      */
     // fun getReportesPaged(perPage: Int = 25): Flow<PagingData<Reporte>>
 }
+

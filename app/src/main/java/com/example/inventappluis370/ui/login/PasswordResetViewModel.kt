@@ -11,11 +11,11 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
- * Define los posibles estados de la UI para el flujo de reseteo de contraseña.
+ * Define los posibles estados de la UI para el flujo de reseteo de contrasena.
  */
 sealed class PasswordResetState {
     object Idle : PasswordResetState() // Estado inicial
-    object Loading : PasswordResetState() // Operación en curso
+    object Loading : PasswordResetState() // Operacion en curso
     object EmailSent : PasswordResetState() // Paso 1 exitoso
     object TokenVerified : PasswordResetState() // Paso 2 exitoso
     object PasswordResetSuccess : PasswordResetState() // Paso 3 exitoso
@@ -61,3 +61,4 @@ class PasswordResetViewModel @Inject constructor(
         _uiState.value = PasswordResetState.Idle
     }
 }
+

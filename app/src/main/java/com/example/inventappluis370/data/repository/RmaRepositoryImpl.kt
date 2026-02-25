@@ -1,4 +1,4 @@
-package com.example.inventappluis370.data.repository
+﻿package com.example.inventappluis370.data.repository
 
 import com.example.inventappluis370.data.model.RMA
 import com.example.inventappluis370.data.remote.ApiErrorParser
@@ -42,3 +42,4 @@ class RmaRepositoryImpl @Inject constructor(
     // PENDIENTE: Paging RMA (dual-mode)
     // fun getRmasPaged(perPage: Int): Flow<PagingData<RMA>> { ... }
 }
+

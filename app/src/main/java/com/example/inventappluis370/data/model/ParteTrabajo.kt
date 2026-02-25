@@ -1,4 +1,4 @@
-package com.example.inventappluis370.data.model
+﻿package com.example.inventappluis370.data.model
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
@@ -18,3 +18,4 @@ data class ParteTrabajo(
     val moneda: String? = null,
     val costo: Double? = null
 )
+

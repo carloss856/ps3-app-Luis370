@@ -1,4 +1,4 @@
-package com.example.inventappluis370.data.repository
+﻿package com.example.inventappluis370.data.repository
 
 import com.example.inventappluis370.data.model.PropiedadEquipo
 import com.example.inventappluis370.data.model.PropiedadEquipoRequest
@@ -56,3 +56,4 @@ class PropiedadEquipoRepositoryImpl @Inject constructor(
     // PENDIENTE: Paging Propiedad-equipos (dual-mode)
     // fun getPropiedadesPaged(perPage: Int): Flow<PagingData<PropiedadEquipo>> { ... }
 }
+

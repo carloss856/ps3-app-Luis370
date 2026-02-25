@@ -1,4 +1,4 @@
-package com.example.inventappluis370.ui.theme
+﻿package com.example.inventappluis370.ui.theme
 
 import android.content.Context
 import androidx.compose.runtime.staticCompositionLocalOf
@@ -43,3 +43,4 @@ object ThemePreferences {
         }
     }
 }
+

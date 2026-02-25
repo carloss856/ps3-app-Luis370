@@ -77,7 +77,7 @@ fun PropiedadesEquipoScreen(
                     if (propiedades.isEmpty()) {
                         Text("No hay asignaciones registradas.", modifier = Modifier.align(Alignment.Center))
                     } else {
-                        // TEMP: UI mínima para estabilizar compilación.
+                        // TEMP: UI minima para estabilizar compilacion.
                         Text(
                             text = "Asignaciones cargadas: ${propiedades.size}",
                             modifier = Modifier.align(Alignment.Center)
@@ -99,7 +99,7 @@ fun PropiedadItem(propiedad: PropiedadEquipo, onDelete: () -> Unit, onEdit: () -
         Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(text = "Equipo: ${propiedad.idEquipo}", style = MaterialTheme.typography.titleMedium)
-                Text(text = "Dueño: ${propiedad.idPersona}")
+                Text(text = "Dueno: ${propiedad.idPersona}")
                 Text(text = "ID Propiedad: ${propiedad.idPropiedad}", style = MaterialTheme.typography.bodySmall)
             }
 
@@ -117,3 +117,4 @@ fun PropiedadItem(propiedad: PropiedadEquipo, onDelete: () -> Unit, onEdit: () -
         }
     }
 }
+

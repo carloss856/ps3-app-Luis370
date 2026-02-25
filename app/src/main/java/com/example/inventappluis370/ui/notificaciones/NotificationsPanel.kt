@@ -57,13 +57,13 @@ fun NotificationsPanel(
         try {
             navController.navigate(route)
         } catch (t: Throwable) {
-            // No dejamos que una ruta mal registrada o un estado inválido tumbe la app.
+            // No dejamos que una ruta mal registrada o un estado invalido tumbe la app.
             Log.e("NotificationsPanel", "Navigation failed to $route", t)
         }
     }
 
-    // Al abrir el popup, refrescamos para que siempre muestre lo último.
-    // Importante: NO dispararlo en cada recomposición.
+    // Al abrir el popup, refrescamos para que siempre muestre lo ultimo.
+    // Importante: NO dispararlo en cada recomposicion.
     val loadedOnce = remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         if (!loadedOnce.value) {
@@ -195,3 +195,4 @@ fun NotificationsPanel(
         }
     }
 }
+

@@ -1,4 +1,4 @@
-package com.example.inventappluis370.ui.common
+﻿package com.example.inventappluis370.ui.common
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -24,3 +24,4 @@ fun PullToRefreshContainer(
         Box(modifier = Modifier.fillMaxSize(), content = content)
     }
 }
+

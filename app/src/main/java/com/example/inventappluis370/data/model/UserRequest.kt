@@ -1,4 +1,4 @@
-package com.example.inventappluis370.data.model
+﻿package com.example.inventappluis370.data.model
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
@@ -20,3 +20,4 @@ data class UserRequest(
     @Json(name = "validado_por_gerente")
     val validadoPorGerente: Boolean? = null
 )
+

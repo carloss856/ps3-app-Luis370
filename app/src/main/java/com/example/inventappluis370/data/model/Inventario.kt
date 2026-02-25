@@ -4,9 +4,9 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 /**
- * Representa la entidad Inventario según el contrato.
+ * Representa la entidad Inventario segun el contrato.
  *
- * Nota: id_entrada debería venir siempre. Si falta, es un problema de datos/backend.
+ * Nota: id_entrada deberia venir siempre. Si falta, es un problema de datos/backend.
  */
 @JsonClass(generateAdapter = true)
 data class Inventario(
@@ -22,3 +22,4 @@ data class Inventario(
     @field:Json(name = "fecha_entrada")
     val fechaEntrada: String? = null
 )
+

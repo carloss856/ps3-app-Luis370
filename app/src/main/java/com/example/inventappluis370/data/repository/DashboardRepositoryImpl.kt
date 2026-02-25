@@ -1,4 +1,4 @@
-package com.example.inventappluis370.data.repository
+﻿package com.example.inventappluis370.data.repository
 
 import com.example.inventappluis370.data.remote.DashboardApiService
 import com.example.inventappluis370.domain.model.*
@@ -52,3 +52,4 @@ class DashboardRepositoryImpl @Inject constructor(
         )
     }
 }
+

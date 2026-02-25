@@ -1,9 +1,9 @@
-package com.example.inventappluis370.data.common
+﻿package com.example.inventappluis370.data.common
 
 /**
- * Resultado estándar de llamadas de red/repo.
+ * Resultado estandar de llamadas de red/repo.
  *
- * - No inventa formatos: está pensado para mapear
+ * - No inventa formatos: esta pensado para mapear
  *   401/403/{message} y 422 {message, errors:{campo:[...]}} del contrato.
  */
 sealed class ApiResult<out T> {
@@ -31,3 +31,4 @@ sealed class ApiResult<out T> {
         data class Unknown(val message: String, val throwable: Throwable? = null) : Error()
     }
 }
+

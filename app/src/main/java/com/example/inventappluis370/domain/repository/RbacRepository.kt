@@ -1,4 +1,4 @@
-package com.example.inventappluis370.domain.repository
+﻿package com.example.inventappluis370.domain.repository
 
 import com.example.inventappluis370.data.model.RbacResponse
 import kotlinx.coroutines.flow.StateFlow
@@ -12,3 +12,4 @@ interface RbacRepository {
 
     fun clear()
 }
+

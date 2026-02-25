@@ -1,4 +1,4 @@
-package com.example.inventappluis370.ui.tarifas
+﻿package com.example.inventappluis370.ui.tarifas
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -34,3 +34,4 @@ class TarifaHistorialViewModel @Inject constructor(
         }
     }
 }
+

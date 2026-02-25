@@ -1,30 +1,46 @@
-package com.example.inventappluis370.ui.configuracion
+﻿package com.example.inventappluis370.ui.configuracion
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.example.inventappluis370.domain.model.NotificationSettings
 import com.example.inventappluis370.ui.common.ModuleTopBar
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Tune
-import androidx.navigation.NavController
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Checkbox
 
 private val CANONICAL_NOTIFICATION_TYPES = listOf(
     "servicios",
     "repuestos",
-    "solicitudes_repuesto", // en UI/web se usa con underscore
+    "solicitudes_repuesto",
     "equipos",
     "empresa",
     "inventario",
@@ -44,7 +60,7 @@ private val NOTIFICATION_TYPE_LABELS = mapOf(
     "reportes" to "Reportes",
     "usuarios" to "Usuarios",
     "notificaciones" to "Notificaciones",
-    "garantias" to "Garantías",
+    "garantias" to "Garantias",
 )
 
 private fun notificationTypeLabel(type: String): String =
@@ -60,10 +76,10 @@ fun ConfiguracionScreen(
     Scaffold(
         topBar = {
             ModuleTopBar(
-                title = "Configuración",
+                title = "Configuracion",
                 onBack = { navController.popBackStack() },
                 endIcon = Icons.Default.Tune,
-                endIconContentDescription = "Configuración"
+                endIconContentDescription = "Configuracion"
             )
         }
     ) { paddingValues ->
@@ -72,11 +88,16 @@ fun ConfiguracionScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            Box(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp)
+            ) {
                 when (val state = uiState) {
                     is ConfiguracionUiState.Loading -> {
                         CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                     }
+
                     is ConfiguracionUiState.Success -> {
                         Column(modifier = Modifier.fillMaxSize()) {
                             state.message?.let {
@@ -89,17 +110,26 @@ fun ConfiguracionScreen(
                             }
                             SettingsForm(
                                 settings = state.settings,
+                                currentUserId = state.currentUserId,
+                                currentUserName = state.currentUserName,
                                 readOnly = state.readOnly,
+                                onOpenProfile = { id -> navController.navigate("usuarios/$id") },
                                 onSave = { viewModel.saveSettings(it) },
                             )
                         }
                     }
+
                     is ConfiguracionUiState.OperationSuccess -> {
                         LaunchedEffect(Unit) { viewModel.loadSettings() }
                         CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                     }
+
                     is ConfiguracionUiState.Error -> {
-                        Text(state.message, color = MaterialTheme.colorScheme.error, modifier = Modifier.align(Alignment.Center))
+                        Text(
+                            state.message,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.align(Alignment.Center)
+                        )
                     }
                 }
             }
@@ -110,7 +140,10 @@ fun ConfiguracionScreen(
 @Composable
 fun SettingsForm(
     settings: NotificationSettings,
+    currentUserId: String?,
+    currentUserName: String?,
     readOnly: Boolean = false,
+    onOpenProfile: (String) -> Unit,
     onSave: (NotificationSettings) -> Unit,
 ) {
     var recibirNotificaciones by remember { mutableStateOf(settings.recibirNotificaciones) }
@@ -126,7 +159,6 @@ fun SettingsForm(
         tiposSeleccionados.addAll(settings.tiposNotificacion)
     }
 
-    // Tipos a mostrar: primero los canónicos; luego los que vengan del backend y no estén listados.
     val tiposExtra = remember(tiposSeleccionados) {
         tiposSeleccionados.filter { it !in CANONICAL_NOTIFICATION_TYPES }.distinct().sorted()
     }
@@ -135,10 +167,31 @@ fun SettingsForm(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Text("Configuración de Notificaciones", style = MaterialTheme.typography.headlineMedium)
-        Spacer(modifier = Modifier.height(16.dp))
+        Text("Perfil del usuario", style = MaterialTheme.typography.titleMedium)
+        Text(
+            "Nombre: ${currentUserName ?: "No disponible"}",
+            style = MaterialTheme.typography.bodyMedium
+        )
+        Text(
+            "ID usuario: ${currentUserId ?: "No disponible"}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Button(
+            onClick = {
+                if (!currentUserId.isNullOrBlank()) onOpenProfile(currentUserId)
+            },
+            enabled = !currentUserId.isNullOrBlank(),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Editar mi perfil")
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+        Text("Configuracion de Notificaciones", style = MaterialTheme.typography.titleMedium)
 
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text("Recibir notificaciones", modifier = Modifier.weight(1f))
@@ -149,49 +202,51 @@ fun SettingsForm(
             )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
-        Text("Tipos de notificación:")
-        Spacer(modifier = Modifier.height(8.dp))
+        if (recibirNotificaciones) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text("Tipos de notificacion:")
 
-        tiposUi.forEach { tipo ->
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Checkbox(
-                    checked = tipo in tiposSeleccionados,
-                    onCheckedChange = { checked ->
-                        if (readOnly) return@Checkbox
-                        if (checked) {
-                            if (tipo !in tiposSeleccionados) tiposSeleccionados.add(tipo)
-                        } else {
-                            tiposSeleccionados.remove(tipo)
-                        }
-                    },
-                    enabled = !readOnly
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(notificationTypeLabel(tipo))
+            tiposUi.forEach { tipo ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(
+                        checked = tipo in tiposSeleccionados,
+                        onCheckedChange = { checked ->
+                            if (readOnly) return@Checkbox
+                            if (checked) {
+                                if (tipo !in tiposSeleccionados) tiposSeleccionados.add(tipo)
+                            } else {
+                                tiposSeleccionados.remove(tipo)
+                            }
+                        },
+                        enabled = !readOnly
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(notificationTypeLabel(tipo))
+                }
             }
-            Spacer(modifier = Modifier.height(4.dp))
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         Button(
             onClick = {
                 val newSettings = NotificationSettings(
                     recibirNotificaciones = recibirNotificaciones,
-                    tiposNotificacion = tiposSeleccionados.distinct().sorted()
+                    tiposNotificacion =
+                        if (recibirNotificaciones) tiposSeleccionados.distinct().sorted() else emptyList()
                 )
                 onSave(newSettings)
             },
             modifier = Modifier.fillMaxWidth(),
             enabled = !readOnly,
         ) {
-            Text("Guardar Cambios")
+            Text("Guardar cambios")
         }
 
         Spacer(modifier = Modifier.height(16.dp))
     }
 }
+

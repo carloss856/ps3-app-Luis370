@@ -1,4 +1,4 @@
-package com.example.inventappluis370.ui.servicios
+﻿package com.example.inventappluis370.ui.servicios
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -100,5 +100,6 @@ class PartesTrabajoViewModel @Inject constructor(
         _fieldErrors.value = emptyMap()
     }
 
-    fun canManage(): Boolean = userRole == "Administrador" || userRole == "Técnico"
+    fun canManage(): Boolean = userRole == "Administrador" || userRole == "Tecnico"
 }
+

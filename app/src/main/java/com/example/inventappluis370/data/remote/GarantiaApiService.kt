@@ -6,7 +6,7 @@ import retrofit2.Response
 import retrofit2.http.*
 
 /**
- * Interfaz de Retrofit para las operaciones del módulo de Garantías.
+ * Interfaz de Retrofit para las operaciones del modulo de Garantias.
  */
 interface GarantiaApiService {
 
@@ -33,3 +33,4 @@ interface GarantiaApiService {
     @DELETE("garantias/{id}")
     suspend fun deleteGarantia(@Path("id") id: String): Response<Unit>
 }
+

@@ -4,9 +4,9 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 /**
- * Representa la entidad Servicio según el contrato.
+ * Representa la entidad Servicio segun el contrato.
  *
- * Nota: id_servicio debería venir siempre. Si falta, es un problema de datos/backend.
+ * Nota: id_servicio deberia venir siempre. Si falta, es un problema de datos/backend.
  * Se tolera null para evitar crash de Moshi y poder diagnosticar desde UI.
  */
 @JsonClass(generateAdapter = true)
@@ -16,6 +16,9 @@ data class Servicio(
 
     @field:Json(name = "id_equipo")
     val idEquipo: String? = null,
+
+    @field:Json(name = "id_usuario")
+    val idUsuario: String? = null,
 
     @field:Json(name = "codigo_rma")
     val codigoRma: String? = null,
@@ -46,3 +49,4 @@ data class Servicio(
     @field:Json(name = "tiempo_total_minutos")
     val tiempoTotalMinutos: Int? = null
 )
+

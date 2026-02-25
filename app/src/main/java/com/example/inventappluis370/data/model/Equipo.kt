@@ -4,9 +4,9 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 /**
- * Representa la entidad Equipo según el contrato.
+ * Representa la entidad Equipo segun el contrato.
  *
- * Nota: id_equipo debería venir siempre. Si falta, es un problema de datos/backend.
+ * Nota: id_equipo deberia venir siempre. Si falta, es un problema de datos/backend.
  */
 @JsonClass(generateAdapter = true)
 data class Equipo(
@@ -24,3 +24,4 @@ data class Equipo(
 
     val propiedad: PropiedadEquipo? = null
 )
+

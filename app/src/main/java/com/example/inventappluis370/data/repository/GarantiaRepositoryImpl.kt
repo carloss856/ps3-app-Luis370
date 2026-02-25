@@ -69,6 +69,7 @@ class GarantiaRepositoryImpl @Inject constructor(
         } catch (e: Exception) { Result.failure(e) }
     }
 
-    // PENDIENTE: Paging Garantías (dual-mode)
+    // PENDIENTE: Paging Garantias (dual-mode)
     // fun getGarantiasPaged(perPage: Int): Flow<PagingData<Garantia>> { ... }
 }
+

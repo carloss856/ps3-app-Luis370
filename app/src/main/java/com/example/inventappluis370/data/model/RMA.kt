@@ -4,9 +4,9 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 /**
- * Representa la entidad RMA según el contrato.
+ * Representa la entidad RMA segun el contrato.
  *
- * Nota: rma debería venir siempre. Si falta, es un problema de datos/backend.
+ * Nota: rma deberia venir siempre. Si falta, es un problema de datos/backend.
  */
 @JsonClass(generateAdapter = true)
 data class RMA(
@@ -18,3 +18,4 @@ data class RMA(
     @field:Json(name = "fecha_creacion")
     val fechaCreacion: String? = null
 )
+

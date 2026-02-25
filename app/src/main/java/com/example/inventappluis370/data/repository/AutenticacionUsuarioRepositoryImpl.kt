@@ -26,6 +26,7 @@ class AutenticacionUsuarioRepositoryImpl @Inject constructor(
         }
     }
 
-    // PENDIENTE: Paging Autenticación-usuarios (dual-mode)
+    // PENDIENTE: Paging Autenticacion-usuarios (dual-mode)
     // fun getAutenticacionesPaged(perPage: Int): Flow<PagingData<AutenticacionUsuario>> { ... }
 }
+

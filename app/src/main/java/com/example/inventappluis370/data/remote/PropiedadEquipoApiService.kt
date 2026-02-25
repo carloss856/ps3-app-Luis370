@@ -1,4 +1,4 @@
-package com.example.inventappluis370.data.remote
+﻿package com.example.inventappluis370.data.remote
 
 import com.example.inventappluis370.data.model.PropiedadEquipo
 import com.example.inventappluis370.data.model.PropiedadEquipoRequest
@@ -6,7 +6,7 @@ import retrofit2.Response
 import retrofit2.http.*
 
 /**
- * Interfaz de Retrofit para las operaciones CRUD del módulo de Propiedad de Equipos.
+ * Interfaz de Retrofit para las operaciones CRUD del modulo de Propiedad de Equipos.
  */
 interface PropiedadEquipoApiService {
 
@@ -34,3 +34,4 @@ interface PropiedadEquipoApiService {
     @DELETE("propiedad-equipos/{id}")
     suspend fun deletePropiedad(@Path("id") id: String): Response<Unit>
 }
+

@@ -1,4 +1,4 @@
-package com.example.inventappluis370.data.model
+﻿package com.example.inventappluis370.data.model
 
 /**
  * DEPRECADO: el backend ya no expone `/me`.
@@ -7,3 +7,4 @@ package com.example.inventappluis370.data.model
  */
 @Deprecated("El backend no expone /me. No usar.")
 private const val UNUSED_ME_RESPONSE = "removed"
+

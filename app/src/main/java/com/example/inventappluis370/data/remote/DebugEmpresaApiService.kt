@@ -9,9 +9,9 @@ import retrofit2.http.PUT
 import retrofit2.http.Path
 
 /**
- * Endpoint RAW para depurar errores de validación (422) sin depender del mapeo de DTOs.
+ * Endpoint RAW para depurar errores de validacion (422) sin depender del mapeo de DTOs.
  *
- * Ojo: esto NO se usa en producción; es para confirmar qué JSON está recibiendo el backend.
+ * Ojo: esto NO se usa en produccion; es para confirmar que JSON esta recibiendo el backend.
  */
 interface DebugEmpresaApiService {
 
@@ -24,3 +24,4 @@ interface DebugEmpresaApiService {
         @Body body: RequestBody
     ): Response<ResponseBody>
 }
+

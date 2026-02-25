@@ -112,14 +112,14 @@ class TokenExtendManagerTest {
         // llamada disparada
         assertThat(fakeApi.extendCalls).isEqualTo(1)
 
-        // con nueva expiración ya no debería necesitar extensión
+        // con nueva expiracion ya no deberia necesitar extension
         assertThat(tokenRepository.needsExtension()).isFalse()
-        // sanity: se haya guardado la expiración nueva
+        // sanity: se haya guardado la expiracion nueva
         assertThat(tokenRepository.getSession()?.expiresAt).isEqualTo(newExpires)
     }
 
     @Test
-    fun `no llama extendToken si no hay token o no necesita extensión`() = runTest {
+    fun `no llama extendToken si no hay token o no necesita extension`() = runTest {
         val prefs = MemoryPrefs()
         val tokenRepository = TokenRepository(prefs)
 
@@ -129,7 +129,7 @@ class TokenExtendManagerTest {
         manager.extendIfNeeded()
         assertThat(fakeApi.extendCalls).isEqualTo(0)
 
-        // token con expiración lejana => no llama
+        // token con expiracion lejana => no llama
         val expiresLater = OffsetDateTime.now(ZoneOffset.UTC).plusHours(2).toString()
         tokenRepository.saveSession(token = "t", role = "Administrador", userId = "USR-1", expiresAt = expiresLater)
         manager.extendIfNeeded()

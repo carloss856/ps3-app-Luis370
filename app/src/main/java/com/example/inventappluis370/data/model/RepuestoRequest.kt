@@ -4,7 +4,7 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 /**
- * Representa el cuerpo de la petición para crear o actualizar un repuesto.
+ * Representa el cuerpo de la peticion para crear o actualizar un repuesto.
  */
 @JsonClass(generateAdapter = true)
 data class RepuestoRequest(
@@ -17,3 +17,4 @@ data class RepuestoRequest(
     @Json(name = "nivel_critico")
     val nivelCritico: Int?
 )
+

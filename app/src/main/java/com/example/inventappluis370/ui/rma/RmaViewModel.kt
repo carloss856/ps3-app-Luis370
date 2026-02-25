@@ -1,4 +1,4 @@
-package com.example.inventappluis370.ui.rma
+﻿package com.example.inventappluis370.ui.rma
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -53,3 +53,4 @@ class RmaViewModel @Inject constructor(
 
     fun canDelete(): Boolean = PermissionManager.canDelete(userRole, "RMA")
 }
+

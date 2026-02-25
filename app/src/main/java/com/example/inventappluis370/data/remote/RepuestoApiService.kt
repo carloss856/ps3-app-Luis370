@@ -7,16 +7,16 @@ import retrofit2.Response
 import retrofit2.http.*
 
 /**
- * Interfaz de Retrofit para las operaciones CRUD del módulo de Repuestos.
+ * Interfaz de Retrofit para las operaciones CRUD del modulo de Repuestos.
  */
 interface RepuestoApiService {
 
     /**
      * IMPORTANTE:
      * Algunos backends devuelven una lista directa (JSON array) y otros devuelven
-     * un objeto paginado { data: [...], meta: {...} } aun sin parámetros.
+     * un objeto paginado { data: [...], meta: {...} } aun sin parametros.
      *
-     * Para evitar crashes de Moshi cuando cambia el formato, aquí obtenemos el body
+     * Para evitar crashes de Moshi cuando cambia el formato, aqui obtenemos el body
      * como texto y lo parseamos en el repositorio con DualModePageParser.
      */
     @GET("repuestos")
@@ -28,6 +28,9 @@ interface RepuestoApiService {
         @Query("per_page") perPage: Int
     ): Response<com.example.inventappluis370.data.model.PaginatedResponseDto<Repuesto>>
 
+    @GET("repuestos/{id}")
+    suspend fun getRepuestoById(@Path("id") id: String): Response<Repuesto>
+
     @POST("repuestos")
     suspend fun createRepuesto(@Body repuestoRequest: RepuestoRequest): Response<Unit>
 
@@ -37,3 +40,4 @@ interface RepuestoApiService {
     @DELETE("repuestos/{id}")
     suspend fun deleteRepuesto(@Path("id") id: String): Response<Unit>
 }
+

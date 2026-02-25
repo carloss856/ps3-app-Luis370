@@ -1,4 +1,4 @@
-package com.example.inventappluis370.data.repository
+﻿package com.example.inventappluis370.data.repository
 
 import com.example.inventappluis370.data.model.Repuesto
 import com.example.inventappluis370.data.model.RepuestoRequest
@@ -47,6 +47,23 @@ class RepuestoRepositoryImpl @Inject constructor(
         } catch (e: Exception) { Result.failure(e) }
     }
 
+    override suspend fun getRepuestoById(id: String): Result<Repuesto> {
+        return try {
+            val direct = apiService.getRepuestoById(id)
+            if (direct.isSuccessful && direct.body() != null) {
+                Result.success(direct.body()!!)
+            } else {
+                // Fallback defensivo para backends que no exponen /repuestos/{id}
+                getRepuestos().mapCatching { list ->
+                    list.firstOrNull { it.idRepuesto == id }
+                        ?: throw IOException("No se encontro el repuesto solicitado")
+                }
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     override suspend fun updateRepuesto(id: String, repuestoRequest: RepuestoRequest): Result<Unit> {
         return try {
             val response = apiService.updateRepuesto(id, repuestoRequest)
@@ -72,3 +89,4 @@ class RepuestoRepositoryImpl @Inject constructor(
     // PENDIENTE: Paging Repuestos (dual-mode)
     // fun getRepuestosPaged(perPage: Int): Flow<PagingData<Repuesto>> { ... }
 }
+

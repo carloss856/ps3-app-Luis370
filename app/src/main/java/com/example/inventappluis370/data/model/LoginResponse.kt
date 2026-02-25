@@ -1,4 +1,4 @@
-package com.example.inventappluis370.data.model
+﻿package com.example.inventappluis370.data.model
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
@@ -13,3 +13,4 @@ data class LoginResponse(
     val tipo: String? = null,
     @field:Json(name = "expires_at") val expiresAt: String? = null
 )
+

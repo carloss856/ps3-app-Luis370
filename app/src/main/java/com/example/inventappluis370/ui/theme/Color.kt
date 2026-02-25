@@ -1,4 +1,4 @@
-package com.example.inventappluis370.ui.theme
+﻿package com.example.inventappluis370.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
@@ -100,3 +100,4 @@ val md_theme_dark_outlineVariant = Color(0xFF2C4E73)
 val md_theme_dark_scrim = Color(0xFF000000)
 
 val seed = AppPrimaryBase
+

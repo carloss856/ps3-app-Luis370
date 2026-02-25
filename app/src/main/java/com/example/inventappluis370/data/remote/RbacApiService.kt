@@ -1,4 +1,4 @@
-package com.example.inventappluis370.data.remote
+﻿package com.example.inventappluis370.data.remote
 
 import com.example.inventappluis370.data.model.RbacResponse
 import retrofit2.Response
@@ -13,3 +13,4 @@ interface RbacApiService {
     @GET("rbac")
     suspend fun getRbac(): Response<RbacResponse>
 }
+

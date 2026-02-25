@@ -1,4 +1,4 @@
-package com.example.inventappluis370.ui.reportes
+﻿package com.example.inventappluis370.ui.reportes
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -61,6 +61,24 @@ class ReportesViewModel @Inject constructor(
         }
     }
 
+    fun regenerateReporte(
+        reporte: Reporte,
+        formato: String,
+        destinatarioEmail: String?
+    ) {
+        val modules = parseModulesFromRaw(reporte.parametrosUtilizados)
+        val filters = mutableMapOf<String, Any?>()
+        destinatarioEmail?.trim()?.takeIf { it.isNotBlank() }?.let { filters["email_destinatario"] = it }
+        createReporte(
+            tipoReporte = formato,
+            parametros = ReporteParametros(
+                modules = modules,
+                filters = filters,
+                source = "android"
+            )
+        )
+    }
+
     fun deleteReporte(id: String) {
         viewModelScope.launch {
             reporteRepository.deleteReporte(id)
@@ -78,4 +96,20 @@ class ReportesViewModel @Inject constructor(
         val rbacAllowed = RbacPermissionManager.canDestroy(rbac, "reportes")
         return rbacAllowed || PermissionManager.canDelete(userRole, "Reportes")
     }
+
+    private fun parseModulesFromRaw(raw: String?): List<String> {
+        if (raw.isNullOrBlank()) return emptyList()
+        val block = Regex("\"modules\"\\s*:\\s*\\[(.*?)\\]")
+            .find(raw)
+            ?.groupValues
+            ?.getOrNull(1)
+            .orEmpty()
+        if (block.isBlank()) return emptyList()
+        return Regex("\"([^\"]+)\"")
+            .findAll(block)
+            .map { it.groupValues[1] }
+            .filter { it.isNotBlank() }
+            .toList()
+    }
 }
+

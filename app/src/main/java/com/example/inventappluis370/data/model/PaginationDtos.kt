@@ -4,7 +4,7 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 /**
- * Contrato de paginación (dual-mode):
+ * Contrato de paginacion (dual-mode):
  * - Sin page/per_page: el backend devuelve un array JSON.
  * - Con page/per_page: devuelve wrapper { data: [...], meta: {...} }
  *
@@ -25,3 +25,4 @@ data class PageMetaDto(
     @Json(name = "has_prev") val hasPrev: Boolean? = null,
     @Json(name = "has_next") val hasNext: Boolean? = null,
 )
+

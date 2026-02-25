@@ -1,4 +1,4 @@
-package com.example.inventappluis370.domain.repository
+﻿package com.example.inventappluis370.domain.repository
 
 import androidx.paging.PagingData
 import com.example.inventappluis370.data.common.ApiResult
@@ -8,11 +8,12 @@ import com.example.inventappluis370.data.model.Usuario
 import kotlinx.coroutines.flow.Flow
 
 /**
- * Interfaz del repositorio para las operaciones CRUD del módulo de Usuarios.
+ * Interfaz del repositorio para las operaciones CRUD del modulo de Usuarios.
  */
 interface UsuarioRepository {
 
     suspend fun getUsers(): Result<List<Usuario>>
+    suspend fun getUserById(id: String): Result<Usuario>
 
     // Corregido: Las operaciones de escritura devuelven Unit.
     suspend fun createUser(userRequest: UserRequest): Result<Unit>
@@ -38,3 +39,4 @@ interface UsuarioRepository {
      */
     fun getUsersPaged(perPage: Int = 25): Flow<PagingData<Usuario>>
 }
+

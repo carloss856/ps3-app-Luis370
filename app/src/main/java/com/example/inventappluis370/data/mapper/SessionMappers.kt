@@ -1,4 +1,4 @@
-package com.example.inventappluis370.data.mapper
+﻿package com.example.inventappluis370.data.mapper
 
 import com.example.inventappluis370.data.model.LoginResponse
 import com.example.inventappluis370.domain.model.AuthSession
@@ -16,3 +16,4 @@ fun LoginResponse.toDomainSession(): AuthSession {
         mongoUserId = mongoId,
     )
 }
+

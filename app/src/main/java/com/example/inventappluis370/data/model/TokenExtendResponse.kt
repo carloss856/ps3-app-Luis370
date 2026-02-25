@@ -10,7 +10,7 @@ import com.squareup.moshi.JsonClass
  * - Body: { "message": "Token extended", "expires_at": "<ISO8601>" }
  * - Header: X-Token-Expires-At: <ISO8601>
  *
- * Nota: mantenemos compatibilidad hacia atrás por si el backend devuelve token/usuario/tipo.
+ * Nota: mantenemos compatibilidad hacia atras por si el backend devuelve token/usuario/tipo.
  */
 @JsonClass(generateAdapter = true)
 data class TokenExtendResponse(
@@ -20,3 +20,4 @@ data class TokenExtendResponse(
     val tipo: String? = null,
     @field:Json(name = "expires_at") val expiresAt: String? = null
 )
+

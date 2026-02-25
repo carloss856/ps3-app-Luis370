@@ -1,10 +1,10 @@
 package com.example.inventappluis370.ui.common
 
 /**
- * Mapper simple para mensajes de validación del backend (422) a texto legible.
+ * Mapper simple para mensajes de validacion del backend (422) a texto legible.
  *
  * El backend a veces retorna strings tipo i18n keys (ej: "validation.required").
- * Para UX en Android, los convertimos a mensajes en español.
+ * Para UX en Android, los convertimos a mensajes en espanol.
  */
 object ValidationMessageMapper {
 
@@ -14,8 +14,9 @@ object ValidationMessageMapper {
 
         return when (msg) {
             "validation.required" -> "Este campo es obligatorio"
-            "validation.email" -> "Email inválido"
+            "validation.email" -> "Email invalido"
             else -> msg
         }
     }
 }
+

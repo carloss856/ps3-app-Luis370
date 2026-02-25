@@ -1,6 +1,6 @@
 package com.example.inventappluis370.domain.model
 
-/** Modelos de dominio para la pantalla "Estadísticas" (Dashboard real). */
+/** Modelos de dominio para la pantalla "Estadisticas" (Dashboard real). */
 
 data class DashboardKpiCard(
     val key: String,
@@ -34,10 +34,10 @@ data class DashboardData(
 )
 
 enum class StatsPeriod(val apiValue: String, val label: String) {
-    DAY("day", "Día"),
+    DAY("day", "Dia"),
     WEEK("week", "Semana"),
     MONTH("month", "Mes"),
-    YEAR("year", "Año"),
+    YEAR("year", "Ano"),
 }
 
 data class StatsBucket(
@@ -51,3 +51,4 @@ data class ModuleStats(
     val total: Int,
     val buckets: List<StatsBucket> = emptyList(),
 )
+

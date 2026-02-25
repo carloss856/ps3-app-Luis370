@@ -5,8 +5,8 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 /**
- * Contrato: AutenticacionUsuario (colección autenticacion_usuarios)
- * Campos según contrato (sin inventar):
+ * Contrato: AutenticacionUsuario (coleccion autenticacion_usuarios)
+ * Campos segun contrato (sin inventar):
  * - id_usuario
  * - codigo_usuario
  * - email
@@ -24,3 +24,4 @@ data class AutenticacionUsuario(
     val estado: String? = null,
     @MongoId @Json(name = "_id") val mongoId: String? = null
 )
+

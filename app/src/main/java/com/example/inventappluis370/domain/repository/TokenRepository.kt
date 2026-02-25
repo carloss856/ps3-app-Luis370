@@ -32,7 +32,7 @@ class TokenRepository @Inject constructor(
     fun getUserDisplayName(): String? = sharedPreferences.getString(USER_DISPLAY_NAME_KEY, null)
 
     /**
-     * expiración ISO-8601 que viene del contrato (header X-Token-Expires-At o body expires_at).
+     * expiracion ISO-8601 que viene del contrato (header X-Token-Expires-At o body expires_at).
      *
      * Compatibilidad:
      * - versiones anteriores guardaban en key `expires_at`.
@@ -42,7 +42,7 @@ class TokenRepository @Inject constructor(
         val current = sharedPreferences.getString(TOKEN_EXPIRES_AT_KEY, null)
         if (!current.isNullOrBlank()) return current
 
-        // compatibilidad hacia atrás
+        // compatibilidad hacia atras
         val legacy = sharedPreferences.getString(LEGACY_EXPIRES_AT_KEY, null)
         if (!legacy.isNullOrBlank()) {
             sharedPreferences.edit().putString(TOKEN_EXPIRES_AT_KEY, legacy).remove(LEGACY_EXPIRES_AT_KEY).apply()
@@ -77,7 +77,7 @@ class TokenRepository @Inject constructor(
             .apply()
         _tokenFlow.value = token
         _userRoleFlow.value = role
-        // display name no se toca aquí para permitir mantenerlo si el backend no lo reenvía.
+        // display name no se toca aqui para permitir mantenerlo si el backend no lo reenvia.
     }
 
     fun saveUserDisplayName(displayName: String?) {
@@ -92,7 +92,7 @@ class TokenRepository @Inject constructor(
     }
 
     /**
-     * En algunos flujos (p.ej. /token/extend) el backend podría devolver un token nuevo sin reenviar
+     * En algunos flujos (p.ej. /token/extend) el backend podria devolver un token nuevo sin reenviar
      * identidad/rol. Este helper actualiza solo el token manteniendo el resto.
      */
     fun updateTokenOnly(token: String) {
@@ -112,7 +112,7 @@ class TokenRepository @Inject constructor(
     }
 
     /**
-     * Verifica si el token expirará en los próximos 5 minutos.
+     * Verifica si el token expirara en los proximos 5 minutos.
      */
     fun needsExtension(): Boolean {
         val expiresAt = getTokenExpiresAt() ?: return false
@@ -188,3 +188,4 @@ class TokenRepository @Inject constructor(
         private const val USER_DISPLAY_NAME_KEY = "user_display_name"
     }
 }
+

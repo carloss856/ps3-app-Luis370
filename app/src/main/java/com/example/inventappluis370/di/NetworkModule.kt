@@ -60,7 +60,7 @@ object NetworkModule {
         tokenExtendManager: TokenExtendManager
     ): OkHttpClient {
         val loggingInterceptor = HttpLoggingInterceptor().apply {
-            // BODY puede ser MUY costoso en emulador/teléfonos y causar ANR.
+            // BODY puede ser MUY costoso en emulador/telefonos y causar ANR.
             level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BASIC
             else HttpLoggingInterceptor.Level.NONE
         }
@@ -99,13 +99,13 @@ object NetworkModule {
                     tokenRepository.clearSession()
                 }
 
-                // Importante: NO intentar auto-extend en rutas públicas (login/register/etc.)
-                // y nunca dejar que una excepción en este proceso tumbe la app.
+                // Importante: NO intentar auto-extend en rutas publicas (login/register/etc.)
+                // y nunca dejar que una excepcion en este proceso tumbe la app.
                 if (!isPublic && !skipExtend && !isExtendPath) {
                     try {
                         tokenExtendManager.maybeExtendToken()
                     } catch (t: Throwable) {
-                        Log.e(TAG, "maybeExtendToken() falló para path=$path", t)
+                        Log.e(TAG, "maybeExtendToken() fallo para path=$path", t)
                     }
                 }
 
@@ -116,7 +116,7 @@ object NetworkModule {
 
     /**
      * Cliente HTTP dedicado para AuthApiService, sin auto-extend para evitar ciclos de DI.
-     * Aún así agrega Authorization para rutas protegidas (logout, token/extend) y maneja 401.
+     * Aun asi agrega Authorization para rutas protegidas (logout, token/extend) y maneja 401.
      */
     @Provides
     @Singleton
@@ -161,10 +161,10 @@ object NetworkModule {
     @Singleton
     fun provideMoshi(): Moshi {
         return Moshi.Builder()
-            // Adapters lenientes para datos inconsistentes (Number o String numérico)
+            // Adapters lenientes para datos inconsistentes (Number o String numerico)
             .add(LenientIntAdapter)
             .add(LenientDoubleAdapter)
-            // Para campos que canónicamente son arrays pero en docs legacy vienen como string
+            // Para campos que canonicamente son arrays pero en docs legacy vienen como string
             .add(LenientStringListAdapter)
             // Para campos String anotados con @LenientString que a veces llegan como Number/Boolean (legacy)
             .add(LenientAnyToStringAdapter)
@@ -284,3 +284,4 @@ object NetworkModule {
     fun providePermissionsApiService(@Named("default") retrofit: Retrofit): PermissionsApiService =
         retrofit.create(PermissionsApiService::class.java)
 }
+

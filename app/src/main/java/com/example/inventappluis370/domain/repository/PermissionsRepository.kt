@@ -1,4 +1,4 @@
-package com.example.inventappluis370.domain.repository
+﻿package com.example.inventappluis370.domain.repository
 
 import com.example.inventappluis370.data.model.PermissionsOverrideRequest
 import com.example.inventappluis370.data.model.PermissionsResponse
@@ -12,3 +12,4 @@ interface PermissionsRepository {
     suspend fun putForUser(id: String, body: PermissionsOverrideRequest): Result<PermissionsResponse>
     suspend fun resetForUser(id: String): Result<PermissionsResponse>
 }
+

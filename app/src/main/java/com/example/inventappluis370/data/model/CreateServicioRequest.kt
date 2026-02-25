@@ -1,4 +1,4 @@
-package com.example.inventappluis370.data.model
+﻿package com.example.inventappluis370.data.model
 
 import com.squareup.moshi.Json
 
@@ -8,6 +8,9 @@ import com.squareup.moshi.Json
 data class CreateServicioRequest(
     @field:Json(name = "id_equipo")
     val idEquipo: String,
+
+    @field:Json(name = "id_usuario")
+    val idUsuario: String? = null,
 
     @field:Json(name = "codigo_rma")
     val codigoRma: String,
@@ -29,3 +32,4 @@ data class CreateServicioRequest(
     @field:Json(name = "validado_por_gerente")
     val validadoPorGerente: Boolean? = null
 )
+

@@ -192,10 +192,67 @@ private fun DashboardValue(value: Any?) {
     when (value) {
         null -> Text("-")
         is Number -> Text(value.toLong().toString(), style = MaterialTheme.typography.headlineSmall)
-        is String, is Boolean -> Text(value.toString(), style = MaterialTheme.typography.headlineSmall)
+        is String -> {
+            val text = value.trim()
+            when {
+                text.isBlank() -> Text("Sin datos", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                text.startsWith("{") || text.startsWith("[") -> {
+                    val lines = parseJsonSummaryLines(text)
+                    if (lines.isEmpty()) {
+                        Text(text, style = MaterialTheme.typography.bodyMedium)
+                    } else {
+                        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                            lines.forEach { line ->
+                                Text(line, style = MaterialTheme.typography.bodySmall)
+                            }
+                        }
+                    }
+                }
+                else -> Text(text, style = MaterialTheme.typography.headlineSmall)
+            }
+        }
+        is Boolean -> Text(value.toString(), style = MaterialTheme.typography.headlineSmall)
         is Map<*, *> -> Column(verticalArrangement = Arrangement.spacedBy(2.dp)) { value.entries.forEach { (k, v) -> Text("${k ?: ""}: ${v ?: ""}") } }
         is List<*> -> Text(value.joinToString(prefix = "[", postfix = "]") { it?.toString().orEmpty() })
         else -> Text(value.toString())
+    }
+}
+
+private fun parseJsonSummaryLines(text: String): List<String> {
+    return runCatching {
+        if (text.startsWith("{")) {
+            val obj = org.json.JSONObject(text)
+            val keys = obj.keys()
+            val lines = mutableListOf<String>()
+            while (keys.hasNext()) {
+                val key = keys.next()
+                val value = obj.opt(key)
+                lines.add("${key}: ${formatJsonNumber(value)}")
+            }
+            lines
+        } else if (text.startsWith("[")) {
+            val arr = org.json.JSONArray(text)
+            val lines = mutableListOf<String>()
+            for (i in 0 until arr.length()) {
+                val value = arr.opt(i)
+                lines.add(formatJsonNumber(value))
+            }
+            lines
+        } else {
+            emptyList()
+        }
+    }.getOrDefault(emptyList())
+}
+
+private fun formatJsonNumber(value: Any?): String {
+    return when (value) {
+        null -> ""
+        is Number -> {
+            val d = value.toDouble()
+            val asLong = d.toLong()
+            if (d == asLong.toDouble()) asLong.toString() else d.toString()
+        }
+        else -> value.toString()
     }
 }
 
@@ -283,3 +340,4 @@ private fun MiniBars(buckets: List<StatsBucket>) {
         if (buckets.size > 12) Text("...", color = Color.Gray)
     }
 }
+

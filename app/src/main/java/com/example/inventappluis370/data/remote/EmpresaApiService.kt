@@ -6,7 +6,7 @@ import retrofit2.Response
 import retrofit2.http.*
 
 /**
- * Interfaz de Retrofit para las operaciones CRUD del módulo de Empresas.
+ * Interfaz de Retrofit para las operaciones CRUD del modulo de Empresas.
  */
 interface EmpresaApiService {
 
@@ -22,14 +22,15 @@ interface EmpresaApiService {
     @GET("empresas/{id}")
     suspend fun getEmpresaById(@Path("id") id: String): Response<Empresa>
 
-    // Corregido: No esperamos un cuerpo en la respuesta, solo el código de éxito.
+    // Corregido: No esperamos un cuerpo en la respuesta, solo el codigo de exito.
     @POST("empresas")
     suspend fun createEmpresa(@Body empresaRequest: EmpresaRequest): Response<Unit>
 
-    // Corregido: No esperamos un cuerpo en la respuesta, solo el código de éxito.
+    // Corregido: No esperamos un cuerpo en la respuesta, solo el codigo de exito.
     @PUT("empresas/{id}")
     suspend fun updateEmpresa(@Path("id") id: String, @Body empresaRequest: EmpresaRequest): Response<Unit>
 
     @DELETE("empresas/{id}")
     suspend fun deleteEmpresa(@Path("id") id: String): Response<Unit>
 }
+

@@ -12,3 +12,4 @@ interface StatsApiService {
         @Query("to") to: String? = null,
     ): StatsResponseDto
 }
+

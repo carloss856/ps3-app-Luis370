@@ -1,4 +1,4 @@
-package com.example.inventappluis370.data.remote
+﻿package com.example.inventappluis370.data.remote
 
 import com.example.inventappluis370.data.model.CreateTarifaRequest
 import com.example.inventappluis370.data.model.TarifaServicio
@@ -8,7 +8,7 @@ import retrofit2.Response
 import retrofit2.http.*
 
 /**
- * Interfaz de Retrofit para las operaciones del módulo de Tarifas de Servicio.
+ * Interfaz de Retrofit para las operaciones del modulo de Tarifas de Servicio.
  */
 interface TarifaServicioApiService {
 
@@ -33,3 +33,4 @@ interface TarifaServicioApiService {
     @GET("tarifas-servicio/{id}/historial")
     suspend fun getHistorialTarifa(@Path("id") id: String): Response<List<TarifaServicioHistorial>>
 }
+

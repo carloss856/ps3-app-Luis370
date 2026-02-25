@@ -6,11 +6,11 @@ object PermissionManager {
         return userRole
             ?.trim()
             ?.lowercase()
-            ?.replace("á", "a")
-            ?.replace("é", "e")
-            ?.replace("í", "i")
-            ?.replace("ó", "o")
-            ?.replace("ú", "u")
+            ?.replace("a", "a")
+            ?.replace("e", "e")
+            ?.replace("i", "i")
+            ?.replace("o", "o")
+            ?.replace("u", "u")
             ?: ""
     }
 
@@ -29,7 +29,7 @@ object PermissionManager {
             "Usuarios" -> isAdmin(userRole)
             "Equipos" -> isAdmin(userRole) || isTecnico(userRole)
             "Servicios" -> isAdmin(userRole) || isTecnico(userRole)
-            "Garantías" -> isAdmin(userRole) || isTecnico(userRole)
+            "Garantias" -> isAdmin(userRole) || isTecnico(userRole)
             "Repuestos" -> isAdmin(userRole)
             "Inventario" -> isAdmin(userRole) || isTecnico(userRole)
             "SolicitudRepuestos" -> isAdmin(userRole) || isTecnico(userRole) || isCliente(userRole)
@@ -48,7 +48,7 @@ object PermissionManager {
             "Usuarios" -> isAdmin(userRole) || isGerente(userRole)
             "Equipos" -> isAdmin(userRole) || isTecnico(userRole)
             "Servicios" -> isAdmin(userRole) || isTecnico(userRole)
-            "Garantías" -> isAdmin(userRole) || isTecnico(userRole)
+            "Garantias" -> isAdmin(userRole) || isTecnico(userRole)
             "Repuestos" -> isAdmin(userRole)
             "Inventario" -> isAdmin(userRole)
             "SolicitudRepuestos" -> isAdmin(userRole) || isTecnico(userRole) || isGerente(userRole)
@@ -67,7 +67,7 @@ object PermissionManager {
             "Usuarios" -> isAdmin(userRole)
             "Equipos" -> isAdmin(userRole)
             "Servicios" -> isAdmin(userRole) || isTecnico(userRole)
-            "Garantías" -> isAdmin(userRole)
+            "Garantias" -> isAdmin(userRole)
             "Repuestos" -> isAdmin(userRole)
             "Inventario" -> isAdmin(userRole)
             "SolicitudRepuestos" -> isAdmin(userRole)
@@ -80,3 +80,4 @@ object PermissionManager {
         }
     }
 }
+

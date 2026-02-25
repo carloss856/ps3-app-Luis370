@@ -3,7 +3,7 @@ package com.example.inventappluis370.data.common
 import com.squareup.moshi.Json
 
 /**
- * Modelo general de error del backend según contrato:
+ * Modelo general de error del backend segun contrato:
  * - 401/403: {"message":"..."}
  * - 422: {"message":"...", "errors": { "campo": ["..."] } }
  */
@@ -14,10 +14,11 @@ data class ApiErrorResponse(
 )
 
 /**
- * Excepción de validación para propagar errores por campo hasta UI.
+ * Excepcion de validacion para propagar errores por campo hasta UI.
  */
 class ValidationException(
     val fieldErrors: Map<String, List<String>>,
     override val message: String
 ) : RuntimeException(message)
+
 

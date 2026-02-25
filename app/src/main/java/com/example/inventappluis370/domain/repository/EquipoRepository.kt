@@ -1,10 +1,10 @@
-package com.example.inventappluis370.domain.repository
+﻿package com.example.inventappluis370.domain.repository
 
 import com.example.inventappluis370.data.model.Equipo
 import com.example.inventappluis370.data.model.EquipoRequest
 
 /**
- * Interfaz del repositorio para las operaciones CRUD del módulo de Equipos.
+ * Interfaz del repositorio para las operaciones CRUD del modulo de Equipos.
  */
 interface EquipoRepository {
 
@@ -25,3 +25,4 @@ interface EquipoRepository {
      */
     // fun getEquiposPaged(perPage: Int = 25): Flow<PagingData<Equipo>>
 }
+

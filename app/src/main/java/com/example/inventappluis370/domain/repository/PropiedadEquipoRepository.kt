@@ -1,10 +1,10 @@
-package com.example.inventappluis370.domain.repository
+﻿package com.example.inventappluis370.domain.repository
 
 import com.example.inventappluis370.data.model.PropiedadEquipo
 import com.example.inventappluis370.data.model.PropiedadEquipoRequest
 
 /**
- * Interfaz del repositorio para las operaciones del módulo de Propiedad de Equipos.
+ * Interfaz del repositorio para las operaciones del modulo de Propiedad de Equipos.
  */
 interface PropiedadEquipoRepository {
     suspend fun getPropiedades(): Result<List<PropiedadEquipo>>
@@ -18,3 +18,4 @@ interface PropiedadEquipoRepository {
      */
     // fun getPropiedadesPaged(perPage: Int = 25): Flow<PagingData<PropiedadEquipo>>
 }
+

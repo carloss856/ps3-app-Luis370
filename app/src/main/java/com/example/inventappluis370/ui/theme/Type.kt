@@ -1,4 +1,4 @@
-package com.example.inventappluis370.ui.theme
+﻿package com.example.inventappluis370.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
@@ -16,3 +16,4 @@ val AppTypography = Typography(
         letterSpacing = 0.5.sp
     )
 )
+

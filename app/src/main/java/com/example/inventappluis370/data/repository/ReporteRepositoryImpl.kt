@@ -1,4 +1,4 @@
-package com.example.inventappluis370.data.repository
+﻿package com.example.inventappluis370.data.repository
 
 import com.example.inventappluis370.data.model.Reporte
 import com.example.inventappluis370.data.model.ReporteRequest
@@ -69,3 +69,4 @@ class ReporteRepositoryImpl @Inject constructor(
     // PENDIENTE: Paging Reportes (dual-mode)
     // fun getReportesPaged(perPage: Int): Flow<PagingData<Reporte>> { ... }
 }
+

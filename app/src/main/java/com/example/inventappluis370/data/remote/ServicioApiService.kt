@@ -1,4 +1,4 @@
-package com.example.inventappluis370.data.remote
+﻿package com.example.inventappluis370.data.remote
 
 import com.example.inventappluis370.data.model.*
 import com.squareup.moshi.Json
@@ -6,7 +6,7 @@ import retrofit2.Response
 import retrofit2.http.*
 
 /**
- * Interfaz de Retrofit para las operaciones del módulo de Servicios y sus Partes de Trabajo.
+ * Interfaz de Retrofit para las operaciones del modulo de Servicios y sus Partes de Trabajo.
  */
 interface ServicioApiService {
 
@@ -20,7 +20,7 @@ interface ServicioApiService {
     ): Response<com.example.inventappluis370.data.model.PaginatedResponseDto<Servicio>>
 
     /**
-     * Variante RAW para tolerar respuestas legacy (array) o wrappers no estándar.
+     * Variante RAW para tolerar respuestas legacy (array) o wrappers no estandar.
      * Se parsea con DualModePageParser en el PagingSource.
      */
     @GET("servicios")
@@ -78,3 +78,4 @@ data class PartesResponse(
     @field:Json(name = "costo_mano_obra") val costoManoObra: Double,
     @field:Json(name = "tiempo_total_minutos") val tiempoTotalMinutos: Int
 )
+

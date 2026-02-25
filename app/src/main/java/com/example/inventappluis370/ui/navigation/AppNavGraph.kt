@@ -58,7 +58,7 @@ fun AppNavGraph(
 
         composable(Routes.PASSWORD_RESET) { PasswordResetScreen(navController) }
 
-        // Módulos CRUD
+        // Modulos CRUD
         composable(Routes.EMPRESAS) { EmpresasScreen(navController) }
         composable(Routes.EMPRESAS_NEW) { CreateEditEmpresaScreen(navController) }
         composable(Routes.EMPRESAS_EDIT) { backStackEntry ->
@@ -131,6 +131,10 @@ fun AppNavGraph(
 
         composable(Routes.SOLICITUDES_REPUESTOS) { SolicitudesRepuestoScreen(navController) }
         composable(Routes.SOLICITUDES_REPUESTOS_NEW) { CreateSolicitudScreen(navController) }
+        composable(Routes.SOLICITUDES_REPUESTOS_EDIT) { backStackEntry ->
+            val solicitudId = backStackEntry.arguments?.getString("solicitudId")
+            CreateSolicitudScreen(navController, solicitudId = solicitudId)
+        }
 
         composable(Routes.EQUIPOS) { EquiposScreen(navController) }
         composable(Routes.EQUIPOS_NEW) { CreateEditEquipoScreen(navController) }
@@ -147,17 +151,18 @@ fun AppNavGraph(
         composable(Routes.REPORTES) { ReportesScreen(navController) }
         composable(Routes.REPORTES_NEW) { CreateReporteScreen(navController) }
 
-        // Módulos de solo lectura
+        // Modulos de solo lectura
         composable(Routes.NOTIFICACIONES) { NotificacionesScreen(navController) }
 
-        // Configuración
+        // Configuracion
         composable(Routes.CONFIG_NOTIFICACIONES) { ConfiguracionScreen(navController) }
 
         // Permisos (RBAC)
         composable(Routes.PERMISOS) { PermisosScreen(navController) }
         composable(Routes.PERMISOS_USER) { PermisosScreen(navController) }
 
-        // Autenticación-usuarios (deshabilitado)
+        // Autenticacion-usuarios (deshabilitado)
         // composable(Routes.AUTENTICACION_USUARIOS) { AutenticacionUsuariosScreen(navController) }
     }
 }
+

@@ -4,7 +4,7 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 /**
- * Representa la configuración de notificaciones de un usuario.
+ * Representa la configuracion de notificaciones de un usuario.
  */
 @JsonClass(generateAdapter = true)
 data class NotificacionSettings(
@@ -14,3 +14,4 @@ data class NotificacionSettings(
     @Json(name = "tipos_notificacion")
     val tiposNotificacion: List<String>? = null
 )
+

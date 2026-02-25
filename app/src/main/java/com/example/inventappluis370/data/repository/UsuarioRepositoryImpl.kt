@@ -1,4 +1,4 @@
-package com.example.inventappluis370.data.repository
+﻿package com.example.inventappluis370.data.repository
 
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -42,6 +42,25 @@ class UsuarioRepositoryImpl @Inject constructor(
             } else {
                 // Captura errores como "email ya registrado"
                 Result.failure(IOException(ApiErrorParser.parseError(response)))
+            }
+        } catch (e: Exception) { Result.failure(e) }
+    }
+
+    override suspend fun getUserById(id: String): Result<Usuario> {
+        return try {
+            val response = apiService.getUserById(id)
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                // Fallback: buscar en listado si el backend no soporta /usuarios/{id}
+                getUsers().mapCatching { users ->
+                    users.firstOrNull {
+                        val idPersona = it.idPersona ?: ""
+                        val idRaw = it.idRaw ?: ""
+                        val userIdRaw = it.userIdRaw ?: ""
+                        id == idPersona || id == idRaw || id == userIdRaw
+                    } ?: throw IOException(ApiErrorParser.parseError(response))
+                }
             }
         } catch (e: Exception) { Result.failure(e) }
     }
@@ -124,3 +143,4 @@ class UsuarioRepositoryImpl @Inject constructor(
         ).flow
     }
 }
+

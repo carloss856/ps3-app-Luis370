@@ -32,14 +32,14 @@ class GetDashboardItemsUseCaseTest {
     @Test
     fun `invoke with Tecnico role returns specific items`() {
         // Given
-        val tecnicoRole = "Técnico"
+        val tecnicoRole = "Tecnico"
 
         // When
         val items = getDashboardItemsUseCase(tecnicoRole)
 
         // Then
-        // Un técnico debería ver las 6 opciones comunes + 1 de config = 7 items
-        // (No ve Usuarios, Inventario, Garantías, Reportes)
+        // Un tecnico deberia ver las 6 opciones comunes + 1 de config = 7 items
+        // (No ve Usuarios, Inventario, Garantias, Reportes)
         assertThat(items).hasSize(7)
         assertThat(items.any { it.title == "Usuarios" }).isFalse()
         assertThat(items.any { it.title == "Inventario" }).isFalse()
@@ -55,7 +55,7 @@ class GetDashboardItemsUseCaseTest {
         val items = getDashboardItemsUseCase(nullRole)
 
         // Then
-        // Sin rol, solo debería ver las 6 opciones comunes + 1 de config = 7 items
+        // Sin rol, solo deberia ver las 6 opciones comunes + 1 de config = 7 items
         assertThat(items).hasSize(7)
         assertThat(items.any { it.title == "Usuarios" }).isFalse()
     }

@@ -24,7 +24,7 @@ fun AutenticacionUsuariosScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    // Escucha señal de refresco desde formularios.
+    // Escucha senal de refresco desde formularios.
     val refresh = navController.currentBackStackEntry?.savedStateHandle?.get<Boolean>("refresh")
     LaunchedEffect(refresh) {
         if (refresh == true) {
@@ -38,10 +38,10 @@ fun AutenticacionUsuariosScreen(
     Scaffold(
         topBar = {
             ModuleTopBar(
-                title = "Autenticación - Usuarios",
+                title = "Autenticacion - Usuarios",
                 onBack = { navController.popBackStack() },
                 endIcon = Icons.Default.Lock,
-                endIconContentDescription = "Autenticación",
+                endIconContentDescription = "Autenticacion",
             )
         }
     ) { paddingValues ->
@@ -58,7 +58,7 @@ fun AutenticacionUsuariosScreen(
                     .padding(16.dp)
             ) {
                 Text(
-                    text = "Este módulo muestra registros de autenticación (inicios de sesión / eventos de acceso) para auditoría y control. No modifica usuarios; solo consulta y refresca la información.",
+                    text = "Este modulo muestra registros de autenticacion (inicios de sesion / eventos de acceso) para auditoria y control. No modifica usuarios; solo consulta y refresca la informacion.",
                     style = MaterialTheme.typography.bodyMedium,
                 )
                 Spacer(modifier = Modifier.height(12.dp))
@@ -82,7 +82,7 @@ fun AutenticacionUsuariosScreen(
                             if (itemsList.isEmpty()) {
                                 Text("No hay registros.", modifier = Modifier.align(Alignment.Center))
                             } else {
-                                // TEMP: UI mínima para estabilizar compilación.
+                                // TEMP: UI minima para estabilizar compilacion.
                                 Text(
                                     text = "Registros cargados: ${itemsList.size}",
                                     modifier = Modifier.align(Alignment.Center)
@@ -118,11 +118,12 @@ private fun AutenticacionUsuarioItem(item: AutenticacionUsuario) {
                 Text(text = "ID usuario: $idUsuario", style = MaterialTheme.typography.bodySmall)
             }
             if (codigo.isNotBlank()) {
-                Text(text = "Código: $codigo", style = MaterialTheme.typography.bodySmall)
+                Text(text = "Codigo: $codigo", style = MaterialTheme.typography.bodySmall)
             }
             if (fecha.isNotBlank()) {
-                Text(text = "Fecha creación: $fecha", style = MaterialTheme.typography.bodySmall)
+                Text(text = "Fecha creacion: $fecha", style = MaterialTheme.typography.bodySmall)
             }
         }
     }
 }
+

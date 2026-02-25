@@ -4,7 +4,7 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 /**
- * Representa la entidad Notificación según el contrato.
+ * Representa la entidad Notificacion segun el contrato.
  */
 @JsonClass(generateAdapter = true)
 data class Notificacion(
@@ -26,7 +26,7 @@ data class Notificacion(
     @field:Json(name = "estado_envio")
     val estadoEnvio: String? = null,
 
-    // 9.9: metadata para UI y lógica de leído/no leído
+    // 9.9: metadata para UI y logica de leido/no leido
     val tipo: String? = null,
 
     @field:Json(name = "leida")
@@ -35,3 +35,4 @@ data class Notificacion(
     @field:Json(name = "leida_en")
     val leidaEn: String? = null,
 )
+

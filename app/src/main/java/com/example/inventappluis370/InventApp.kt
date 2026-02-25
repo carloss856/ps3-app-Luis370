@@ -19,7 +19,7 @@ class InventApp : Application() {
                     .detectDiskReads()
                     .detectDiskWrites()
                     // IMPORTANTE: detectNetwork en algunos dispositivos/emuladores puede provocar ANR
-                    // si alguna librería hace warmup/red (aunque sea interno) durante el arranque.
+                    // si alguna libreria hace warmup/red (aunque sea interno) durante el arranque.
                     // .detectNetwork()
                     .penaltyLog()
                     .build()
@@ -35,3 +35,4 @@ class InventApp : Application() {
         Log.d("InventApp", "onCreate() done in ${SystemClock.elapsedRealtime() - t0}ms")
     }
 }
+

@@ -1,4 +1,4 @@
-package com.example.inventappluis370.ui.estadisticas
+﻿package com.example.inventappluis370.ui.estadisticas
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
@@ -64,14 +65,32 @@ class EstadisticasViewModel @Inject constructor(
 
     fun refreshModule(module: String, from: String? = null, to: String? = null) {
         val period = _periodByModule.value[module] ?: StatsPeriod.MONTH
+        val effectiveFrom: String?
+        val effectiveTo: String?
+
+        if (period == StatsPeriod.DAY && from == null && to == null) {
+            val today = LocalDate.now().toString()
+            effectiveFrom = today
+            effectiveTo = today
+        } else {
+            effectiveFrom = from
+            effectiveTo = to
+        }
+
         viewModelScope.launch {
             _moduleUiState.update { it + (module to ModuleUiState.Loading) }
             try {
-                val stats = statsRepository.getStatsCached(module = module, period = period, from = from, to = to)
+                val stats = statsRepository.getStatsCached(
+                    module = module,
+                    period = period,
+                    from = effectiveFrom,
+                    to = effectiveTo
+                )
                 _moduleUiState.update { it + (module to ModuleUiState.Ok(stats)) }
             } catch (t: Throwable) {
-                _moduleUiState.update { it + (module to ModuleUiState.Error(t.message ?: "Error cargando estadísticas")) }
+                _moduleUiState.update { it + (module to ModuleUiState.Error(t.message ?: "Error cargando estadisticas")) }
             }
         }
     }
 }
+

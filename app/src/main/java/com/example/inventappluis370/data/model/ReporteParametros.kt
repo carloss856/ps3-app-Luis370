@@ -4,7 +4,7 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 /**
- * Payload canónico alineado con el backend (ver resumenweb.txt 9.10):
+ * Payload canonico alineado con el backend (ver resumenweb.txt 9.10):
  * parametros_utilizados = { modules: [...], filters: {...}, source: "android" }
  */
 @JsonClass(generateAdapter = true)
@@ -22,3 +22,4 @@ data class ReporteParametros(
     @Json(name = "source")
     val source: String = "android",
 )
+

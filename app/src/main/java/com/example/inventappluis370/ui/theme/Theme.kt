@@ -1,4 +1,4 @@
-package com.example.inventappluis370.ui.theme
+﻿package com.example.inventappluis370.ui.theme
 
 import android.app.Activity
 import android.os.Build
@@ -76,3 +76,4 @@ fun InventAppLuis370Theme(
         content = content
     )
 }
+

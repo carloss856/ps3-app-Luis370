@@ -15,7 +15,7 @@ import retrofit2.Response
  * Estrategia:
  * - Siempre llama al endpoint en modo paginado (page/per_page).
  * - Tolera que el backend responda legacy array (por compatibilidad) y en ese caso:
- *   - devuelve una sola página (nextKey=null) porque no hay meta.
+ *   - devuelve una sola pagina (nextKey=null) porque no hay meta.
  */
 class DualModePagingSource<T : Any>(
     private val perPage: Int,
@@ -39,7 +39,7 @@ class DualModePagingSource<T : Any>(
                 return LoadResult.Error(RuntimeException("HTTP ${response.code()}: $msg"))
             }
 
-            val body = response.body() ?: return LoadResult.Error(RuntimeException("Respuesta vacía"))
+            val body = response.body() ?: return LoadResult.Error(RuntimeException("Respuesta vacia"))
             val parsed = DualModePageParser.parse(body = body, moshi = moshi, itemClass = itemClass)
 
             when (parsed) {
@@ -70,4 +70,5 @@ class DualModePagingSource<T : Any>(
         }
     }
 }
+
 

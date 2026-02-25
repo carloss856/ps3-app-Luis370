@@ -1,4 +1,4 @@
-package com.example.inventappluis370.ui.usuarios
+﻿package com.example.inventappluis370.ui.usuarios
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -19,6 +19,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 sealed class UsuariosUiState {
+    object Idle : UsuariosUiState()
     object Loading : UsuariosUiState()
     data class Success(val users: List<Usuario>) : UsuariosUiState()
     data class Error(val message: String) : UsuariosUiState()
@@ -31,7 +32,7 @@ class UsuariosViewModel @Inject constructor(
     private val tokenRepository: TokenRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<UsuariosUiState>(UsuariosUiState.Loading)
+    private val _uiState = MutableStateFlow<UsuariosUiState>(UsuariosUiState.Idle)
     val uiState: StateFlow<UsuariosUiState> = _uiState.asStateFlow()
 
     private val _selectedUser = MutableStateFlow<Usuario?>(null)
@@ -49,9 +50,12 @@ class UsuariosViewModel @Inject constructor(
         _fieldErrors.value = emptyMap()
     }
 
-    fun getUserById(idPersona: String) {
-        val users = (uiState.value as? UsuariosUiState.Success)?.users
-        _selectedUser.value = users?.find { it.idPersona == idPersona }
+    fun getUserById(id: String) {
+        viewModelScope.launch {
+            usuarioRepository.getUserById(id)
+                .onSuccess { _selectedUser.value = it }
+                .onFailure { _uiState.value = UsuariosUiState.Error(it.message ?: "Error") }
+        }
     }
 
     fun createUser(userRequest: UserRequest) {
@@ -115,3 +119,4 @@ class UsuariosViewModel @Inject constructor(
     fun canUpdate(): Boolean = PermissionManager.canUpdate(userRole, "Usuarios")
     fun canDelete(): Boolean = PermissionManager.canDelete(userRole, "Usuarios")
 }
+

@@ -1,14 +1,14 @@
 package com.example.inventappluis370.data.model
 
 /**
- * Representa el cuerpo de la petición para solicitar un token de reseteo de contraseña.
+ * Representa el cuerpo de la peticion para solicitar un token de reseteo de contrasena.
  */
 data class ForgotPasswordRequest(
     val email: String
 )
 
 /**
- * Representa el cuerpo de la petición para verificar el token de reseteo.
+ * Representa el cuerpo de la peticion para verificar el token de reseteo.
  */
 data class VerifyTokenRequest(
     val email: String,
@@ -16,10 +16,11 @@ data class VerifyTokenRequest(
 )
 
 /**
- * Representa el cuerpo de la petición para establecer la nueva contraseña.
+ * Representa el cuerpo de la peticion para establecer la nueva contrasena.
  */
 data class ResetPasswordRequest(
     val email: String,
     val token: String,
     val contrasena: String
 )
+

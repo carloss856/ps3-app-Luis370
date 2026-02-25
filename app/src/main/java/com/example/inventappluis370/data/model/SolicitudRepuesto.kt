@@ -4,9 +4,9 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 /**
- * Representa la entidad SolicitudRepuesto según el contrato.
+ * Representa la entidad SolicitudRepuesto segun el contrato.
  *
- * Nota: id_solicitud debería venir siempre. Si falta, es un problema de datos/backend.
+ * Nota: id_solicitud deberia venir siempre. Si falta, es un problema de datos/backend.
  */
 @JsonClass(generateAdapter = true)
 data class SolicitudRepuesto(
@@ -33,3 +33,4 @@ data class SolicitudRepuesto(
 
     val comentarios: String? = null
 )
+

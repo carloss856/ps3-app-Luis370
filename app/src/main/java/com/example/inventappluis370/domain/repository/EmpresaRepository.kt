@@ -1,4 +1,4 @@
-package com.example.inventappluis370.domain.repository
+﻿package com.example.inventappluis370.domain.repository
 
 import androidx.paging.PagingData
 import com.example.inventappluis370.data.model.Empresa
@@ -6,7 +6,7 @@ import com.example.inventappluis370.data.model.EmpresaRequest
 import kotlinx.coroutines.flow.Flow
 
 /**
- * Interfaz del repositorio para las operaciones CRUD del módulo de Empresas.
+ * Interfaz del repositorio para las operaciones CRUD del modulo de Empresas.
  */
 interface EmpresaRepository {
 
@@ -26,3 +26,4 @@ interface EmpresaRepository {
      */
     fun getEmpresasPaged(perPage: Int = 25): Flow<PagingData<Empresa>>
 }
+

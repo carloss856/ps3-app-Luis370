@@ -4,9 +4,9 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 /**
- * Representa una tarifa de servicio según el contrato.
+ * Representa una tarifa de servicio segun el contrato.
  *
- * Nota: id_tarifa debería venir siempre. Si falta, es un problema de datos/backend.
+ * Nota: id_tarifa deberia venir siempre. Si falta, es un problema de datos/backend.
  */
 @JsonClass(generateAdapter = true)
 data class TarifaServicio(
@@ -93,3 +93,4 @@ data class TarifaServicioHistorial(
     @field:Json(name = "nombre_usuario")
     val nombreUsuario: String? = null,
 )
+

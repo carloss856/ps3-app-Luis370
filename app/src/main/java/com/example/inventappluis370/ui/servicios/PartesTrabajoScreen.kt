@@ -61,7 +61,7 @@ fun PartesTrabajoScreen(
         floatingActionButton = {
             if (viewModel.canManage()) {
                 FloatingActionButton(onClick = { navController.navigate("servicios/$servicioId/partes/new") }) {
-                    Icon(Icons.Default.Add, contentDescription = "Añadir Parte")
+                    Icon(Icons.Default.Add, contentDescription = "Anadir Parte")
                 }
             }
         }
@@ -131,7 +131,7 @@ fun ParteItem(parte: ParteTrabajo, onDelete: () -> Unit, onEdit: () -> Unit, can
                     text = if (safeTipo.isNotBlank()) safeTipo.uppercase() else "(SIN TIPO)",
                     style = MaterialTheme.typography.titleMedium
                 )
-                Text(text = "Duración: ${(parte.minutos ?: 0)} minutos")
+                Text(text = "Duracion: ${(parte.minutos ?: 0)} minutos")
                 Text(text = "ID: ${parte.idParte ?: "(sin id)"}", style = MaterialTheme.typography.bodySmall)
                 if (!parte.notas.isNullOrBlank()) Text(text = "Notas: ${parte.notas}", style = MaterialTheme.typography.bodySmall)
             }
@@ -146,3 +146,4 @@ fun ParteItem(parte: ParteTrabajo, onDelete: () -> Unit, onEdit: () -> Unit, can
         }
     }
 }
+

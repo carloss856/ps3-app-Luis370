@@ -1,4 +1,4 @@
-package com.example.inventappluis370.ui.autenticacionusuarios
+﻿package com.example.inventappluis370.ui.autenticacionusuarios
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -42,3 +42,4 @@ class AutenticacionUsuariosViewModel @Inject constructor(
     // val autenticacionesPaged: Flow<PagingData<AutenticacionUsuario>> =
     //     repository.getAutenticacionesPaged(perPage = 25).cachedIn(viewModelScope)
 }
+

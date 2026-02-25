@@ -80,7 +80,8 @@ class GarantiasViewModel @Inject constructor(
         }
     }
 
-    fun canCreate(): Boolean = PermissionManager.canCreate(userRole, "Garantías")
-    fun canUpdate(): Boolean = PermissionManager.canUpdate(userRole, "Garantías")
-    fun canDelete(): Boolean = PermissionManager.canDelete(userRole, "Garantías")
+    fun canCreate(): Boolean = PermissionManager.canCreate(userRole, "Garantias")
+    fun canUpdate(): Boolean = PermissionManager.canUpdate(userRole, "Garantias")
+    fun canDelete(): Boolean = PermissionManager.canDelete(userRole, "Garantias")
 }
+

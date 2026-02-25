@@ -1,4 +1,4 @@
-package com.example.inventappluis370.ui.tarifas
+﻿package com.example.inventappluis370.ui.tarifas
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -104,3 +104,4 @@ private fun TarifaHistorialList(
         }
     }
 }
+

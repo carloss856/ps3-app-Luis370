@@ -6,7 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 /**
- * Helpers pequeños para UI de Paging.
+ * Helpers pequenos para UI de Paging.
  */
 object PagingUi {
 
@@ -20,4 +20,5 @@ object PagingUi {
         Text(text = text, color = MaterialTheme.colorScheme.error, modifier = modifier)
     }
 }
+
 

@@ -1,9 +1,9 @@
-package com.example.inventappluis370.domain.repository
+﻿package com.example.inventappluis370.domain.repository
 
 import com.example.inventappluis370.data.model.Notificacion
 
 /**
- * Interfaz del repositorio para las operaciones del módulo de Notificaciones.
+ * Interfaz del repositorio para las operaciones del modulo de Notificaciones.
  */
 interface NotificacionRepository {
 
@@ -20,3 +20,4 @@ interface NotificacionRepository {
      */
     // fun getNotificacionesPaged(perPage: Int = 25): Flow<PagingData<Notificacion>>
 }
+

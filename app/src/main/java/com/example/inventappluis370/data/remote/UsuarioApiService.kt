@@ -8,7 +8,7 @@ import retrofit2.Response
 import retrofit2.http.*
 
 /**
- * Interfaz de Retrofit para las operaciones CRUD del módulo de Usuarios.
+ * Interfaz de Retrofit para las operaciones CRUD del modulo de Usuarios.
  */
 interface UsuarioApiService {
 
@@ -22,7 +22,7 @@ interface UsuarioApiService {
     ): Response<com.example.inventappluis370.data.model.PaginatedResponseDto<Usuario>>
 
     /**
-     * Variante RAW para soportar paginación dual-mode (array legacy vs {data,meta}).
+     * Variante RAW para soportar paginacion dual-mode (array legacy vs {data,meta}).
      * Se usa desde DualModePagingSource.
      */
     @GET("usuarios")
@@ -30,6 +30,9 @@ interface UsuarioApiService {
         @Query("page") page: Int,
         @Query("per_page") perPage: Int
     ): Response<okhttp3.ResponseBody>
+
+    @GET("usuarios/{id}")
+    suspend fun getUserById(@Path("id") id: String): Response<Usuario>
 
     // Corregido: No esperamos un cuerpo parseable.
     @POST("usuarios")
@@ -44,13 +47,13 @@ interface UsuarioApiService {
 
     /**
      * Contrato: {id} recomendado = id_persona (ej: USR-XXXX).
-     * El backend también puede soportar _id de Mongo, pero la app usa id_persona.
+     * El backend tambien puede soportar _id de Mongo, pero la app usa id_persona.
      */
     @GET("usuarios/{id}/notificaciones")
     suspend fun getNotificationSettings(@Path("id") userId: String): Response<NotificacionSettings>
 
     /**
-     * Contrato: response 200 => {"message":"Configuración actualizada"}
+     * Contrato: response 200 => {"message":"Configuracion actualizada"}
      */
     @POST("usuarios/{id}/notificaciones")
     suspend fun saveNotificationSettings(
@@ -58,3 +61,4 @@ interface UsuarioApiService {
         @Body settings: NotificacionSettings
     ): Response<MessageResponse>
 }
+

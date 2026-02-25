@@ -1,4 +1,4 @@
-package com.example.inventappluis370.data.repository
+﻿package com.example.inventappluis370.data.repository
 
 import com.example.inventappluis370.data.model.Inventario
 import com.example.inventappluis370.data.model.InventarioRequest
@@ -63,3 +63,4 @@ class InventarioRepositoryImpl @Inject constructor(
     // PENDIENTE: Paging Inventario (dual-mode)
     // fun getInventarioPaged(perPage: Int): Flow<PagingData<Inventario>> { ... }
 }
+

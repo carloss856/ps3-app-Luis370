@@ -1,10 +1,43 @@
-package com.example.inventappluis370.ui.reportes
+﻿package com.example.inventappluis370.ui.reportes
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -24,29 +57,12 @@ fun CreateReporteScreen(
     LaunchedEffect(uiState) {
         if (uiState is ReportesUiState.OperationSuccess) {
             navController.previousBackStackEntry?.savedStateHandle?.set("refresh", true)
+            navController.previousBackStackEntry?.savedStateHandle?.set("operation_message", "Reporte generado correctamente")
             navController.popBackStack()
         }
     }
 
-    // Nota: en web se usan valores estables para exportaciones: export_excel / export_pdf.
-    // Para el módulo "Generar reporte" mantenemos opciones simples y estables.
-    val tipoOptions = listOf(
-        "general",
-        "inventario",
-        "servicios",
-        "repuestos",
-        "equipos",
-        "usuarios",
-        "empresas",
-        "tarifas-servicio",
-        "reportes",
-        "notificaciones",
-        "rma",
-        "garantias",
-        // Exportaciones (paridad con web)
-        "export_excel",
-        "export_pdf",
-    )
+    val formatoOptions = listOf("export_excel" to "Excel", "export_pdf" to "PDF")
 
     val moduleOptions = listOf(
         ModuleOption("empresas", "Empresas"),
@@ -54,7 +70,7 @@ fun CreateReporteScreen(
         ModuleOption("equipos", "Equipos"),
         ModuleOption("propiedad-equipos", "Asignaciones"),
         ModuleOption("servicios", "Servicios"),
-        ModuleOption("garantias", "Garantías"),
+        ModuleOption("garantias", "Garantias"),
         ModuleOption("repuestos", "Repuestos"),
         ModuleOption("inventario", "Inventario"),
         ModuleOption("solicitud-repuestos", "Solicitudes de repuestos"),
@@ -64,9 +80,12 @@ fun CreateReporteScreen(
         ModuleOption("tarifas-servicio", "Tarifas"),
     )
 
-    var expanded by remember { mutableStateOf(false) }
-    var tipoReporte by remember { mutableStateOf(tipoOptions.first()) }
+    var formatoExpanded by remember { mutableStateOf(false) }
+    var formatoKey by remember { mutableStateOf(formatoOptions.first().first) }
     var selectedModules by remember { mutableStateOf(setOf<String>()) }
+    var emailDestino by remember { mutableStateOf("") }
+
+    val formatoLabel = formatoOptions.firstOrNull { it.first == formatoKey }?.second ?: "PDF"
 
     Scaffold(
         topBar = {
@@ -81,44 +100,53 @@ fun CreateReporteScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(16.dp),
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text("Tipo de reporte", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+            Text("Formato de exportacion", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
 
             ExposedDropdownMenuBox(
-                expanded = expanded,
-                onExpandedChange = { expanded = !expanded },
+                expanded = formatoExpanded,
+                onExpandedChange = { formatoExpanded = !formatoExpanded },
             ) {
                 OutlinedTextField(
                     readOnly = true,
-                    value = tipoReporte,
+                    value = formatoLabel,
                     onValueChange = {},
-                    label = { Text("Tipo") },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                    label = { Text("Formato") },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = formatoExpanded) },
                     modifier = Modifier
                         .menuAnchor()
                         .fillMaxWidth()
                 )
                 DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
+                    expanded = formatoExpanded,
+                    onDismissRequest = { formatoExpanded = false }
                 ) {
-                    tipoOptions.forEach { opt ->
+                    formatoOptions.forEach { opt ->
                         DropdownMenuItem(
-                            text = { Text(opt) },
+                            text = { Text(opt.second) },
                             onClick = {
-                                tipoReporte = opt
-                                expanded = false
+                                formatoKey = opt.first
+                                formatoExpanded = false
                             }
                         )
                     }
                 }
             }
 
-            Text("Módulos incluidos", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+            OutlinedTextField(
+                value = emailDestino,
+                onValueChange = { emailDestino = it },
+                label = { Text("Enviar a correo (opcional)") },
+                placeholder = { Text("correo@dominio.com") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                modifier = Modifier.fillMaxWidth()
+            )
 
-            // Chips multi-selección (simple)
+            Text("Modulos incluidos", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+
             FlowRow(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -131,14 +159,6 @@ fun CreateReporteScreen(
                             selectedModules = if (selected) selectedModules - opt.key else selectedModules + opt.key
                         },
                         label = { Text(opt.label) },
-                        leadingIcon = {
-                            Checkbox(
-                                checked = selected,
-                                onCheckedChange = {
-                                    selectedModules = if (it) selectedModules + opt.key else selectedModules - opt.key
-                                }
-                            )
-                        },
                         colors = AssistChipDefaults.assistChipColors(
                             containerColor = if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface,
                             labelColor = MaterialTheme.colorScheme.onSurface,
@@ -147,27 +167,51 @@ fun CreateReporteScreen(
                 }
             }
 
+            val selectedLabels = moduleOptions.filter { selectedModules.contains(it.key) }.map { it.label }
+            Text(
+                text = if (selectedLabels.isEmpty()) "Sin modulos seleccionados" else "Incluye: ${selectedLabels.joinToString(", ")}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+
             Spacer(modifier = Modifier.height(8.dp))
 
-            val enabled = uiState !is ReportesUiState.Loading
-            Button(
-                onClick = {
-                    val parametros = ReporteParametros(
-                        modules = selectedModules.toList().sorted(),
-                        filters = emptyMap(),
-                        source = "android",
-                    )
-                    viewModel.createReporte(tipoReporte = tipoReporte, parametros = parametros)
-                },
+            val enabled = uiState !is ReportesUiState.Loading && selectedModules.isNotEmpty()
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                enabled = enabled
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                if (!enabled) {
-                    CircularProgressIndicator(modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.width(8.dp))
+                OutlinedButton(
+                    onClick = { navController.popBackStack() },
+                    modifier = Modifier.weight(1f)
+                ) { Text("Volver") }
+
+                Button(
+                    onClick = {
+                        val filtros = mutableMapOf<String, Any?>()
+                        val email = emailDestino.trim()
+                        if (email.isNotBlank()) filtros["email_destinatario"] = email
+
+                        val parametros = ReporteParametros(
+                            modules = selectedModules.toList().sorted(),
+                            filters = filtros,
+                            source = "android",
+                        )
+                        viewModel.createReporte(tipoReporte = formatoKey, parametros = parametros)
+                    },
+                    modifier = Modifier.weight(1f),
+                    enabled = enabled
+                ) {
+                    if (uiState is ReportesUiState.Loading) {
+                        CircularProgressIndicator(modifier = Modifier.height(18.dp))
+                        Spacer(Modifier.width(8.dp))
+                    }
+                    Text("Generar")
                 }
-                Text("Generar")
             }
         }
     }
 }
+
+
+

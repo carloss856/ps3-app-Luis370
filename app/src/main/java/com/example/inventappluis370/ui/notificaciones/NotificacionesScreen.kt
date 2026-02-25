@@ -126,7 +126,7 @@ fun NotificacionItem(
                     Switch(
                         checked = isRead,
                         onCheckedChange = { checked ->
-                            // Backend 9.9 define marcar leída. "Desmarcar" no está garantizado.
+                            // Backend 9.9 define marcar leida. "Desmarcar" no esta garantizado.
                             if (checked && !isRead && !id.isNullOrBlank()) onMarkRead()
                         },
                         enabled = !isRead && !id.isNullOrBlank(),
@@ -152,7 +152,7 @@ fun NotificacionItem(
                     )
                 } else {
                     Text(
-                        text = "ERROR: notificación sin id_notificacion (debe corregirse en backend)",
+                        text = "ERROR: notificacion sin id_notificacion (debe corregirse en backend)",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.error
                     )
@@ -160,9 +160,10 @@ fun NotificacionItem(
             }
             if (canDelete && !id.isNullOrBlank()) {
                 IconButton(onClick = onDelete) {
-                    Icon(Icons.Default.Delete, contentDescription = "Eliminar Notificación")
+                    Icon(Icons.Default.Delete, contentDescription = "Eliminar Notificacion")
                 }
             }
         }
     }
 }
+

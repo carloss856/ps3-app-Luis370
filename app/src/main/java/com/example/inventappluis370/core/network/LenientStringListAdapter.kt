@@ -12,10 +12,10 @@ import java.lang.reflect.Type
  *
  * Casos observados:
  * - `tipos_notificacion` a veces viene como String ("servicios") o CSV ("servicios,repuestos")
- *   aunque el canónico sea array.
+ *   aunque el canonico sea array.
  *
- * Importante: NO usar @FromJson con parámetro `Any?` porque eso registra un adapter genérico
- * para `Object` y puede causar recursión infinita (StackOverflowError) al parsear.
+ * Importante: NO usar @FromJson con parametro `Any?` porque eso registra un adapter generico
+ * para `Object` y puede causar recursion infinita (StackOverflowError) al parsear.
  */
 object LenientStringListAdapter : JsonAdapter.Factory {
 
@@ -68,3 +68,4 @@ object LenientStringListAdapter : JsonAdapter.Factory {
         }
     }
 }
+

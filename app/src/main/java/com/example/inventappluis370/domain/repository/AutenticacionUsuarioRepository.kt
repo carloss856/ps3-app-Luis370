@@ -1,4 +1,4 @@
-package com.example.inventappluis370.domain.repository
+﻿package com.example.inventappluis370.domain.repository
 
 import com.example.inventappluis370.data.model.AutenticacionUsuario
 
@@ -10,3 +10,4 @@ interface AutenticacionUsuarioRepository {
      */
     // fun getAutenticacionesPaged(perPage: Int = 25): Flow<PagingData<AutenticacionUsuario>>
 }
+

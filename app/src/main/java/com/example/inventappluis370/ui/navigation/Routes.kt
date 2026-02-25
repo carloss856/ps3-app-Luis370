@@ -45,6 +45,7 @@ object Routes {
 
     const val SOLICITUDES_REPUESTOS = "solicitudes-repuestos"
     const val SOLICITUDES_REPUESTOS_NEW = "create-solicitud"
+    const val SOLICITUDES_REPUESTOS_EDIT = "solicitudes/{solicitudId}"
 
     const val EQUIPOS = "equipos"
     const val EQUIPOS_NEW = "equipos/new"
@@ -63,9 +64,10 @@ object Routes {
     const val CONFIG_NOTIFICACIONES = "configuracion/notificaciones"
 
     const val PERMISOS = "permisos"
-    /** Usado en navegación en runtime (replace {userId}); el IDE puede marcarlo como no usado. */
+    /** Usado en navegacion en runtime (replace {userId}); el IDE puede marcarlo como no usado. */
     const val PERMISOS_USER = "permisos/user/{userId}"
 
-    // Autenticación-usuarios (deshabilitado en menú; se deja solo si se necesitara en soporte)
+    // Autenticacion-usuarios (deshabilitado en menu; se deja solo si se necesitara en soporte)
     // const val AUTENTICACION_USUARIOS = "autenticacion-usuarios"
 }
+

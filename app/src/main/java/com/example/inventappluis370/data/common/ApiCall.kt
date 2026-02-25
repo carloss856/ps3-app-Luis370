@@ -20,13 +20,13 @@ suspend inline fun <reified T> safeApiCall(
             val body = response.body()
 
             // Muchos endpoints de este backend responden 200/201 sin body parseable.
-            // Para esos casos (T = Unit), consideramos éxito aunque body sea null.
+            // Para esos casos (T = Unit), consideramos exito aunque body sea null.
             if (body == null) {
                 @Suppress("UNCHECKED_CAST")
                 if (T::class == Unit::class) {
                     ApiResult.Success(Unit as T)
                 } else {
-                    ApiResult.Error.Http(response.code(), "Respuesta vacía")
+                    ApiResult.Error.Http(response.code(), "Respuesta vacia")
                 }
             } else {
                 ApiResult.Success(body)
@@ -52,3 +52,4 @@ suspend inline fun <reified T> safeApiCall(
         ApiResult.Error.Network(message = t.message ?: "Network error", throwable = t)
     }
 }
+

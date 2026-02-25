@@ -1,4 +1,4 @@
-package com.example.inventappluis370.data.model
+﻿package com.example.inventappluis370.data.model
 
 import com.squareup.moshi.Json
 
@@ -12,3 +12,4 @@ data class CreateParteTrabajoRequest(
     val minutos: Int,
     val notas: String?
 )
+

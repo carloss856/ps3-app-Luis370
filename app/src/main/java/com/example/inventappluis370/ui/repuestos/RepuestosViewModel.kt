@@ -47,15 +47,17 @@ class RepuestosViewModel @Inject constructor(
                     _uiState.value = RepuestosUiState.Success(repuestos)
                 }
                 .onFailure { error ->
-                    _uiState.value = RepuestosUiState.Error(error.message ?: "Ocurrió un error inesperado")
+                    _uiState.value = RepuestosUiState.Error(error.message ?: "Ocurrio un error inesperado")
                 }
         }
     }
 
     fun getRepuestoById(id: String) {
-        val repuestos = (uiState.value as? RepuestosUiState.Success)?.repuestos
-        // Corregido: Usar idRepuesto
-        _selectedRepuesto.value = repuestos?.find { it.idRepuesto == id }
+        viewModelScope.launch {
+            repuestoRepository.getRepuestoById(id)
+                .onSuccess { _selectedRepuesto.value = it }
+                .onFailure { _uiState.value = RepuestosUiState.Error(it.message ?: "No se pudo cargar el repuesto") }
+        }
     }
 
     fun createRepuesto(repuestoRequest: RepuestoRequest) {
@@ -88,3 +90,4 @@ class RepuestosViewModel @Inject constructor(
     fun canUpdate(): Boolean = PermissionManager.canUpdate(userRole, "Repuestos")
     fun canDelete(): Boolean = PermissionManager.canDelete(userRole, "Repuestos")
 }
+

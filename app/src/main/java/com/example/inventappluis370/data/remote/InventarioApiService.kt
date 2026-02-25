@@ -1,4 +1,4 @@
-package com.example.inventappluis370.data.remote
+﻿package com.example.inventappluis370.data.remote
 
 import com.example.inventappluis370.data.model.Inventario
 import com.example.inventappluis370.data.model.InventarioRequest
@@ -6,7 +6,7 @@ import retrofit2.Response
 import retrofit2.http.*
 
 /**
- * Interfaz de Retrofit para las operaciones CRUD del módulo de Inventario.
+ * Interfaz de Retrofit para las operaciones CRUD del modulo de Inventario.
  */
 interface InventarioApiService {
 
@@ -34,3 +34,4 @@ interface InventarioApiService {
     @DELETE("inventario/{id}")
     suspend fun deleteInventarioEntrada(@Path("id") id: String): Response<Unit>
 }
+

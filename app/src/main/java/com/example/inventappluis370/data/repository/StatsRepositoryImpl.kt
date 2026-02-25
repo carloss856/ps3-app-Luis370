@@ -1,4 +1,4 @@
-package com.example.inventappluis370.data.repository
+﻿package com.example.inventappluis370.data.repository
 
 import com.example.inventappluis370.data.remote.StatsApiService
 import com.example.inventappluis370.domain.model.*
@@ -21,6 +21,10 @@ class StatsRepositoryImpl @Inject constructor(
 
     private val ttlMs = 5 * 60 * 1000L
 
+    private val moduleAliases = mapOf(
+        "usuarios" to listOf("usuarios", "users", "autenticacion-usuarios")
+    )
+
     override suspend fun getStatsCached(module: String, period: StatsPeriod, from: String?, to: String?): ModuleStats {
         val key = CacheKey(module, period, from, to)
         val now = System.currentTimeMillis()
@@ -30,15 +34,28 @@ class StatsRepositoryImpl @Inject constructor(
             if (hit != null && hit.expiresAtMs > now) return hit.value
         }
 
-        val dto = api.getStats(module = module, period = period.apiValue, from = from, to = to)
-        val result = ModuleStats(
-            module = dto.module ?: module,
-            period = period,
-            total = dto.total ?: 0,
-            buckets = dto.buckets.mapNotNull { b ->
-                val label = b.label ?: return@mapNotNull null
-                StatsBucket(label = label, count = b.count ?: 0)
+        val aliases = moduleAliases[module] ?: listOf(module)
+        var firstResult: ModuleStats? = null
+        var resolved: ModuleStats? = null
+        for (candidate in aliases) {
+            val candidateResult = fetchModuleStats(
+                requestedModule = module,
+                apiModule = candidate,
+                period = period,
+                from = from,
+                to = to
+            )
+            if (firstResult == null) firstResult = candidateResult
+            if (candidateResult.total > 0 || candidateResult.buckets.isNotEmpty()) {
+                resolved = candidateResult
+                break
             }
+        }
+        val result = resolved ?: firstResult ?: ModuleStats(
+            module = module,
+            period = period,
+            total = 0,
+            buckets = emptyList()
         )
 
         mutex.withLock {
@@ -47,4 +64,24 @@ class StatsRepositoryImpl @Inject constructor(
 
         return result
     }
+
+    private suspend fun fetchModuleStats(
+        requestedModule: String,
+        apiModule: String,
+        period: StatsPeriod,
+        from: String?,
+        to: String?
+    ): ModuleStats {
+        val dto = api.getStats(module = apiModule, period = period.apiValue, from = from, to = to)
+        return ModuleStats(
+            module = requestedModule,
+            period = period,
+            total = dto.total ?: 0,
+            buckets = dto.buckets.mapNotNull { b ->
+                val label = b.label ?: return@mapNotNull null
+                StatsBucket(label = label, count = b.count ?: 0)
+            }
+        )
+    }
 }
+

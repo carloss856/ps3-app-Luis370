@@ -1,4 +1,4 @@
-package com.example.inventappluis370.ui.common
+﻿package com.example.inventappluis370.ui.common
 
 /**
  * Estado simple para inputs de formularios (value + error).
@@ -8,3 +8,4 @@ data class FormFieldState(
     val value: String = "",
     val error: String? = null
 )
+

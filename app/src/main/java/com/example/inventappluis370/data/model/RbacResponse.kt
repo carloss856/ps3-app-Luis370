@@ -1,4 +1,4 @@
-package com.example.inventappluis370.data.model
+﻿package com.example.inventappluis370.data.model
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
@@ -19,3 +19,4 @@ data class RbacResponse(
     @Json(name = "routes")
     val routes: List<String> = emptyList(),
 )
+

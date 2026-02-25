@@ -1,5 +1,7 @@
 package com.example.inventappluis370.ui.equipos
 
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
@@ -16,6 +18,29 @@ import com.example.inventappluis370.ui.usuarios.UsuariosUiState
 import com.example.inventappluis370.ui.usuarios.UsuariosViewModel
 import kotlinx.coroutines.launch
 
+private fun Usuario.matchesAssignedId(id: String): Boolean {
+    if (id.isBlank()) return false
+    val candidates = listOf(idPersona, idRaw, userIdRaw, mongoIdRaw)
+        .mapNotNull { it?.trim() }
+        .filter { it.isNotBlank() }
+    return candidates.any { it == id }
+}
+
+private fun Usuario.displayNameWithRma(): String {
+    val nombreResolved = nombre?.trim().orEmpty()
+    val rmaCandidate = idPersona?.trim()
+        .takeUnless { it.isNullOrBlank() }
+        ?: userIdRaw?.trim().takeUnless { it.isNullOrBlank() }
+        ?: idRaw?.trim().takeUnless { it.isNullOrBlank() }
+        ?: mongoIdRaw?.trim().takeUnless { it.isNullOrBlank() }
+    return when {
+        nombreResolved.isNotBlank() && !rmaCandidate.isNullOrBlank() -> "$nombreResolved - RMA: $rmaCandidate"
+        nombreResolved.isNotBlank() -> nombreResolved
+        !rmaCandidate.isNullOrBlank() -> "RMA: $rmaCandidate"
+        else -> "(Sin usuario)"
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateEditEquipoScreen(
@@ -29,6 +54,7 @@ fun CreateEditEquipoScreen(
     var modelo by remember { mutableStateOf("") }
     var idAsignado by remember { mutableStateOf("") }
     var usuarioExpanded by remember { mutableStateOf(false) }
+    var loadedFromSelected by remember(equipoId) { mutableStateOf(false) }
 
     // Texto mostrado en el dropdown (no necesariamente el ID)
     var usuarioAsignadoLabel by remember { mutableStateOf("") }
@@ -51,23 +77,28 @@ fun CreateEditEquipoScreen(
     val selectedLoading by viewModel.selectedEquipoLoading.collectAsState()
     val selectedError by viewModel.selectedEquipoError.collectAsState()
 
-    LaunchedEffect(selectedEquipo) {
+    LaunchedEffect(selectedEquipo, isEditing, loadedFromSelected) {
         selectedEquipo?.let {
+            if (isEditing && loadedFromSelected) return@let
             tipoEquipo = it.tipoEquipo ?: ""
             marca = it.marca ?: ""
             modelo = it.modelo ?: ""
-            idAsignado = it.idAsignado ?: ""
+            idAsignado = it.idAsignado ?: it.propiedad?.idPersona ?: ""
+            if (isEditing) loadedFromSelected = true
         }
     }
 
     val uiState by viewModel.uiState.collectAsState()
 
-    // Cuando la operación termina ok, volvemos al listado y pedimos refresh.
+    // Cuando la operacion termina ok, volvemos al listado y pedimos refresh.
     LaunchedEffect(uiState) {
         if (uiState is EquiposUiState.OperationSuccess) {
             navController.previousBackStackEntry
                 ?.savedStateHandle
                 ?.set("refresh", true)
+            navController.previousBackStackEntry
+                ?.savedStateHandle
+                ?.set("operation_message", if (isEditing) "Equipo editado correctamente" else "Equipo creado correctamente")
             navController.popBackStack()
         }
     }
@@ -76,28 +107,13 @@ fun CreateEditEquipoScreen(
     val usuariosState by usuariosViewModel.uiState.collectAsState()
     val usuarios: List<Usuario> = (usuariosState as? UsuariosUiState.Success)?.users.orEmpty()
 
-    LaunchedEffect(selectedEquipo, usuarios) {
-        // Cuando estamos editando, si ya tenemos idAsignado y ya cargaron usuarios,
-        // resolvemos el label para mostrarlo.
-        val id = idAsignado
-        if (id.isNotBlank() && usuarioAsignadoLabel.isBlank()) {
-            val u = usuarios.firstOrNull { (it.idPersona ?: it.idRaw ?: "") == id }
-            if (u != null) {
-                val nombre = (u.nombre ?: "").trim()
-                usuarioAsignadoLabel = if (nombre.isNotBlank()) nombre else id
-            } else {
-                // fallback: mostrar el ID si no se puede resolver
-                usuarioAsignadoLabel = id
-            }
-        }
-    }
-
-    // Cuando el estado de los usuarios cambia, si ya tenemos un idAsignado,
-    // tratamos de resolver el nombre para mostrar en el campo correspondiente.
-    LaunchedEffect(usuariosState) {
-        if (usuariosState is UsuariosUiState.Success) {
-            val u = usuarios.firstOrNull { (it.idPersona ?: it.idRaw ?: "") == idAsignado }
-            usuarioAsignadoLabel = u?.nombre ?: idAsignado
+    LaunchedEffect(idAsignado, usuarios) {
+        if (idAsignado.isBlank()) {
+            usuarioAsignadoLabel = ""
+        } else {
+            val u = usuarios.firstOrNull { it.matchesAssignedId(idAsignado.trim()) }
+            val resolved = u?.displayNameWithRma().orEmpty()
+            usuarioAsignadoLabel = if (resolved.isNotBlank()) resolved else idAsignado
         }
     }
 
@@ -116,7 +132,8 @@ fun CreateEditEquipoScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(16.dp),
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
 
@@ -155,14 +172,14 @@ fun CreateEditEquipoScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            // Según contrato/controller: el backend recibe id_asignado (id_persona del usuario asignado)
+            // Segun contrato/controller: el backend recibe id_asignado (id_persona del usuario asignado)
             ExposedDropdownMenuBox(
                 expanded = usuarioExpanded,
                 onExpandedChange = { usuarioExpanded = !usuarioExpanded },
             ) {
                 OutlinedTextField(
                     value = usuarioAsignadoLabel,
-                    onValueChange = { /* solo lectura: se selecciona desde el menú */ },
+                    onValueChange = { /* solo lectura: se selecciona desde el menu */ },
                     readOnly = true,
                     label = { Text("Usuario asignado *") },
                     modifier = Modifier
@@ -186,7 +203,7 @@ fun CreateEditEquipoScreen(
                         DropdownMenuItem(
                             text = {
                                 val msg = when (usuariosState) {
-                                    is UsuariosUiState.Loading -> "Cargando usuarios…"
+                                    is UsuariosUiState.Loading -> "Cargando usuarios..."
                                     is UsuariosUiState.Error -> "No se pudieron cargar usuarios"
                                     else -> "Sin usuarios"
                                 }
@@ -198,12 +215,7 @@ fun CreateEditEquipoScreen(
                     } else {
                         usuarios.forEach { u ->
                             val id = (u.idPersona ?: u.idRaw ?: "").trim()
-                            val nombre = (u.nombre ?: "").trim()
-                            val label = when {
-                                nombre.isNotBlank() -> nombre
-                                id.isNotBlank() -> id
-                                else -> "(Sin usuario)"
-                            }
+                            val label = u.displayNameWithRma()
                             DropdownMenuItem(
                                 text = { Text(label) },
                                 onClick = {
@@ -219,42 +231,53 @@ fun CreateEditEquipoScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Button(
-                onClick = {
-                    scope.launch {
-                        if (tipoEquipo.isBlank()) {
-                            snackbarHostState.showSnackbar("Tipo de equipo es requerido")
-                            return@launch
-                        }
-                        if (idAsignado.isBlank()) {
-                            snackbarHostState.showSnackbar("Debes seleccionar un usuario asignado")
-                            return@launch
-                        }
-
-                        val equipoRequest = EquipoRequest(
-                            tipoEquipo = tipoEquipo.trim(),
-                            marca = marca.trim().ifBlank { null },
-                            modelo = modelo.trim().ifBlank { null },
-                            idPersona = null,
-                            idAsignado = idAsignado.trim().ifBlank { null }
-                        )
-
-                        if (isEditing) {
-                            viewModel.updateEquipo(equipoId!!, equipoRequest)
-                        } else {
-                            viewModel.createEquipo(equipoRequest)
-                        }
-                    }
-                },
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                enabled = uiState !is EquiposUiState.Loading && (!isEditing || !selectedLoading)
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                if (uiState is EquiposUiState.Loading) {
-                    CircularProgressIndicator(modifier = Modifier.size(24.dp))
-                } else {
-                    Text(if (isEditing) "Actualizar" else "Guardar")
+                OutlinedButton(
+                    onClick = { navController.popBackStack() },
+                    modifier = Modifier.weight(1f)
+                ) { Text("Volver") }
+
+                Button(
+                    onClick = {
+                        scope.launch {
+                            if (tipoEquipo.isBlank()) {
+                                snackbarHostState.showSnackbar("Tipo de equipo es requerido")
+                                return@launch
+                            }
+                            if (idAsignado.isBlank()) {
+                                snackbarHostState.showSnackbar("Debes seleccionar un usuario asignado")
+                                return@launch
+                            }
+
+                            val equipoRequest = EquipoRequest(
+                                tipoEquipo = tipoEquipo.trim(),
+                                marca = marca.trim().ifBlank { null },
+                                modelo = modelo.trim().ifBlank { null },
+                                idPersona = null,
+                                idAsignado = idAsignado.trim().ifBlank { null }
+                            )
+
+                            if (isEditing) {
+                                viewModel.updateEquipo(equipoId!!, equipoRequest)
+                            } else {
+                                viewModel.createEquipo(equipoRequest)
+                            }
+                        }
+                    },
+                    modifier = Modifier.weight(1f),
+                    enabled = uiState !is EquiposUiState.Loading && (!isEditing || !selectedLoading)
+                ) {
+                    if (uiState is EquiposUiState.Loading) {
+                        CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                    } else {
+                        Text(if (isEditing) "Actualizar" else "Guardar")
+                    }
                 }
             }
         }
     }
 }
+

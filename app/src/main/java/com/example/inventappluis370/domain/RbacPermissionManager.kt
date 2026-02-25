@@ -1,4 +1,4 @@
-package com.example.inventappluis370.domain
+﻿package com.example.inventappluis370.domain
 
 import com.example.inventappluis370.data.model.RbacResponse
 
@@ -21,3 +21,4 @@ object RbacPermissionManager {
     fun canUpdate(rbac: RbacResponse?, moduleKey: String): Boolean = can(rbac, moduleKey, "update")
     fun canDestroy(rbac: RbacResponse?, moduleKey: String): Boolean = can(rbac, moduleKey, "destroy")
 }
+

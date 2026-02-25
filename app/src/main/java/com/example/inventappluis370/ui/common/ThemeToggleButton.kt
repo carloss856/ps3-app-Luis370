@@ -1,4 +1,4 @@
-package com.example.inventappluis370.ui.common
+﻿package com.example.inventappluis370.ui.common
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DarkMode
@@ -23,3 +23,4 @@ fun ThemeToggleButton(modifier: Modifier = Modifier) {
         Icon(imageVector = icon, contentDescription = contentDescription, tint = tint)
     }
 }
+

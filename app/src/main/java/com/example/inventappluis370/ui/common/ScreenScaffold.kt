@@ -1,4 +1,4 @@
-package com.example.inventappluis370.ui.common
+﻿package com.example.inventappluis370.ui.common
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,9 +9,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 
 /**
- * Scaffold estándar para TODAS las pantallas:
- * - TopBar consistente (back, refresh, icono módulo)
- * - Evita duplicar top bars en cada módulo.
+ * Scaffold estandar para TODAS las pantallas:
+ * - TopBar consistente (back, refresh, icono modulo)
+ * - Evita duplicar top bars en cada modulo.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,3 +38,4 @@ fun ScreenScaffold(
         content(padding)
     }
 }
+

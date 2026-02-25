@@ -15,18 +15,24 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -43,12 +49,23 @@ fun RepuestosScreen(
     viewModel: RepuestosViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    var selectedRepuesto by remember { mutableStateOf<Repuesto?>(null) }
+    var pendingDeleteId by remember { mutableStateOf<String?>(null) }
+    var operationMessage by remember { mutableStateOf<String?>(null) }
 
     val refresh = navController.currentBackStackEntry?.savedStateHandle?.get<Boolean>("refresh")
     LaunchedEffect(refresh) {
         if (refresh == true) {
             viewModel.getRepuestos()
             navController.currentBackStackEntry?.savedStateHandle?.set("refresh", false)
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        val msg = navController.currentBackStackEntry?.savedStateHandle?.get<String>("operation_message")
+        if (!msg.isNullOrBlank()) {
+            operationMessage = msg
+            navController.currentBackStackEntry?.savedStateHandle?.remove<String>("operation_message")
         }
     }
 
@@ -106,8 +123,9 @@ fun RepuestosScreen(
                                     val id = repuesto.idRepuesto
                                     RepuestoItem(
                                         repuesto = repuesto,
-                                        onDelete = { if (!id.isNullOrBlank()) viewModel.deleteRepuesto(id) },
+                                        onDelete = { if (!id.isNullOrBlank()) pendingDeleteId = id },
                                         onEdit = { if (!id.isNullOrBlank()) navController.navigate("repuestos/$id") },
+                                        onView = { selectedRepuesto = repuesto },
                                         canUpdate = viewModel.canUpdate(),
                                         canDelete = viewModel.canDelete()
                                     )
@@ -122,20 +140,66 @@ fun RepuestosScreen(
                 }
             }
         }
+
+        if (selectedRepuesto != null) {
+            val r = selectedRepuesto!!
+            AlertDialog(
+                onDismissRequest = { selectedRepuesto = null },
+                confirmButton = { TextButton(onClick = { selectedRepuesto = null }) { Text("Cerrar") } },
+                title = { Text("Detalle de repuesto") },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Text("Nombre: ${r.nombreRepuesto ?: "-"}")
+                        Text("Cantidad: ${r.cantidadDisponible ?: "-"}")
+                        Text("Nivel critico: ${r.nivelCritico ?: "-"}")
+                    }
+                }
+            )
+        }
+
+        if (pendingDeleteId != null) {
+            AlertDialog(
+                onDismissRequest = { pendingDeleteId = null },
+                confirmButton = {
+                    TextButton(onClick = {
+                        val id = pendingDeleteId
+                        pendingDeleteId = null
+                        if (!id.isNullOrBlank()) {
+                            viewModel.deleteRepuesto(id)
+                            operationMessage = "Repuesto eliminado correctamente"
+                        }
+                    }) { Text("Eliminar") }
+                },
+                dismissButton = { TextButton(onClick = { pendingDeleteId = null }) { Text("Cancelar") } },
+                title = { Text("Confirmar eliminacion") },
+                text = { Text("Deseas eliminar este repuesto?") }
+            )
+        }
+
+        if (operationMessage != null) {
+            AlertDialog(
+                onDismissRequest = { operationMessage = null },
+                confirmButton = { TextButton(onClick = { operationMessage = null }) { Text("Aceptar") } },
+                title = { Text("Operacion completada") },
+                text = { Text(operationMessage!!) }
+            )
+        }
     }
 }
 
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 fun RepuestoItem(
     repuesto: Repuesto,
     onDelete: () -> Unit,
     onEdit: () -> Unit,
+    onView: () -> Unit,
     canUpdate: Boolean,
     canDelete: Boolean
 ) {
     val id = repuesto.idRepuesto
 
-    Card(modifier = Modifier.fillMaxWidth()) {
+    Card(modifier = Modifier.fillMaxWidth(), onClick = onView) {
         Row(
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -143,16 +207,7 @@ fun RepuestoItem(
             Column(modifier = Modifier.weight(1f)) {
                 Text(repuesto.nombreRepuesto ?: "(Sin nombre)", fontWeight = FontWeight.Bold)
                 Text("Cantidad: ${repuesto.cantidadDisponible?.toString() ?: "(sin dato)"}")
-
-                if (!id.isNullOrBlank()) {
-                    Text("ID: $id", style = MaterialTheme.typography.bodySmall)
-                } else {
-                    Text(
-                        "ERROR: repuesto sin id_repuesto (debe corregirse en backend)",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error
-                    )
-                }
+                repuesto.nivelCritico?.let { Text("Nivel critico: $it", style = MaterialTheme.typography.bodySmall) }
             }
 
             if (canUpdate && !id.isNullOrBlank()) {
@@ -169,3 +224,4 @@ fun RepuestoItem(
         }
     }
 }
+

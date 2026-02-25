@@ -1,4 +1,4 @@
-package com.example.inventappluis370.ui.common
+﻿package com.example.inventappluis370.ui.common
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -59,3 +59,4 @@ fun ModuleHeaderCard(
         }
     }
 }
+

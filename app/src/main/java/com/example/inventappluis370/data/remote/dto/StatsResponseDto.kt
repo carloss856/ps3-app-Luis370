@@ -1,4 +1,4 @@
-package com.example.inventappluis370.data.remote.dto
+﻿package com.example.inventappluis370.data.remote.dto
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
@@ -18,3 +18,4 @@ data class StatsBucketDto(
     @Json(name = "label") val label: String? = null,
     @Json(name = "count") val count: Int? = null,
 )
+

@@ -3,7 +3,7 @@ package com.example.inventappluis370.data.model
 import com.squareup.moshi.Json
 
 /**
- * Payload para crear o actualizar una garantía.
+ * Payload para crear o actualizar una garantia.
  */
 data class GarantiaRequest(
     @field:Json(name = "id_servicio")
@@ -20,3 +20,4 @@ data class GarantiaRequest(
     @field:Json(name = "validado_por_gerente")
     val validadoPorGerente: Boolean = false
 )
+

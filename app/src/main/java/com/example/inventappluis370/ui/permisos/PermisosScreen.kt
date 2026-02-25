@@ -13,14 +13,22 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -30,43 +38,78 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.inventappluis370.ui.common.ModuleTopBar
 import com.example.inventappluis370.ui.common.PullToRefreshContainer
+import com.example.inventappluis370.ui.usuarios.UsuariosUiState
+import com.example.inventappluis370.ui.usuarios.UsuariosViewModel
 
-private val ACTIONS = listOf("index", "show", "store", "update", "destroy")
+private val ACTIONS = listOf("index", "store", "update", "destroy")
 
 private fun actionLabel(action: String): String = when (action.lowercase()) {
     "index" -> "Ver"
-    "show" -> "Ver"
     "store" -> "Crear"
     "update" -> "Editar"
     "destroy" -> "Eliminar"
     else -> action
 }
 
+private data class UserOption(
+    val id: String,
+    val name: String,
+    val role: String,
+)
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PermisosScreen(
     navController: NavController,
     viewModel: PermisosViewModel = hiltViewModel(),
+    usuariosViewModel: UsuariosViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val draft by viewModel.draftModules.collectAsState()
+    val usuariosState by usuariosViewModel.uiState.collectAsState()
 
     val backStackEntry by navController.currentBackStackEntryAsState()
-    val userIdArg = remember(backStackEntry) {
-        backStackEntry?.arguments?.getString("userId")
+    val userIdArg = remember(backStackEntry) { backStackEntry?.arguments?.getString("userId") }
+
+    var selectedUserId by remember(userIdArg) {
+        mutableStateOf(userIdArg?.takeIf { it.isNotBlank() })
+    }
+    var selectedRole by remember { mutableStateOf("Todos") }
+    var userExpanded by remember { mutableStateOf(false) }
+    var roleExpanded by remember { mutableStateOf(false) }
+
+    val userOptions = (usuariosState as? UsuariosUiState.Success)
+        ?.users
+        ?.mapNotNull { u ->
+            val id = u.idPersona ?: u.idRaw ?: return@mapNotNull null
+            val name = u.nombre ?: id
+            val role = u.tipo?.takeIf { it.isNotBlank() } ?: "Sin rol"
+            UserOption(id = id, name = name, role = role)
+        }
+        ?.sortedBy { it.name.lowercase() }
+        .orEmpty()
+
+    val roles = listOf("Todos") + userOptions.map { it.role }.distinct().sorted()
+    val filteredUsers = if (selectedRole == "Todos") userOptions else userOptions.filter { it.role == selectedRole }
+
+    val selectedUserName = userOptions.firstOrNull { it.id == selectedUserId }?.name ?: selectedUserId
+
+    LaunchedEffect(Unit) {
+        usuariosViewModel.getUsers()
     }
 
-    LaunchedEffect(userIdArg) {
-        if (userIdArg.isNullOrBlank()) {
+    LaunchedEffect(selectedUserId) {
+        if (selectedUserId.isNullOrBlank()) {
             viewModel.loadGlobal()
         } else {
-            viewModel.loadForUser(userIdArg)
+            viewModel.loadForUser(selectedUserId!!)
         }
     }
 
-    val title = if (userIdArg.isNullOrBlank()) "Permisos" else "Permisos (usuario)"
+    val title = if (selectedUserId.isNullOrBlank()) "Permisos" else "Permisos (usuario)"
 
     fun refreshData() {
-        if (userIdArg.isNullOrBlank()) viewModel.loadGlobal() else viewModel.loadForUser(userIdArg)
+        if (selectedUserId.isNullOrBlank()) viewModel.loadGlobal() else viewModel.loadForUser(selectedUserId!!)
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -75,7 +118,7 @@ fun PermisosScreen(
             onBack = { navController.popBackStack() },
             endIcon = null,
             endIconContentDescription = null,
-            onRefresh = { refreshData() },
+            onRefresh = null,
         )
 
         PullToRefreshContainer(
@@ -119,6 +162,78 @@ fun PermisosScreen(
                     val modules = draft.keys.sorted()
 
                     Column(modifier = Modifier.fillMaxSize()) {
+                        ExposedDropdownMenuBox(
+                            expanded = roleExpanded,
+                            onExpandedChange = { roleExpanded = !roleExpanded },
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                        ) {
+                            OutlinedTextField(
+                                value = selectedRole,
+                                onValueChange = {},
+                                readOnly = true,
+                                label = { Text("Rol de usuario") },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .menuAnchor(),
+                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = roleExpanded) },
+                                singleLine = true
+                            )
+                            ExposedDropdownMenu(
+                                expanded = roleExpanded,
+                                onDismissRequest = { roleExpanded = false }
+                            ) {
+                                roles.forEach { role ->
+                                    DropdownMenuItem(
+                                        text = { Text(role) },
+                                        onClick = {
+                                            selectedRole = role
+                                            roleExpanded = false
+                                            selectedUserId = null
+                                        }
+                                    )
+                                }
+                            }
+                        }
+
+                        ExposedDropdownMenuBox(
+                            expanded = userExpanded,
+                            onExpandedChange = { userExpanded = !userExpanded },
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                        ) {
+                            OutlinedTextField(
+                                value = selectedUserName ?: "Global (sin usuario)",
+                                onValueChange = {},
+                                readOnly = true,
+                                label = { Text("Usuario / Rol") },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .menuAnchor(),
+                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = userExpanded) },
+                                singleLine = true
+                            )
+                            ExposedDropdownMenu(
+                                expanded = userExpanded,
+                                onDismissRequest = { userExpanded = false }
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text("Global (sin usuario)") },
+                                    onClick = {
+                                        selectedUserId = null
+                                        userExpanded = false
+                                    }
+                                )
+                                filteredUsers.forEach { opt ->
+                                    DropdownMenuItem(
+                                        text = { Text("${opt.name} (${opt.role})") },
+                                        onClick = {
+                                            selectedUserId = opt.id
+                                            userExpanded = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -127,10 +242,10 @@ fun PermisosScreen(
                         ) {
                             Button(
                                 onClick = {
-                                    if (userIdArg.isNullOrBlank()) {
+                                    if (selectedUserId.isNullOrBlank()) {
                                         viewModel.saveGlobal()
                                     } else {
-                                        viewModel.saveForUser(userIdArg)
+                                        viewModel.saveForUser(selectedUserId!!)
                                     }
                                 },
                                 modifier = Modifier.weight(1f)
@@ -139,10 +254,10 @@ fun PermisosScreen(
                             }
                             OutlinedButton(
                                 onClick = {
-                                    if (userIdArg.isNullOrBlank()) {
+                                    if (selectedUserId.isNullOrBlank()) {
                                         viewModel.resetGlobal()
                                     } else {
-                                        viewModel.resetForUser(userIdArg)
+                                        viewModel.resetForUser(selectedUserId!!)
                                     }
                                 },
                                 modifier = Modifier.weight(1f)
@@ -158,22 +273,22 @@ fun PermisosScreen(
                             verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             item {
-                                if (userIdArg.isNullOrBlank()) {
+                                if (selectedUserId.isNullOrBlank()) {
                                     Text(
-                                        text = "Role: ${data.resolvedEffective.role ?: ""}",
+                                        text = "Rol efectivo: ${data.resolvedEffective.role ?: ""}",
                                         style = MaterialTheme.typography.bodyMedium,
                                         fontWeight = FontWeight.SemiBold,
                                     )
                                     Spacer(Modifier.height(6.dp))
                                 } else {
                                     Text(
-                                        text = "Usuario: $userIdArg",
+                                        text = "Usuario: ${selectedUserName ?: selectedUserId}",
                                         style = MaterialTheme.typography.bodyMedium,
                                         fontWeight = FontWeight.SemiBold,
                                     )
-                                    Spacer(Modifier.height(6.dp))
+                                    Spacer(Modifier.height(4.dp))
                                     Text(
-                                        text = "Editando override de permisos del usuario (no cambia la matriz global).",
+                                        text = "Rol efectivo: ${data.resolvedEffective.role ?: ""}",
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
@@ -217,7 +332,7 @@ fun PermisosScreen(
                                                 horizontalArrangement = Arrangement.SpaceBetween,
                                             ) {
                                                 Text(actionLabel(action))
-                                                androidx.compose.material3.Switch(
+                                                Switch(
                                                     checked = selected.contains(action),
                                                     onCheckedChange = { viewModel.toggleAction(moduleKey, action) }
                                                 )
@@ -233,3 +348,4 @@ fun PermisosScreen(
         }
     }
 }
+

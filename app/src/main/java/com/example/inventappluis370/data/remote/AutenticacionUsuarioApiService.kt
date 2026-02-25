@@ -8,7 +8,7 @@ import retrofit2.http.Query
 
 /**
  * GET /autenticacion-usuarios
- * Contrato: soporta paginación dual-mode.
+ * Contrato: soporta paginacion dual-mode.
  */
 interface AutenticacionUsuarioApiService {
 
@@ -21,4 +21,5 @@ interface AutenticacionUsuarioApiService {
         @Query("per_page") perPage: Int
     ): Response<PaginatedResponseDto<AutenticacionUsuario>>
 }
+
 

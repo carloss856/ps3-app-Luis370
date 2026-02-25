@@ -24,7 +24,8 @@ data class EmpresaRequest(
     @Json(name = "email")
     val email: String,
 
-    // Solo aplica a creación (POST /api/empresas). En update puede omitirse.
+    // Solo aplica a creacion (POST /api/empresas). En update puede omitirse.
     @Json(name = "fecha_creacion")
     val fechaCreacion: String? = null
 )
+

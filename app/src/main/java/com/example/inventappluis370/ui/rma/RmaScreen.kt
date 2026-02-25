@@ -1,4 +1,4 @@
-package com.example.inventappluis370.ui.rma
+﻿package com.example.inventappluis370.ui.rma
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -115,3 +115,4 @@ fun RmaItem(rma: RMA, canDelete: Boolean, onDelete: () -> Unit) {
         }
     }
 }
+

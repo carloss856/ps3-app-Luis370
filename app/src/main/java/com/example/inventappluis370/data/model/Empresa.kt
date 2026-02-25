@@ -4,10 +4,10 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 /**
- * Representa la entidad Empresa según el contrato.
+ * Representa la entidad Empresa segun el contrato.
  *
- * Nota: id_empresa debería venir siempre. Si llega null, es un problema de datos/backend.
- * Aquí lo toleramos para no romper el parseo y poder mostrar/diagnosticar.
+ * Nota: id_empresa deberia venir siempre. Si llega null, es un problema de datos/backend.
+ * Aqui lo toleramos para no romper el parseo y poder mostrar/diagnosticar.
  */
 @JsonClass(generateAdapter = true)
 data class Empresa(
@@ -24,3 +24,4 @@ data class Empresa(
     @field:Json(name = "fecha_creacion")
     val fechaCreacion: String? = null
 )
+

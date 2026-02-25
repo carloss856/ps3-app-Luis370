@@ -64,7 +64,7 @@ class EmpresaRepositoryImpl @Inject constructor(
                 )
             }
 
-            // Aseguramos que nunca se envíen strings con espacios que el backend interprete como vacío.
+            // Aseguramos que nunca se envien strings con espacios que el backend interprete como vacio.
             val safeRequest = empresaRequest.copy(
                 nombreEmpresa = trimmedNombre,
                 email = trimmedEmail,
@@ -121,7 +121,7 @@ class EmpresaRepositoryImpl @Inject constructor(
                             "DEBUG raw POST /empresas status=${rawResp.code()} body=${rawText ?: "<empty>"}"
                         )
                     }.onFailure { t ->
-                        Log.w("EmpresaRepository", "DEBUG raw POST /empresas falló", t)
+                        Log.w("EmpresaRepository", "DEBUG raw POST /empresas fallo", t)
                     }
                 }
 
@@ -129,7 +129,7 @@ class EmpresaRepositoryImpl @Inject constructor(
                     Result.failure(
                         ValidationException(
                             fieldErrors = parsed.errors,
-                            message = parsed.message ?: "Error de validación"
+                            message = parsed.message ?: "Error de validacion"
                         )
                     )
                 } else {
@@ -204,7 +204,7 @@ class EmpresaRepositoryImpl @Inject constructor(
                             "DEBUG raw PUT /empresas/$id status=${rawResp.code()} body=${rawText ?: "<empty>"}"
                         )
                     }.onFailure { t ->
-                        Log.w("EmpresaRepository", "DEBUG raw PUT /empresas/$id falló", t)
+                        Log.w("EmpresaRepository", "DEBUG raw PUT /empresas/$id fallo", t)
                     }
                 }
 
@@ -212,7 +212,7 @@ class EmpresaRepositoryImpl @Inject constructor(
                     Result.failure(
                         ValidationException(
                             fieldErrors = parsed.errors,
-                            message = parsed.message ?: "Error de validación"
+                            message = parsed.message ?: "Error de validacion"
                         )
                     )
                 } else {
@@ -253,3 +253,4 @@ class EmpresaRepositoryImpl @Inject constructor(
         ).flow
     }
 }
+

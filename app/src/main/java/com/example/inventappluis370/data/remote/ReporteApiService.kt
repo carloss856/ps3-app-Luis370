@@ -1,4 +1,4 @@
-package com.example.inventappluis370.data.remote
+﻿package com.example.inventappluis370.data.remote
 
 import com.example.inventappluis370.data.model.Reporte
 import com.example.inventappluis370.data.model.ReporteRequest
@@ -6,7 +6,7 @@ import retrofit2.Response
 import retrofit2.http.*
 
 /**
- * Interfaz de Retrofit para las operaciones CRUD del módulo de Reportes.
+ * Interfaz de Retrofit para las operaciones CRUD del modulo de Reportes.
  */
 interface ReporteApiService {
 
@@ -30,3 +30,4 @@ interface ReporteApiService {
     @DELETE("reportes/{id}")
     suspend fun deleteReporte(@Path("id") id: String): Response<Unit>
 }
+

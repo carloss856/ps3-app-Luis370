@@ -8,6 +8,11 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -28,6 +33,17 @@ fun UsuariosScreen(
 ) {
     val users = viewModel.usuariosPaged.collectAsLazyPagingItems()
     val refreshing = users.loadState.refresh is LoadState.Loading
+    var selectedUser by remember { mutableStateOf<Usuario?>(null) }
+    var pendingDeleteId by remember { mutableStateOf<String?>(null) }
+    var operationMessage by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(Unit) {
+        val msg = navController.currentBackStackEntry?.savedStateHandle?.get<String>("operation_message")
+        if (!msg.isNullOrBlank()) {
+            operationMessage = msg
+            navController.currentBackStackEntry?.savedStateHandle?.remove<String>("operation_message")
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -90,11 +106,12 @@ fun UsuariosScreen(
                                 UsuarioItem(
                                     user = user,
                                     onDelete = {
-                                        if (!userIdPersona.isNullOrBlank()) viewModel.deleteUser(userIdPersona)
+                                        if (!userIdPersona.isNullOrBlank()) pendingDeleteId = userIdPersona
                                     },
                                     onEdit = {
                                         if (!userIdPersona.isNullOrBlank()) navController.navigate("usuarios/$userIdPersona")
                                     },
+                                    onView = { selectedUser = user },
                                     canUpdate = viewModel.canUpdate() && !userIdPersona.isNullOrBlank(),
                                     canDelete = viewModel.canDelete() && !userIdPersona.isNullOrBlank()
                                 )
@@ -123,14 +140,63 @@ fun UsuariosScreen(
                 }
             }
         }
+
+        if (selectedUser != null) {
+            val u = selectedUser!!
+            AlertDialog(
+                onDismissRequest = { selectedUser = null },
+                confirmButton = { TextButton(onClick = { selectedUser = null }) { Text("Cerrar") } },
+                title = { Text("Detalle de usuario") },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Text("Nombre: ${u.nombre ?: "-"}")
+                        Text("Correo: ${u.email ?: "-"}")
+                        Text("Telefono: ${u.telefono ?: "-"}")
+                        Text("Rol: ${u.tipo ?: "-"}")
+                        Text("Empresa: ${u.idEmpresa ?: "-"}")
+                    }
+                }
+            )
+        }
+
+        if (pendingDeleteId != null) {
+            AlertDialog(
+                onDismissRequest = { pendingDeleteId = null },
+                confirmButton = {
+                    TextButton(onClick = {
+                        val id = pendingDeleteId
+                        pendingDeleteId = null
+                        if (!id.isNullOrBlank()) {
+                            viewModel.deleteUser(id)
+                            users.refresh()
+                            operationMessage = "Usuario eliminado correctamente"
+                        }
+                    }) { Text("Eliminar") }
+                },
+                dismissButton = { TextButton(onClick = { pendingDeleteId = null }) { Text("Cancelar") } },
+                title = { Text("Confirmar eliminacion") },
+                text = { Text("Deseas eliminar este usuario?") }
+            )
+        }
+
+        if (operationMessage != null) {
+            AlertDialog(
+                onDismissRequest = { operationMessage = null },
+                confirmButton = { TextButton(onClick = { operationMessage = null }) { Text("Aceptar") } },
+                title = { Text("Operacion completada") },
+                text = { Text(operationMessage!!) }
+            )
+        }
     }
 }
 
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 fun UsuarioItem(
     user: Usuario,
     onDelete: () -> Unit,
     onEdit: () -> Unit,
+    onView: () -> Unit,
     canUpdate: Boolean,
     canDelete: Boolean
 ) {
@@ -138,25 +204,13 @@ fun UsuarioItem(
     val displayEmail = user.email ?: ""
     val displayRol = user.tipo ?: ""
 
-    val businessId = user.idPersona
-
-    Card(modifier = Modifier.fillMaxWidth()) {
+    Card(modifier = Modifier.fillMaxWidth(), onClick = onView) {
         Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(displayName, style = MaterialTheme.typography.titleMedium)
                 if (displayEmail.isNotBlank()) Text(displayEmail)
                 if (displayRol.isNotBlank()) {
                     Text("Rol: $displayRol", style = MaterialTheme.typography.bodySmall)
-                }
-
-                if (!businessId.isNullOrBlank()) {
-                    Text("ID: $businessId", style = MaterialTheme.typography.bodySmall)
-                } else {
-                    Text(
-                        "ERROR: usuario sin id_persona (debe corregirse en backend)",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error
-                    )
                 }
             }
             if (canUpdate) {
@@ -172,3 +226,4 @@ fun UsuarioItem(
         }
     }
 }
+

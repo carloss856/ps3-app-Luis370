@@ -8,7 +8,7 @@ import retrofit2.Response
 import retrofit2.http.*
 
 /**
- * Interfaz de Retrofit para las operaciones del módulo de Solicitudes de Repuestos.
+ * Interfaz de Retrofit para las operaciones del modulo de Solicitudes de Repuestos.
  */
 interface SolicitudRepuestoApiService {
 
@@ -22,8 +22,8 @@ interface SolicitudRepuestoApiService {
     ): Response<com.example.inventappluis370.data.model.PaginatedResponseDto<SolicitudRepuesto>>
 
     /**
-     * Variante RAW para diagnóstico: evita fallos de parseo Moshi cuando el backend responde con
-     * wrappers/errores no estándar.
+     * Variante RAW para diagnostico: evita fallos de parseo Moshi cuando el backend responde con
+     * wrappers/errores no estandar.
      */
     @GET("solicitud-repuestos")
     suspend fun getSolicitudesRaw(): Response<ResponseBody>
@@ -43,3 +43,4 @@ interface SolicitudRepuestoApiService {
     @DELETE("solicitud-repuestos/{id}")
     suspend fun deleteSolicitud(@Path("id") id: String): Response<Unit>
 }
+

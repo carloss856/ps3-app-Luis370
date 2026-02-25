@@ -11,12 +11,12 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 /**
- * Interfaz de Retrofit para las operaciones del módulo de Notificaciones.
+ * Interfaz de Retrofit para las operaciones del modulo de Notificaciones.
  */
 interface NotificacionApiService {
 
     /**
-     * Variante RAW para tolerar respuestas vacías o cambios de formato (array vs wrapper).
+     * Variante RAW para tolerar respuestas vacias o cambios de formato (array vs wrapper).
      * Se parsea manualmente en el repositorio.
      */
     @GET("notificaciones")
@@ -40,3 +40,4 @@ interface NotificacionApiService {
     @POST("notificaciones/marcar-todas-leidas")
     suspend fun marcarTodasLeidas(): Response<Unit>
 }
+

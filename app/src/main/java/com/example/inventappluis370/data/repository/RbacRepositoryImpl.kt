@@ -23,7 +23,7 @@ class RbacRepositoryImpl @Inject constructor(
         return try {
             val response = apiService.getRbac()
             if (response.isSuccessful) {
-                val body = response.body() ?: return Result.failure(IOException("RBAC vacío"))
+                val body = response.body() ?: return Result.failure(IOException("RBAC vacio"))
                 _rbacFlow.value = body
                 Result.success(body)
             } else {
@@ -40,3 +40,4 @@ class RbacRepositoryImpl @Inject constructor(
         _rbacFlow.value = null
     }
 }
+

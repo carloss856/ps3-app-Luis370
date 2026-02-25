@@ -1,4 +1,4 @@
-package com.example.inventappluis370.data.remote
+﻿package com.example.inventappluis370.data.remote
 
 import com.example.inventappluis370.data.model.RMA
 import retrofit2.Response
@@ -8,7 +8,7 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 /**
- * Interfaz de Retrofit para las operaciones del módulo de RMA.
+ * Interfaz de Retrofit para las operaciones del modulo de RMA.
  */
 interface RmaApiService {
 
@@ -24,3 +24,4 @@ interface RmaApiService {
     @DELETE("rma/{id}")
     suspend fun deleteRma(@Path("id") id: String): Response<Unit>
 }
+

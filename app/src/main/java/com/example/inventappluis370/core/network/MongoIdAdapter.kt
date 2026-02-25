@@ -13,7 +13,7 @@ import java.lang.reflect.Type
  * - "507f1f77bcf86cd799439011" (string)
  * - {"$oid":"507f1f77bcf86cd799439011"} (Mongo Extended JSON)
  *
- * Importante: es *específico* por anotación para no interferir con otros Strings.
+ * Importante: es *especifico* por anotacion para no interferir con otros Strings.
  */
 object MongoIdAdapter : JsonAdapter.Factory {
 
@@ -21,7 +21,7 @@ object MongoIdAdapter : JsonAdapter.Factory {
         if (type != String::class.java) return null
         if (annotations.none { it is MongoId }) return null
 
-        // Consumimos nuestra anotación para que Moshi no siga buscando otro adapter con ella.
+        // Consumimos nuestra anotacion para que Moshi no siga buscando otro adapter con ella.
         val delegateAnnotations = annotations.filterNot { it is MongoId }.toSet()
         val delegate = moshi.nextAdapter<String>(this, type, delegateAnnotations)
 
@@ -52,7 +52,7 @@ object MongoIdAdapter : JsonAdapter.Factory {
                     }
                     else -> {
                         // Si llega number/array, evitamos crash: saltamos y delegamos si aplica.
-                        // (Delegate típicamente fallará, pero preferimos try/catch.)
+                        // (Delegate tipicamente fallara, pero preferimos try/catch.)
                         runCatching {
                             delegate.fromJson(reader)
                         }.getOrElse {
@@ -69,10 +69,11 @@ object MongoIdAdapter : JsonAdapter.Factory {
             private fun normalize(raw: String?): String? {
                 val t = raw?.trim()
                 if (t.isNullOrEmpty() || t.equals("null", ignoreCase = true)) return null
-                // Validación suave: ObjectId típico = 24 hex. Si no calza, igual devolvemos el valor.
+                // Validacion suave: ObjectId tipico = 24 hex. Si no calza, igual devolvemos el valor.
                 // Si quieres endurecerlo, cambia a throw JsonDataException.
                 return t
             }
         }
     }
 }
+
