@@ -7,6 +7,7 @@ import com.example.inventappluis370.domain.repository.TokenRepository
 import com.example.inventappluis370.core.network.TokenExtendManager
 import com.example.inventappluis370.core.network.LenientDoubleAdapter
 import com.example.inventappluis370.core.network.LenientIntAdapter
+import com.example.inventappluis370.core.network.LenientBooleanAdapter
 import com.example.inventappluis370.core.network.LenientStringListAdapter
 import com.example.inventappluis370.core.network.LenientAnyToStringAdapter
 import com.example.inventappluis370.core.network.MongoIdAdapter
@@ -164,6 +165,7 @@ object NetworkModule {
             // Adapters lenientes para datos inconsistentes (Number o String numerico)
             .add(LenientIntAdapter)
             .add(LenientDoubleAdapter)
+            .add(LenientBooleanAdapter)
             // Para campos que canonicamente son arrays pero en docs legacy vienen como string
             .add(LenientStringListAdapter)
             // Para campos String anotados con @LenientString que a veces llegan como Number/Boolean (legacy)

@@ -116,14 +116,14 @@ fun CreateEditServicioScreen(
             .mapValues { entry -> entry.value.mapNotNull { it.rma }.distinct() }
     }
 
-    fun usuarioLabelFor(id: String): String {
+    fun usuarioLabelFor(id: String, rmaOverride: String? = null): String {
         if (id.isBlank()) return ""
         val user = usuarios.firstOrNull { u ->
             val uid = u.idPersona ?: u.idRaw ?: ""
             uid == id
         }
         val nombre = user?.nombre ?: id
-        val rma = rmaByUserId[id]?.firstOrNull().orEmpty()
+        val rma = rmaOverride?.takeIf { it.isNotBlank() } ?: rmaByUserId[id]?.firstOrNull().orEmpty()
         return if (rma.isNotBlank()) "$nombre - RMA $rma" else nombre
     }
     fun formatCost(value: Double?): String {
@@ -144,7 +144,7 @@ fun CreateEditServicioScreen(
             equipoLabel = equipos.firstOrNull { e -> e.idEquipo == equipoId }?.let { e ->
                 listOfNotNull(e.tipoEquipo, e.marca, e.modelo).joinToString(" ").ifBlank { equipoId }
             } ?: equipoId
-            usuarioLabel = usuarioLabelFor(usuarioId)
+            usuarioLabel = usuarioLabelFor(usuarioId, codigoRma)
         }
     }
 

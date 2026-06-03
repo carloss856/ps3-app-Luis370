@@ -140,3 +140,14 @@ Fecha: 2026-02-24
 28. Servicios: formulario ampliado con usuario, costos, validado y estado por rol; fecha de ingreso solo lectura (hoy en crear, fecha original en editar).
 29. Equipos: formulario con scroll vertical, precarga estable en editar; usuario asignado muestra Nombre + RMA en selector.
 30. Formularios largos: agregado scroll vertical en create/edit de Empresas, Garantias, Inventario, Propiedad de equipos, Repuestos, Solicitudes, Parte de trabajo, Reportes, Tarifas y Usuarios.
+
+""" Fecha: 2026-02-25
+1. Estadisticas: KPIs ahora formatean valores tipo map/JSON y numeros sin llaves ni flotantes innecesarios (servicios por estado).
+2. Estadisticas: KPI de usuarios ahora cae a fallback (conteo de /usuarios) cuando /stats/usuarios retorna 404.
+3. Servicios: selector de usuario muestra Nombre + RMA correspondiente al servicio; RMA ya no se edita en campo separado.
+4. Servicios: costo estimado se formatea sin decimales innecesarios al cargar edicion.
+5. Servicios: removidos campos de horas implementadas, costo hora soporte y costo real; costo_real no se envia desde formulario.
+6. Servicios: checkbox "Validado por gerente" ahora parsea correctamente booleanos 0/1/string desde backend.
+7. Notificaciones: popup elimina boton de configuracion, agrega "Leer todas" junto a cerrar y muestra barra inferior fija "Ir a todas las notificaciones".
+8. Repuestos: cantidad disponible es solo lectura en crear/editar.
+9. Textos: correccion global de mojibake/UTF-8 en textos de UI y comentarios."""

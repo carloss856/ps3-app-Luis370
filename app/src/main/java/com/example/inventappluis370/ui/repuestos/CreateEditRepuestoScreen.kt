@@ -96,7 +96,8 @@ fun CreateEditRepuestoScreen(
             )
             OutlinedTextField(
                 value = cantidad,
-                onValueChange = { cantidad = it.filter { ch -> ch.isDigit() } },
+                onValueChange = {},
+                readOnly = true,
                 label = { Text("Cantidad Disponible *") },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)

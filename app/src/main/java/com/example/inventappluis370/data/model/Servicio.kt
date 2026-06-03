@@ -1,5 +1,6 @@
 package com.example.inventappluis370.data.model
 
+import com.example.inventappluis370.core.network.LenientBoolean
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
@@ -38,6 +39,7 @@ data class Servicio(
     val costoReal: Double? = null,
 
     @field:Json(name = "validado_por_gerente")
+    @field:LenientBoolean
     val validadoPorGerente: Boolean? = null,
 
     @field:Json(name = "partes_trabajo")

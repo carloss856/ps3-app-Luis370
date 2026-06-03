@@ -3,14 +3,17 @@
 import com.example.inventappluis370.data.remote.StatsApiService
 import com.example.inventappluis370.domain.model.*
 import com.example.inventappluis370.domain.repository.StatsRepository
+import com.example.inventappluis370.domain.repository.UsuarioRepository
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import retrofit2.HttpException
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class StatsRepositoryImpl @Inject constructor(
     private val api: StatsApiService,
+    private val usuarioRepository: UsuarioRepository,
 ) : StatsRepository {
 
     private data class CacheKey(val module: String, val period: StatsPeriod, val from: String?, val to: String?)
@@ -72,16 +75,30 @@ class StatsRepositoryImpl @Inject constructor(
         from: String?,
         to: String?
     ): ModuleStats {
-        val dto = api.getStats(module = apiModule, period = period.apiValue, from = from, to = to)
-        return ModuleStats(
-            module = requestedModule,
-            period = period,
-            total = dto.total ?: 0,
-            buckets = dto.buckets.mapNotNull { b ->
-                val label = b.label ?: return@mapNotNull null
-                StatsBucket(label = label, count = b.count ?: 0)
+        return try {
+            val dto = api.getStats(module = apiModule, period = period.apiValue, from = from, to = to)
+            ModuleStats(
+                module = requestedModule,
+                period = period,
+                total = dto.total ?: 0,
+                buckets = dto.buckets.mapNotNull { b ->
+                    val label = b.label ?: return@mapNotNull null
+                    StatsBucket(label = label, count = b.count ?: 0)
+                }
+            )
+        } catch (e: HttpException) {
+            if (e.code() == 404 && requestedModule == "usuarios") {
+                val total = usuarioRepository.getUsers().getOrNull()?.size ?: 0
+                ModuleStats(
+                    module = requestedModule,
+                    period = period,
+                    total = total,
+                    buckets = emptyList()
+                )
+            } else {
+                throw e
             }
-        )
+        }
     }
 }
 

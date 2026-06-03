@@ -19,6 +19,7 @@ import androidx.navigation.NavController
 import com.example.inventappluis370.domain.model.*
 import com.example.inventappluis370.ui.common.ModuleTopBar
 import com.example.inventappluis370.ui.common.PullToRefreshContainer
+import java.math.BigDecimal
 
 private val moduleTitles = linkedMapOf(
     "empresas" to "Empresas",
@@ -196,10 +197,11 @@ private fun DashboardValue(value: Any?) {
             val text = value.trim()
             when {
                 text.isBlank() -> Text("Sin datos", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                text.toDoubleOrNull() != null -> Text(formatNumericString(text), style = MaterialTheme.typography.headlineSmall)
                 text.startsWith("{") || text.startsWith("[") -> {
-                    val lines = parseJsonSummaryLines(text)
+                    val lines = parseLooseSummaryLines(text)
                     if (lines.isEmpty()) {
-                        Text(text, style = MaterialTheme.typography.bodyMedium)
+                        Text("Sin datos", color = MaterialTheme.colorScheme.onSurfaceVariant)
                     } else {
                         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                             lines.forEach { line ->
@@ -242,6 +244,40 @@ private fun parseJsonSummaryLines(text: String): List<String> {
             emptyList()
         }
     }.getOrDefault(emptyList())
+}
+
+private fun parseLooseSummaryLines(text: String): List<String> {
+    if (text.startsWith("{") && text.contains(":")) {
+        return parseJsonSummaryLines(text)
+    }
+    if (text.startsWith("{") && text.contains("=")) {
+        val body = text.removePrefix("{").removeSuffix("}")
+        if (body.isBlank()) return emptyList()
+        return body.split(",").mapNotNull { raw ->
+            val pair = raw.trim()
+            if (pair.isBlank()) return@mapNotNull null
+            val parts = pair.split("=", limit = 2)
+            if (parts.size != 2) return@mapNotNull null
+            val key = parts[0].trim()
+            val value = formatNumericString(parts[1].trim())
+            "$key: $value"
+        }
+    }
+    val jsonLines = parseJsonSummaryLines(text)
+    if (jsonLines.isNotEmpty()) return jsonLines
+    if (text.startsWith("[") && text.endsWith("]")) {
+        val body = text.removePrefix("[").removeSuffix("]")
+        if (body.isBlank()) return emptyList()
+        return body.split(",").map { formatNumericString(it.trim()) }
+    }
+    return emptyList()
+}
+
+private fun formatNumericString(text: String): String {
+    val trimmed = text.trim()
+    return trimmed.toDoubleOrNull()?.let {
+        BigDecimal(it).stripTrailingZeros().toPlainString()
+    } ?: trimmed
 }
 
 private fun formatJsonNumber(value: Any?): String {

@@ -18,7 +18,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.filled.DoneAll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
@@ -104,12 +104,9 @@ fun NotificationsPanel(
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(
-                    onClick = {
-                        onDismiss()
-                        safeNavigate(Routes.CONFIG_NOTIFICACIONES)
-                    }
+                    onClick = { viewModel.marcarTodasLeidas() }
                 ) {
-                    Icon(Icons.Default.Tune, contentDescription = "Configurar notificaciones")
+                    Icon(Icons.Default.DoneAll, contentDescription = "Leer todas")
                 }
                 IconButton(onClick = onDismiss) {
                     Icon(Icons.Default.Close, contentDescription = "Cerrar")
@@ -171,25 +168,28 @@ fun NotificationsPanel(
                                 canDelete = viewModel.canDelete()
                             )
                         }
-
-                        item {
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Divider()
-
-                            Text(
-                                text = "Ver todas",
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        onDismiss()
-                                        safeNavigate(Routes.NOTIFICACIONES)
-                                    }
-                                    .padding(vertical = 12.dp, horizontal = 12.dp),
-                                color = MaterialTheme.colorScheme.primary,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                        }
                     }
+                }
+
+                Divider()
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 6.dp, bottom = 2.dp),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Ir a todas las notificaciones",
+                        modifier = Modifier
+                            .clickable {
+                                onDismiss()
+                                safeNavigate(Routes.NOTIFICACIONES)
+                            }
+                            .padding(vertical = 8.dp, horizontal = 6.dp),
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.SemiBold
+                    )
                 }
             }
         }
