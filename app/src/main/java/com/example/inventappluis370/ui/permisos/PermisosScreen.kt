@@ -74,7 +74,7 @@ fun PermisosScreen(
     var selectedUserId by remember(userIdArg) {
         mutableStateOf(userIdArg?.takeIf { it.isNotBlank() })
     }
-    var selectedRole by remember { mutableStateOf("Todos") }
+    var selectedRole by remember { mutableStateOf(PermisosViewModel.DEFAULT_ROLE) }
     var userExpanded by remember { mutableStateOf(false) }
     var roleExpanded by remember { mutableStateOf(false) }
 
@@ -189,6 +189,11 @@ fun PermisosScreen(
                                             selectedRole = role
                                             roleExpanded = false
                                             selectedUserId = null
+                                            // "Todos" solo filtra la lista de usuarios; para editar
+                                            // en modo Global se necesita un rol concreto.
+                                            viewModel.setRole(
+                                                if (role == "Todos") PermisosViewModel.DEFAULT_ROLE else role
+                                            )
                                         }
                                     )
                                 }
@@ -274,8 +279,9 @@ fun PermisosScreen(
                         ) {
                             item {
                                 if (selectedUserId.isNullOrBlank()) {
+                                    val editingRole = if (selectedRole == "Todos") PermisosViewModel.DEFAULT_ROLE else selectedRole
                                     Text(
-                                        text = "Rol efectivo: ${data.resolvedEffective.role ?: ""}",
+                                        text = "Editando permisos del rol: $editingRole",
                                         style = MaterialTheme.typography.bodyMedium,
                                         fontWeight = FontWeight.SemiBold,
                                     )

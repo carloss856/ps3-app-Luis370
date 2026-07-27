@@ -1,4 +1,4 @@
-﻿package com.example.inventappluis370.ui.permisos
+package com.example.inventappluis370.ui.permisos
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -30,15 +30,30 @@ class PermisosViewModel @Inject constructor(
 
     enum class Mode { GLOBAL, USER }
 
+    companion object {
+        const val DEFAULT_ROLE = "Administrador"
+    }
+
     private val _mode = MutableStateFlow(Mode.GLOBAL)
     val mode: StateFlow<Mode> = _mode.asStateFlow()
 
     private val _userId = MutableStateFlow<String?>(null)
     val userId: StateFlow<String?> = _userId.asStateFlow()
 
-    /** Mapa editable (modulo -> acciones) */
+    /** Rol cuya matriz se esta editando en modo Global (irrelevante en modo Usuario). */
+    private val _role = MutableStateFlow(DEFAULT_ROLE)
+    val role: StateFlow<String> = _role.asStateFlow()
+
+    /** Mapa editable (modulo -> acciones) de lo que se muestra/edita en pantalla. */
     private val _draftModules = MutableStateFlow<Map<String, Set<String>>>(emptyMap())
     val draftModules: StateFlow<Map<String, Set<String>>> = _draftModules.asStateFlow()
+
+    /**
+     * Matriz completa modulo -> rol -> acciones, tal como vino del backend (modo Global).
+     * Se mantiene aparte del draft visible porque al guardar hay que mandar TODOS los roles,
+     * no solo el que se esta viendo/editando en pantalla (ver PermissionsOverrideRequest).
+     */
+    private var globalModulesByRole: Map<String, Map<String, Set<String>>> = emptyMap()
 
     private fun normalizeDraftModules(input: Map<String, Set<String>>): Map<String, Set<String>> {
         return input.mapValues { (_, set) ->
@@ -50,10 +65,22 @@ class PermisosViewModel @Inject constructor(
         }
     }
 
+    private fun sliceForRole(byRole: Map<String, Map<String, Set<String>>>, role: String): Map<String, Set<String>> {
+        return byRole.mapValues { (_, roleMap) -> roleMap[role].orEmpty() }
+    }
+
     private fun applyResponse(res: PermissionsResponse) {
         _uiState.value = UiState.Ok(res)
-        val base = res.resolvedEditableModules().mapValues { it.value.toSet() }
-        _draftModules.value = normalizeDraftModules(base)
+        if (_mode.value == Mode.GLOBAL) {
+            val byRole = res.resolvedEditableModulesByRole().mapValues { (_, roleMap) ->
+                normalizeDraftModules(roleMap.mapValues { it.value.toSet() })
+            }
+            globalModulesByRole = byRole
+            _draftModules.value = sliceForRole(byRole, _role.value)
+        } else {
+            val base = res.resolvedEditableModules().mapValues { it.value.toSet() }
+            _draftModules.value = normalizeDraftModules(base)
+        }
     }
 
     fun setGlobalMode() {
@@ -64,6 +91,14 @@ class PermisosViewModel @Inject constructor(
     fun setUserMode(id: String) {
         _mode.value = Mode.USER
         _userId.value = id
+    }
+
+    /** Cambia el rol cuya matriz se muestra/edita en modo Global (no-op en modo Usuario). */
+    fun setRole(newRole: String) {
+        _role.value = newRole
+        if (_mode.value == Mode.GLOBAL) {
+            _draftModules.value = sliceForRole(globalModulesByRole, newRole)
+        }
     }
 
     fun loadGlobal() {
@@ -103,17 +138,32 @@ class PermisosViewModel @Inject constructor(
                 }
             }
 
-            prev.toMutableMap().apply { put(moduleKey, current) }
+            val next = prev.toMutableMap().apply { put(moduleKey, current) }
+
+            // En modo Global, reflejar el cambio tambien en la matriz completa (por rol) para
+            // no perderlo si el usuario cambia de rol en pantalla antes de guardar.
+            if (_mode.value == Mode.GLOBAL) {
+                val roleKey = _role.value
+                globalModulesByRole = globalModulesByRole.toMutableMap().apply {
+                    val moduleRoles = (this[moduleKey] ?: emptyMap()).toMutableMap()
+                    moduleRoles[roleKey] = current
+                    this[moduleKey] = moduleRoles
+                }
+            }
+
+            next
         }
     }
 
     fun saveGlobal() {
         viewModelScope.launch {
             _uiState.value = UiState.Loading
-            val body = PermissionsOverrideRequest(
-                modules = normalizeDraftModules(_draftModules.value)
-                    .mapValues { it.value.toList().sorted() }
-            )
+            // IMPORTANTE: se manda la matriz COMPLETA (todos los roles), no solo el rol
+            // seleccionado en pantalla, porque el backend reemplaza el override entero.
+            val payloadModules: Map<String, Any> = globalModulesByRole.mapValues { (_, roleMap) ->
+                roleMap.mapValues { it.value.toList().sorted() }
+            }
+            val body = PermissionsOverrideRequest(modules = payloadModules)
             repo.putGlobal(body)
                 .onSuccess { res -> applyResponse(res) }
                 .onFailure { e -> _uiState.value = UiState.Error(e.message ?: "Error") }
@@ -123,10 +173,9 @@ class PermisosViewModel @Inject constructor(
     fun saveForUser(id: String) {
         viewModelScope.launch {
             _uiState.value = UiState.Loading
-            val body = PermissionsOverrideRequest(
-                modules = normalizeDraftModules(_draftModules.value)
-                    .mapValues { it.value.toList().sorted() }
-            )
+            val payloadModules: Map<String, Any> = normalizeDraftModules(_draftModules.value)
+                .mapValues { it.value.toList().sorted() }
+            val body = PermissionsOverrideRequest(modules = payloadModules)
             repo.putForUser(id, body)
                 .onSuccess { res -> applyResponse(res) }
                 .onFailure { e -> _uiState.value = UiState.Error(e.message ?: "Error") }
@@ -151,4 +200,3 @@ class PermisosViewModel @Inject constructor(
         }
     }
 }
-
