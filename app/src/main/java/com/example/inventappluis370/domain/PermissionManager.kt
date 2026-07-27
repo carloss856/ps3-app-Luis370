@@ -3,14 +3,18 @@ package com.example.inventappluis370.domain
 object PermissionManager {
 
     private fun normalizeRole(userRole: String?): String {
+        // Quita tildes para poder comparar "Técnico" (como lo manda el backend) contra "tecnico".
+        // OJO: antes esto hacia replace("e","e") etc. (el mismo caracter en ambos lados, un no-op)
+        // en vez de replace("é","e"), por lo que nunca reconocia a Tecnico y le negaba TODAS las
+        // acciones (Inventario, Equipos, Servicios, Garantias, etc.) sin importar el rol real.
         return userRole
             ?.trim()
             ?.lowercase()
-            ?.replace("a", "a")
-            ?.replace("e", "e")
-            ?.replace("i", "i")
-            ?.replace("o", "o")
-            ?.replace("u", "u")
+            ?.replace("á", "a")
+            ?.replace("é", "e")
+            ?.replace("í", "i")
+            ?.replace("ó", "o")
+            ?.replace("ú", "u")
             ?: ""
     }
 
