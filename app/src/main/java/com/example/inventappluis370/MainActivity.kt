@@ -76,11 +76,16 @@ class MainActivity : ComponentActivity() {
                         }
 
                         LaunchedEffect(token) {
-                            if (token == null && navController.currentBackStackEntry?.destination?.route != Routes.LOGIN) {
+                            val currentRoute = navController.currentBackStackEntry?.destination?.route
+                            // No expulsar de la pantalla de recuperacion de contrasena: no requiere sesion,
+                            // y un 401 de fondo (token viejo expirado) no debe interrumpir ese flujo.
+                            if (currentRoute?.startsWith(Routes.PASSWORD_RESET) == true) return@LaunchedEffect
+
+                            if (token == null && currentRoute != Routes.LOGIN) {
                                 navController.navigate(Routes.LOGIN) {
                                     popUpTo(navController.graph.id) { inclusive = true }
                                 }
-                            } else if (token != null && navController.currentBackStackEntry?.destination?.route == Routes.LOGIN) {
+                            } else if (token != null && currentRoute == Routes.LOGIN) {
                                 navController.navigate(Routes.DASHBOARD) {
                                     popUpTo(Routes.LOGIN) { inclusive = true }
                                 }
