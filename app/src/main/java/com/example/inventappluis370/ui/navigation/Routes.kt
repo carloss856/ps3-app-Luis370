@@ -9,6 +9,8 @@ object Routes {
     const val DASHBOARD = "dashboard"
     const val ESTADISTICAS = "estadisticas"
     const val PASSWORD_RESET = "password-reset"
+    /** Patron de registro en el NavHost: email/token opcionales (llegan via deep link del correo). */
+    const val PASSWORD_RESET_ROUTE = "password-reset?email={email}&token={token}"
 
     const val EMPRESAS = "empresas"
     const val EMPRESAS_NEW = "empresas/new"

@@ -3,8 +3,11 @@ package com.example.inventappluis370.ui.navigation
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 import com.example.inventappluis370.ui.configuracion.ConfiguracionScreen
 import com.example.inventappluis370.ui.empresas.CreateEditEmpresaScreen
 import com.example.inventappluis370.ui.empresas.EmpresasScreen
@@ -56,7 +59,20 @@ fun AppNavGraph(
         // Dashboard real
         composable(Routes.ESTADISTICAS) { EstadisticasScreen(navController) }
 
-        composable(Routes.PASSWORD_RESET) { PasswordResetScreen(navController) }
+        composable(
+            route = Routes.PASSWORD_RESET_ROUTE,
+            arguments = listOf(
+                navArgument("email") { type = NavType.StringType; nullable = true; defaultValue = null },
+                navArgument("token") { type = NavType.StringType; nullable = true; defaultValue = null },
+            ),
+            deepLinks = listOf(
+                navDeepLink { uriPattern = "https://luis370.careilabs.store/reset-password?email={email}&token={token}" }
+            )
+        ) { backStackEntry ->
+            val deepLinkEmail = backStackEntry.arguments?.getString("email")
+            val deepLinkToken = backStackEntry.arguments?.getString("token")
+            PasswordResetScreen(navController, initialEmail = deepLinkEmail, initialToken = deepLinkToken)
+        }
 
         // Modulos CRUD
         composable(Routes.EMPRESAS) { EmpresasScreen(navController) }

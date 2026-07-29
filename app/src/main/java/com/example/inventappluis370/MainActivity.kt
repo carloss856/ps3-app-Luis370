@@ -1,5 +1,6 @@
 ﻿package com.example.inventappluis370
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -13,6 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.inventappluis370.domain.repository.TokenRepository
 import com.example.inventappluis370.ui.navigation.AppNavGraph
@@ -31,6 +33,14 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var tokenRepository: TokenRepository
+
+    private var navControllerRef: NavHostController? = null
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        navControllerRef?.handleDeepLink(intent)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,9 +66,14 @@ class MainActivity : ComponentActivity() {
                         color = MaterialTheme.colorScheme.background
                     ) {
                         val navController = rememberNavController()
+                        navControllerRef = navController
                         val token by tokenRepository.tokenFlow.collectAsState()
 
                         val startDestination = if (token != null) Routes.DASHBOARD else Routes.LOGIN
+
+                        LaunchedEffect(Unit) {
+                            intent?.let { navController.handleDeepLink(it) }
+                        }
 
                         LaunchedEffect(token) {
                             if (token == null && navController.currentBackStackEntry?.destination?.route != Routes.LOGIN) {

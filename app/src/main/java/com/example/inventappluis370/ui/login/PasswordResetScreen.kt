@@ -32,13 +32,17 @@ import com.example.inventappluis370.ui.common.ThemeToggleButton
 @Composable
 fun PasswordResetScreen(
     navController: NavController,
-    viewModel: PasswordResetViewModel = hiltViewModel()
+    viewModel: PasswordResetViewModel = hiltViewModel(),
+    initialEmail: String? = null,
+    initialToken: String? = null,
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    var currentStep by remember { mutableStateOf(1) }
+    // Si el correo trae email+token (deep link), se salta al paso 2 ya precargado;
+    // el usuario puede seguir escribiendo/pegando el token a mano como siempre.
+    var currentStep by remember { mutableStateOf(if (!initialEmail.isNullOrBlank() && !initialToken.isNullOrBlank()) 2 else 1) }
 
-    var email by remember { mutableStateOf("") }
-    var token by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf(initialEmail ?: "") }
+    var token by remember { mutableStateOf(initialToken ?: "") }
     var newPassword by remember { mutableStateOf("") }
 
     LaunchedEffect(uiState) {
